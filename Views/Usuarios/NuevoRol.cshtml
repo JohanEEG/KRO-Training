@@ -1,0 +1,284 @@
+﻿@{
+    ViewData["Title"] = "Nuevo Rol";
+}
+
+<div class="kro-page-title">
+    Nuevo rol
+</div>
+
+<p class="kro-page-subtitle">
+    Cree un nuevo rol y defina las acciones que podrá realizar dentro del sistema.
+</p>
+
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Información del rol
+    </div>
+
+
+    <form>
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Nombre del rol
+            </label>
+
+            <input type="text"
+                   class="kro-form-control"
+                   placeholder="Ejemplo: Supervisor" />
+
+        </div>
+
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Descripción
+            </label>
+
+            <textarea class="kro-form-control"
+                      rows="4"
+                      placeholder="Describa las funciones que tendrá este rol"></textarea>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Permisos del rol
+    </div>
+
+
+    <p style="color:#666; font-size:14px;">
+        Seleccione las acciones que este rol podrá realizar en cada módulo.
+    </p>
+
+
+    <div class="kro-permission-grid">
+
+
+        <!-- CLIENTES -->
+
+        <div class="kro-permission-module">
+
+            <h3>
+                Clientes
+            </h3>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Ver
+            </label>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Crear
+            </label>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Editar
+            </label>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Eliminar
+            </label>
+
+        </div>
+
+
+        <!-- USUARIOS -->
+
+        <div class="kro-permission-module">
+
+            <h3>
+                Usuarios
+            </h3>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Ver
+            </label>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Crear
+            </label>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Editar
+            </label>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Eliminar
+            </label>
+
+        </div>
+
+
+        <!-- RUTINAS -->
+
+        <div class="kro-permission-module">
+
+            <h3>
+                Rutinas
+            </h3>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Ver
+            </label>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Crear
+            </label>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Editar
+            </label>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Eliminar
+            </label>
+
+        </div>
+
+
+        <!-- ASISTENCIA -->
+
+        <div class="kro-permission-module">
+
+            <h3>
+                Asistencia
+            </h3>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Ver
+            </label>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Registrar
+            </label>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Editar
+            </label>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Eliminar
+            </label>
+
+        </div>
+
+
+        <!-- REPORTES -->
+
+        <div class="kro-permission-module">
+
+            <h3>
+                Reportes
+            </h3>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Consultar
+            </label>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Generar
+            </label>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Exportar
+            </label>
+
+        </div>
+
+
+        <!-- EVENTOS -->
+
+        <div class="kro-permission-module">
+
+            <h3>
+                Eventos deportivos
+            </h3>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Ver
+            </label>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Crear
+            </label>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Editar
+            </label>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Eliminar
+            </label>
+
+        </div>
+
+    </div>
+
+
+    <div class="kro-actions">
+
+        <a href="/Usuarios/Roles"
+           class="kro-btn kro-btn-secondary">
+
+            Cancelar
+
+        </a>
+
+
+        <button type="button"
+                class="kro-btn kro-btn-primary"
+                onclick="crearRol()">
+
+            Crear rol
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    function crearRol() {
+
+        alert(
+            "El nuevo rol se creó correctamente."
+        );
+
+    }
+
+</script>

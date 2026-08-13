@@ -1,0 +1,304 @@
+﻿@{
+    ViewData["Title"] = "Editar Rol";
+}
+
+<div class="kro-page-title">
+    Editar rol
+</div>
+
+<p class="kro-page-subtitle">
+    Modifique las acciones y permisos disponibles para este rol.
+</p>
+
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Información del rol
+    </div>
+
+
+    <div class="kro-form-grid">
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Nombre del rol
+            </label>
+
+            <input type="text"
+                   class="kro-form-control"
+                   value="Empleado" />
+
+        </div>
+
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Estado
+            </label>
+
+            <select class="kro-form-control">
+
+                <option selected>
+                    Activo
+                </option>
+
+                <option>
+                    Inactivo
+                </option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+
+    <div class="kro-form-group">
+
+        <label class="kro-form-label">
+            Descripción
+        </label>
+
+        <textarea class="kro-form-control"
+                  rows="3">Puede gestionar clientes, rutinas, asistencia y consultar reportes.</textarea>
+
+    </div>
+
+</div>
+
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Acciones y permisos
+    </div>
+
+
+    <p style="color:#666; font-size:14px;">
+        Active o desactive las acciones que los usuarios pertenecientes a este rol podrán realizar.
+    </p>
+
+
+    <div class="kro-permission-grid">
+
+
+        <!-- CLIENTES -->
+
+        <div class="kro-permission-module">
+
+            <h3>
+                Clientes
+            </h3>
+
+            <label class="kro-permission">
+                <input type="checkbox" checked>
+                Ver
+            </label>
+
+            <label class="kro-permission">
+                <input type="checkbox" checked>
+                Crear
+            </label>
+
+            <label class="kro-permission">
+                <input type="checkbox" checked>
+                Editar
+            </label>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Eliminar
+            </label>
+
+        </div>
+
+
+        <!-- USUARIOS -->
+
+        <div class="kro-permission-module">
+
+            <h3>
+                Usuarios
+            </h3>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Ver
+            </label>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Crear
+            </label>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Editar
+            </label>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Eliminar
+            </label>
+
+        </div>
+
+
+        <!-- RUTINAS -->
+
+        <div class="kro-permission-module">
+
+            <h3>
+                Rutinas
+            </h3>
+
+            <label class="kro-permission">
+                <input type="checkbox" checked>
+                Ver
+            </label>
+
+            <label class="kro-permission">
+                <input type="checkbox" checked>
+                Crear
+            </label>
+
+            <label class="kro-permission">
+                <input type="checkbox" checked>
+                Editar
+            </label>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Eliminar
+            </label>
+
+        </div>
+
+
+        <!-- ASISTENCIA -->
+
+        <div class="kro-permission-module">
+
+            <h3>
+                Asistencia
+            </h3>
+
+            <label class="kro-permission">
+                <input type="checkbox" checked>
+                Ver
+            </label>
+
+            <label class="kro-permission">
+                <input type="checkbox" checked>
+                Registrar
+            </label>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Editar
+            </label>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Eliminar
+            </label>
+
+        </div>
+
+
+        <!-- REPORTES -->
+
+        <div class="kro-permission-module">
+
+            <h3>
+                Reportes
+            </h3>
+
+            <label class="kro-permission">
+                <input type="checkbox" checked>
+                Consultar
+            </label>
+
+            <label class="kro-permission">
+                <input type="checkbox" checked>
+                Generar
+            </label>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Exportar
+            </label>
+
+        </div>
+
+
+        <!-- EVENTOS -->
+
+        <div class="kro-permission-module">
+
+            <h3>
+                Eventos deportivos
+            </h3>
+
+            <label class="kro-permission">
+                <input type="checkbox" checked>
+                Ver
+            </label>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Crear
+            </label>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Editar
+            </label>
+
+            <label class="kro-permission">
+                <input type="checkbox">
+                Eliminar
+            </label>
+
+        </div>
+
+    </div>
+
+
+    <div class="kro-actions">
+
+        <a href="/Usuarios/Roles"
+           class="kro-btn kro-btn-secondary">
+
+            Cancelar
+
+        </a>
+
+
+        <button type="button"
+                class="kro-btn kro-btn-primary"
+                onclick="guardarRol()">
+
+            Guardar cambios
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    function guardarRol() {
+
+        alert(
+            "Los permisos del rol se actualizaron correctamente."
+        );
+
+    }
+
+</script>
