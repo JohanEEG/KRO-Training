@@ -1,0 +1,269 @@
+﻿```cshtml
+@{
+    ViewData["Title"] = "Inscripciones";
+}
+
+<div class="kro-page-title">
+    Inscripciones a eventos
+</div>
+
+<p class="kro-page-subtitle">
+    Consulte y gestione los clientes inscritos en los eventos deportivos.
+</p>
+
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Evento seleccionado
+    </div>
+
+
+    <div class="kro-form-grid">
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Evento
+            </label>
+
+            <select class="kro-form-control">
+
+                <option>Competencia KRÒ Challenge</option>
+                <option>Torneo interno de levantamiento</option>
+                <option>Entrenamiento especial comunitario</option>
+
+            </select>
+
+        </div>
+
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Estado de inscripción
+            </label>
+
+            <select class="kro-form-control">
+
+                <option>Todos</option>
+                <option>Inscrito</option>
+                <option>Cancelado</option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+
+    <div class="kro-actions">
+
+        <button type="button"
+                class="kro-btn kro-btn-primary"
+                onclick="alert('Consulta realizada correctamente.');">
+            Consultar
+        </button>
+
+    </div>
+
+</div>
+
+
+<div class="kro-card">
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+
+        <div class="kro-card-title" style="margin:0;">
+            Clientes inscritos
+        </div>
+
+        <button type="button"
+                class="kro-btn kro-btn-primary"
+                onclick="alert('Formulario para registrar inscripción.');">
+            + Nueva inscripción
+        </button>
+
+    </div>
+
+
+    <div class="kro-table-container">
+
+        <table class="kro-table">
+
+            <thead>
+
+                <tr>
+                    <th>Cliente</th>
+                    <th>Correo</th>
+                    <th>Fecha de inscripción</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                <tr>
+
+                    <td>
+                        Juan Pérez
+                    </td>
+
+                    <td>
+                        juan@email.com
+                    </td>
+
+                    <td>
+                        15/08/2026
+                    </td>
+
+                    <td>
+
+                        <span class="kro-badge kro-badge-green">
+                            Inscrito
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <button type="button"
+                                class="kro-btn kro-btn-small kro-btn-danger"
+                                onclick="alert('Inscripción cancelada.');">
+                            Cancelar
+                        </button>
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        María Rodríguez
+                    </td>
+
+                    <td>
+                        maria@email.com
+                    </td>
+
+                    <td>
+                        16/08/2026
+                    </td>
+
+                    <td>
+
+                        <span class="kro-badge kro-badge-green">
+                            Inscrito
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <button type="button"
+                                class="kro-btn kro-btn-small kro-btn-danger"
+                                onclick="alert('Inscripción cancelada.');">
+                            Cancelar
+                        </button>
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Carlos Vargas
+                    </td>
+
+                    <td>
+                        carlos@email.com
+                    </td>
+
+                    <td>
+                        16/08/2026
+                    </td>
+
+                    <td>
+
+                        <span class="kro-badge kro-badge-gray">
+                            Cancelado
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <button type="button"
+                                class="kro-btn kro-btn-small kro-btn-outline">
+                            Ver detalle
+                        </button>
+
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Resumen del evento
+    </div>
+
+    <div class="kro-stat-grid">
+
+        <div class="kro-stat-card">
+
+            <h3>
+                CUPOS DISPONIBLES
+            </h3>
+
+            <strong>
+                17
+            </strong>
+
+        </div>
+
+
+        <div class="kro-stat-card">
+
+            <h3>
+                INSCRITOS
+            </h3>
+
+            <strong>
+                13
+            </strong>
+
+        </div>
+
+
+        <div class="kro-stat-card">
+
+            <h3>
+                CAPACIDAD
+            </h3>
+
+            <strong>
+                30
+            </strong>
+
+        </div>
+
+    </div>
+
+</div>
+```

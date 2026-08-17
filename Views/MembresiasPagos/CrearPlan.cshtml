@@ -1,0 +1,269 @@
+﻿```cshtml
+@{
+    ViewData["Title"] = "Crear Plan de Membresía";
+}
+
+<div class="kro-page-title">
+    Crear plan de membresía
+</div>
+
+<p class="kro-page-subtitle">
+    Configure los planes de membresía disponibles para los clientes de KRÒ Training.
+</p>
+
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Información del plan
+    </div>
+
+
+    <form>
+
+        <div class="kro-form-grid">
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Nombre del plan
+                </label>
+
+                <input type="text"
+                       class="kro-form-control"
+                       placeholder="Ej. Membresía mensual" />
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Duración
+                </label>
+
+                <select class="kro-form-control">
+
+                    <option>Seleccione la duración</option>
+                    <option>1 mes</option>
+                    <option>3 meses</option>
+                    <option>6 meses</option>
+                    <option>12 meses</option>
+
+                </select>
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Precio
+                </label>
+
+                <input type="number"
+                       class="kro-form-control"
+                       placeholder="₡0.00" />
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Estado
+                </label>
+
+                <select class="kro-form-control">
+
+                    <option>Activo</option>
+                    <option>Inactivo</option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <div class="kro-form-group"
+             style="margin-top:20px;">
+
+            <label class="kro-form-label">
+                Descripción del plan
+            </label>
+
+            <textarea class="kro-form-control"
+                      rows="4"
+                      placeholder="Ingrese una descripción del plan de membresía"></textarea>
+
+        </div>
+
+
+        <div class="kro-actions">
+
+            <button type="button"
+                    class="kro-btn kro-btn-secondary">
+                Cancelar
+            </button>
+
+            <button type="button"
+                    class="kro-btn kro-btn-primary"
+                    onclick="alert('Plan creado correctamente.');">
+                Guardar plan
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Planes disponibles
+    </div>
+
+
+    <div class="kro-table-container">
+
+        <table class="kro-table">
+
+            <thead>
+
+                <tr>
+                    <th>Plan</th>
+                    <th>Duración</th>
+                    <th>Precio</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                <tr>
+
+                    <td>
+                        Membresía mensual
+                    </td>
+
+                    <td>
+                        1 mes
+                    </td>
+
+                    <td>
+                        ₡25.000
+                    </td>
+
+                    <td>
+
+                        <span class="kro-badge kro-badge-green">
+                            Activo
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <div class="kro-table-actions">
+
+                            <button type="button"
+                                    class="kro-btn kro-btn-small kro-btn-outline">
+                                Editar
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Membresía trimestral
+                    </td>
+
+                    <td>
+                        3 meses
+                    </td>
+
+                    <td>
+                        ₡65.000
+                    </td>
+
+                    <td>
+
+                        <span class="kro-badge kro-badge-green">
+                            Activo
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <div class="kro-table-actions">
+
+                            <button type="button"
+                                    class="kro-btn kro-btn-small kro-btn-outline">
+                                Editar
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Membresía semestral
+                    </td>
+
+                    <td>
+                        6 meses
+                    </td>
+
+                    <td>
+                        ₡120.000
+                    </td>
+
+                    <td>
+
+                        <span class="kro-badge kro-badge-gray">
+                            Inactivo
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <div class="kro-table-actions">
+
+                            <button type="button"
+                                    class="kro-btn kro-btn-small kro-btn-outline">
+                                Editar
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+```

@@ -1,0 +1,128 @@
+﻿```cshtml
+@{
+    ViewData["Title"] = "Editar Colaborador";
+}
+
+<div class="kro-page-title">
+    Editar colaborador
+</div>
+
+<p class="kro-page-subtitle">
+    Actualice la información y el rol del colaborador seleccionado.
+</p>
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Información del colaborador
+    </div>
+
+    <form>
+
+        <div class="kro-form-grid">
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Nombre completo
+                </label>
+
+                <input type="text"
+                       class="kro-form-control"
+                       value="Carlos Rodríguez" />
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Correo electrónico
+                </label>
+
+                <input type="email"
+                       class="kro-form-control"
+                       value="carlos@krotraining.com" />
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Número de teléfono
+                </label>
+
+                <input type="tel"
+                       class="kro-form-control"
+                       value="8888-1111" />
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Rol
+                </label>
+
+                <select class="kro-form-control">
+
+                    <option>Entrenador</option>
+                    <option>Empleado</option>
+                    <option>Administrador</option>
+
+                </select>
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Nombre de usuario
+                </label>
+
+                <input type="text"
+                       class="kro-form-control"
+                       value="carlos01" />
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Estado
+                </label>
+
+                <select class="kro-form-control">
+
+                    <option>Activo</option>
+                    <option>Inactivo</option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <div class="kro-actions">
+
+            <a href="/GestionPersonal/Index"
+               class="kro-btn kro-btn-secondary">
+                Cancelar
+            </a>
+
+            <button type="button"
+                    class="kro-btn kro-btn-primary">
+                Guardar cambios
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+```

@@ -1,0 +1,159 @@
+﻿```cshtml
+@{
+    ViewData["Title"] = "Recomendaciones de IA";
+}
+
+<div class="kro-page-title">
+    Recomendaciones de entrenamiento
+</div>
+
+<p class="kro-page-subtitle">
+    Consulte las recomendaciones generadas por inteligencia artificial para apoyar la planificación del entrenamiento.
+</p>
+
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Generar recomendación
+    </div>
+
+    <div class="kro-form-grid">
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Cliente
+            </label>
+
+            <select class="kro-form-control">
+
+                <option>Seleccione un cliente</option>
+                <option>Juan Pérez</option>
+                <option>María Rodríguez</option>
+                <option>Carlos Vargas</option>
+                <option>Ana González</option>
+
+            </select>
+
+        </div>
+
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Objetivo
+            </label>
+
+            <select class="kro-form-control">
+
+                <option>Seleccione un objetivo</option>
+                <option>Aumento de masa muscular</option>
+                <option>Pérdida de grasa</option>
+                <option>Resistencia</option>
+                <option>Fuerza</option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+
+    <div class="kro-actions">
+
+        <button type="button"
+                class="kro-btn kro-btn-primary"
+                onclick="alert('Recomendación generada correctamente.');">
+            Generar recomendación
+        </button>
+
+    </div>
+
+</div>
+
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Recomendación generada
+    </div>
+
+
+    <div class="kro-form-grid">
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Cliente
+            </label>
+
+            <div>
+                Juan Pérez
+            </div>
+
+        </div>
+
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Objetivo
+            </label>
+
+            <div>
+                Aumento de masa muscular
+            </div>
+
+        </div>
+
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Nivel de confianza
+            </label>
+
+            <div>
+                <span class="kro-badge kro-badge-green">
+                    92% de confianza
+                </span>
+            </div>
+
+        </div>
+
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Fecha
+            </label>
+
+            <div>
+                17/08/2026
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div style="margin-top:20px;">
+
+        <label class="kro-form-label">
+            Recomendación
+        </label>
+
+        <div class="kro-card"
+             style="margin-top:10px; background:#f8f9fa;">
+
+            Se recomienda una rutina enfocada en ejercicios de fuerza
+            con progresión gradual de cargas y énfasis en los principales
+            grupos musculares.
+
+        </div>
+
+    </div>
+
+</div>
+```

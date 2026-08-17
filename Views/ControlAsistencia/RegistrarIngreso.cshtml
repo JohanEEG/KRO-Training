@@ -1,0 +1,112 @@
+﻿```cshtml
+@{
+    ViewData["Title"] = "Registrar Ingreso";
+}
+
+<div class="kro-page-title">
+    Registrar ingreso
+</div>
+
+<p class="kro-page-subtitle">
+    Registre el ingreso de los clientes al gimnasio KRÒ Training.
+</p>
+
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Registro de asistencia
+    </div>
+
+    <form>
+
+        <div class="kro-form-grid">
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Cliente
+                </label>
+
+                <select class="kro-form-control">
+
+                    <option>Seleccione un cliente</option>
+                    <option>Juan Pérez</option>
+                    <option>María Rodríguez</option>
+                    <option>Carlos Vargas</option>
+                    <option>Ana González</option>
+
+                </select>
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Fecha
+                </label>
+
+                <input type="date"
+                       class="kro-form-control"
+                       value="2026-08-17" />
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Hora de ingreso
+                </label>
+
+                <input type="time"
+                       class="kro-form-control"
+                       value="16:00" />
+
+            </div>
+
+        </div>
+
+
+        <div class="kro-card"
+             style="margin-top:20px; background:#f8f9fa;">
+
+            <div class="kro-card-title">
+                Estado de la membresía
+            </div>
+
+            <div style="display:flex; align-items:center; gap:12px;">
+
+                <span class="kro-badge kro-badge-green">
+                    Membresía activa
+                </span>
+
+                <span>
+                    El cliente puede registrar su ingreso.
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="kro-actions">
+
+            <a href="/ControlAsistencia/Index"
+               class="kro-btn kro-btn-secondary">
+                Cancelar
+            </a>
+
+            <button type="button"
+                    class="kro-btn kro-btn-primary"
+                    onclick="alert('Ingreso registrado correctamente.');">
+                Registrar ingreso
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+```

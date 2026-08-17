@@ -1,0 +1,126 @@
+﻿```cshtml
+@{
+    ViewData["Title"] = "Registrar Colaborador";
+}
+
+<div class="kro-page-title">
+    Registrar colaborador
+</div>
+
+<p class="kro-page-subtitle">
+    Registre un nuevo entrenador o colaborador administrativo en KRÒ Training.
+</p>
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Información del colaborador
+    </div>
+
+    <form>
+
+        <div class="kro-form-grid">
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Nombre completo
+                </label>
+
+                <input type="text"
+                       class="kro-form-control"
+                       placeholder="Ingrese el nombre completo" />
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Correo electrónico
+                </label>
+
+                <input type="email"
+                       class="kro-form-control"
+                       placeholder="colaborador@krotraining.com" />
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Número de teléfono
+                </label>
+
+                <input type="tel"
+                       class="kro-form-control"
+                       placeholder="8888-8888" />
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Rol
+                </label>
+
+                <select class="kro-form-control">
+
+                    <option>Seleccione un rol</option>
+                    <option>Entrenador</option>
+                    <option>Empleado</option>
+                    <option>Administrador</option>
+
+                </select>
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Nombre de usuario
+                </label>
+
+                <input type="text"
+                       class="kro-form-control"
+                       placeholder="Ingrese el nombre de usuario" />
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Contraseña
+                </label>
+
+                <input type="password"
+                       class="kro-form-control"
+                       placeholder="Ingrese la contraseña" />
+
+            </div>
+
+        </div>
+
+
+        <div class="kro-actions">
+
+            <a href="/GestionPersonal/Index"
+               class="kro-btn kro-btn-secondary">
+                Cancelar
+            </a>
+
+            <button type="button"
+                    class="kro-btn kro-btn-primary">
+                Registrar colaborador
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+```

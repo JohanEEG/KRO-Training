@@ -1,0 +1,207 @@
+﻿```cshtml
+@{
+    ViewData["Title"] = "Eventos Deportivos";
+}
+
+<div class="kro-page-title">
+    Eventos deportivos
+</div>
+
+<p class="kro-page-subtitle">
+    Administre los eventos deportivos organizados por KRÒ Training.
+</p>
+
+
+<div class="kro-card">
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+
+        <div class="kro-card-title" style="margin:0;">
+            Eventos registrados
+        </div>
+
+        <button type="button"
+                class="kro-btn kro-btn-primary"
+                onclick="alert('Formulario para crear evento.');">
+            + Nuevo evento
+        </button>
+
+    </div>
+
+
+    <div class="kro-search">
+
+        <input type="text"
+               class="kro-form-control"
+               placeholder="Buscar evento..." />
+
+    </div>
+
+
+    <div class="kro-table-container">
+
+        <table class="kro-table">
+
+            <thead>
+
+                <tr>
+                    <th>Evento</th>
+                    <th>Fecha</th>
+                    <th>Ubicación</th>
+                    <th>Cupos</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                <tr>
+
+                    <td>
+                        Competencia KRÒ Challenge
+                    </td>
+
+                    <td>
+                        25/08/2026
+                    </td>
+
+                    <td>
+                        KRÒ Training
+                    </td>
+
+                    <td>
+                        30
+                    </td>
+
+                    <td>
+
+                        <span class="kro-badge kro-badge-green">
+                            Próximo
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <div class="kro-table-actions">
+
+                            <button type="button"
+                                    class="kro-btn kro-btn-small kro-btn-outline">
+                                Editar
+                            </button>
+
+                            <a href="/Eventos/Inscripciones"
+                               class="kro-btn kro-btn-small kro-btn-primary">
+                                Inscripciones
+                            </a>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Torneo interno de levantamiento
+                    </td>
+
+                    <td>
+                        10/09/2026
+                    </td>
+
+                    <td>
+                        Gimnasio principal
+                    </td>
+
+                    <td>
+                        20
+                    </td>
+
+                    <td>
+
+                        <span class="kro-badge kro-badge-green">
+                            Próximo
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <div class="kro-table-actions">
+
+                            <button type="button"
+                                    class="kro-btn kro-btn-small kro-btn-outline">
+                                Editar
+                            </button>
+
+                            <a href="/Eventos/Inscripciones"
+                               class="kro-btn kro-btn-small kro-btn-primary">
+                                Inscripciones
+                            </a>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Entrenamiento especial comunitario
+                    </td>
+
+                    <td>
+                        02/08/2026
+                    </td>
+
+                    <td>
+                        Parque deportivo
+                    </td>
+
+                    <td>
+                        40
+                    </td>
+
+                    <td>
+
+                        <span class="kro-badge kro-badge-gray">
+                            Finalizado
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <div class="kro-table-actions">
+
+                            <button type="button"
+                                    class="kro-btn kro-btn-small kro-btn-outline">
+                                Ver detalle
+                            </button>
+
+                            <a href="/Eventos/Inscripciones"
+                               class="kro-btn kro-btn-small kro-btn-primary">
+                                Inscripciones
+                            </a>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+```

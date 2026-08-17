@@ -1,0 +1,337 @@
+﻿```cshtml
+@{
+    ViewData["Title"] = "Reportes Estadísticos";
+}
+
+<div class="kro-page-title">
+    Reportes estadísticos
+</div>
+
+<p class="kro-page-subtitle">
+    Consulte estadísticas de asistencia, membresías y rendimiento del gimnasio.
+</p>
+
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Parámetros del reporte
+    </div>
+
+
+    <div class="kro-form-grid">
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Fecha inicial
+            </label>
+
+            <input type="date"
+                   class="kro-form-control" />
+
+        </div>
+
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Fecha final
+            </label>
+
+            <input type="date"
+                   class="kro-form-control" />
+
+        </div>
+
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Tipo de estadística
+            </label>
+
+            <select class="kro-form-control">
+
+                <option>Resumen general</option>
+                <option>Asistencia</option>
+                <option>Membresías</option>
+                <option>Rendimiento</option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+
+    <div class="kro-actions">
+
+        <button type="button"
+                class="kro-btn kro-btn-primary"
+                onclick="alert('Reporte estadístico generado correctamente.');">
+            Generar reporte
+        </button>
+
+    </div>
+
+</div>
+
+
+<div class="kro-stat-grid">
+
+    <div class="kro-stat-card">
+
+        <h3>
+            ASISTENCIAS
+        </h3>
+
+        <strong>
+            486
+        </strong>
+
+    </div>
+
+
+    <div class="kro-stat-card">
+
+        <h3>
+            MEMBRESÍAS ACTIVAS
+        </h3>
+
+        <strong>
+            186
+        </strong>
+
+    </div>
+
+
+    <div class="kro-stat-card">
+
+        <h3>
+            NUEVAS MEMBRESÍAS
+        </h3>
+
+        <strong>
+            32
+        </strong>
+
+    </div>
+
+
+    <div class="kro-stat-card">
+
+        <h3>
+            CLIENTES ACTIVOS
+        </h3>
+
+        <strong>
+            248
+        </strong>
+
+    </div>
+
+</div>
+
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Resumen de asistencia
+    </div>
+
+
+    <div class="kro-table-container">
+
+        <table class="kro-table">
+
+            <thead>
+
+                <tr>
+                    <th>Periodo</th>
+                    <th>Asistencias</th>
+                    <th>Clientes activos</th>
+                    <th>Promedio diario</th>
+                    <th>Variación</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                <tr>
+
+                    <td>
+                        Semana 1
+                    </td>
+
+                    <td>
+                        118
+                    </td>
+
+                    <td>
+                        238
+                    </td>
+
+                    <td>
+                        23,6
+                    </td>
+
+                    <td>
+
+                        <span class="kro-badge kro-badge-green">
+                            +8%
+                        </span>
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Semana 2
+                    </td>
+
+                    <td>
+                        126
+                    </td>
+
+                    <td>
+                        242
+                    </td>
+
+                    <td>
+                        25,2
+                    </td>
+
+                    <td>
+
+                        <span class="kro-badge kro-badge-green">
+                            +6%
+                        </span>
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Semana 3
+                    </td>
+
+                    <td>
+                        121
+                    </td>
+
+                    <td>
+                        245
+                    </td>
+
+                    <td>
+                        24,2
+                    </td>
+
+                    <td>
+
+                        <span class="kro-badge kro-badge-gray">
+                            -2%
+                        </span>
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Semana 4
+                    </td>
+
+                    <td>
+                        121
+                    </td>
+
+                    <td>
+                        248
+                    </td>
+
+                    <td>
+                        24,2
+                    </td>
+
+                    <td>
+
+                        <span class="kro-badge kro-badge-green">
+                            +3%
+                        </span>
+
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Indicadores de rendimiento
+    </div>
+
+
+    <div class="kro-form-grid">
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Retención de clientes
+            </label>
+
+            <div style="font-size:28px; font-weight:700;">
+                91%
+            </div>
+
+        </div>
+
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Promedio de asistencia
+            </label>
+
+            <div style="font-size:28px; font-weight:700;">
+                24,3 por día
+            </div>
+
+        </div>
+
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Renovación de membresías
+            </label>
+
+            <div style="font-size:28px; font-weight:700;">
+                86%
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+```

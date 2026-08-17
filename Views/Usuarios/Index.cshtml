@@ -1,0 +1,272 @@
+﻿@{
+    ViewData["Title"] = "Gestión de Usuarios";
+}
+
+<div class="kro-page-title">
+    Gestión de Usuarios
+</div>
+
+<p class="kro-page-subtitle">
+    Administre las cuentas de acceso al sistema KRÒ Training.
+</p>
+
+<div class="kro-card">
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+
+        <div class="kro-card-title" style="margin:0;">
+            Usuarios registrados
+        </div>
+
+        <a href="/Usuarios/Crear"
+           class="kro-btn kro-btn-primary">
+            + Nuevo usuario
+        </a>
+
+    </div>
+
+
+    <div class="kro-search">
+
+        <input type="text"
+               id="buscarUsuario"
+               class="kro-form-control"
+               placeholder="Buscar usuario, nombre o correo..."
+               onkeyup="filtrarUsuarios()" />
+
+    </div>
+
+
+    <div class="kro-table-container">
+
+        <table class="kro-table" id="tablaUsuarios">
+
+            <thead>
+
+                <tr>
+                    <th>Usuario</th>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                <!-- ADMINISTRADOR -->
+
+                <tr>
+
+                    <td>
+                        admin
+                    </td>
+
+                    <td>
+                        Administrador del sistema
+                    </td>
+
+                    <td>
+                        admin@krotraining.com
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-red">
+                            Administrador
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-green">
+                            Activo
+                        </span>
+                    </td>
+
+                    <td>
+
+                        <div class="kro-table-actions">
+
+                            <a href="/Usuarios/Editar"
+                               class="kro-btn kro-btn-small kro-btn-outline">
+                                Editar
+                            </a>
+
+                            <button type="button"
+                                    class="kro-btn kro-btn-small kro-btn-danger"
+                                    onclick="eliminarUsuario('admin')">
+                                Eliminar
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+
+                <!-- EMPLEADO -->
+
+                <tr>
+
+                    <td>
+                        empleado01
+                    </td>
+
+                    <td>
+                        Empleado KRÒ
+                    </td>
+
+                    <td>
+                        empleado@krotraining.com
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-gray">
+                            Empleado
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-green">
+                            Activo
+                        </span>
+                    </td>
+
+                    <td>
+
+                        <div class="kro-table-actions">
+
+                            <a href="/Usuarios/Editar"
+                               class="kro-btn kro-btn-small kro-btn-outline">
+                                Editar
+                            </a>
+
+                            <button type="button"
+                                    class="kro-btn kro-btn-small kro-btn-danger"
+                                    onclick="eliminarUsuario('empleado01')">
+                                Eliminar
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+
+                <!-- CLIENTE -->
+
+                <tr>
+
+                    <td>
+                        cliente01
+                    </td>
+
+                    <td>
+                        Juan Pérez
+                    </td>
+
+                    <td>
+                        juan@email.com
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-gray">
+                            Cliente
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-green">
+                            Activo
+                        </span>
+                    </td>
+
+                    <td>
+
+                        <div class="kro-table-actions">
+
+                            <a href="/Usuarios/Editar"
+                               class="kro-btn kro-btn-small kro-btn-outline">
+                                Editar
+                            </a>
+
+                            <button type="button"
+                                    class="kro-btn kro-btn-small kro-btn-danger"
+                                    onclick="eliminarUsuario('cliente01')">
+                                Eliminar
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    function eliminarUsuario(usuario) {
+
+        const confirmar = confirm(
+            "¿Está seguro de que desea eliminar el usuario '" +
+            usuario +
+            "'?\n\nEsta acción no podrá deshacerse."
+        );
+
+        if (confirmar) {
+
+            alert(
+                "Usuario '" +
+                usuario +
+                "' eliminado correctamente."
+            );
+
+        }
+
+    }
+
+
+    function filtrarUsuarios() {
+
+        const input = document
+            .getElementById("buscarUsuario")
+            .value
+            .toLowerCase();
+
+        const filas = document
+            .getElementById("tablaUsuarios")
+            .getElementsByTagName("tbody")[0]
+            .getElementsByTagName("tr");
+
+        for (let i = 0; i < filas.length; i++) {
+
+            const texto = filas[i]
+                .textContent
+                .toLowerCase();
+
+            if (texto.includes(input)) {
+
+                filas[i].style.display = "";
+
+            } else {
+
+                filas[i].style.display = "none";
+
+            }
+
+        }
+
+    }
+
+</script>

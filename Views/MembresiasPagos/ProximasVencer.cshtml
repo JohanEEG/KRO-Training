@@ -1,0 +1,253 @@
+﻿```cshtml id="7x2kqd"
+@{
+    ViewData["Title"] = "Membresías Próximas a Vencer";
+}
+
+<div class="kro-page-title">
+    Membresías próximas a vencer
+</div>
+
+<p class="kro-page-subtitle">
+    Consulte las membresías que están próximas a finalizar para gestionar su renovación.
+</p>
+
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Filtrar vencimientos
+    </div>
+
+
+    <div class="kro-form-grid">
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Fecha inicial
+            </label>
+
+            <input type="date"
+                   class="kro-form-control" />
+
+        </div>
+
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Fecha final
+            </label>
+
+            <input type="date"
+                   class="kro-form-control" />
+
+        </div>
+
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Estado
+            </label>
+
+            <select class="kro-form-control">
+
+                <option>Próximas a vencer</option>
+                <option>Vencidas</option>
+                <option>Todas</option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+
+    <div class="kro-actions">
+
+        <button type="button"
+                class="kro-btn kro-btn-primary"
+                onclick="alert('Consulta realizada correctamente.');">
+            Consultar
+        </button>
+
+    </div>
+
+</div>
+
+
+<div class="kro-card">
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+
+        <div class="kro-card-title" style="margin:0;">
+            Membresías próximas a vencer
+        </div>
+
+        <span class="kro-badge kro-badge-red">
+            5 próximas a vencer
+        </span>
+
+    </div>
+
+
+    <div class="kro-table-container">
+
+        <table class="kro-table">
+
+            <thead>
+
+                <tr>
+                    <th>Cliente</th>
+                    <th>Plan</th>
+                    <th>Fecha de inicio</th>
+                    <th>Fecha de vencimiento</th>
+                    <th>Días restantes</th>
+                    <th>Estado</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                <tr>
+
+                    <td>
+                        Juan Pérez
+                    </td>
+
+                    <td>
+                        Membresía mensual
+                    </td>
+
+                    <td>
+                        20/07/2026
+                    </td>
+
+                    <td>
+                        20/08/2026
+                    </td>
+
+                    <td>
+                        <strong>3 días</strong>
+                    </td>
+
+                    <td>
+
+                        <span class="kro-badge kro-badge-red">
+                            Por vencer
+                        </span>
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        María Rodríguez
+                    </td>
+
+                    <td>
+                        Membresía mensual
+                    </td>
+
+                    <td>
+                        22/07/2026
+                    </td>
+
+                    <td>
+                        22/08/2026
+                    </td>
+
+                    <td>
+                        <strong>5 días</strong>
+                    </td>
+
+                    <td>
+
+                        <span class="kro-badge kro-badge-red">
+                            Por vencer
+                        </span>
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Carlos Vargas
+                    </td>
+
+                    <td>
+                        Membresía trimestral
+                    </td>
+
+                    <td>
+                        25/05/2026
+                    </td>
+
+                    <td>
+                        25/08/2026
+                    </td>
+
+                    <td>
+                        <strong>8 días</strong>
+                    </td>
+
+                    <td>
+
+                        <span class="kro-badge kro-badge-gray">
+                            Próxima
+                        </span>
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Ana González
+                    </td>
+
+                    <td>
+                        Membresía mensual
+                    </td>
+
+                    <td>
+                        01/08/2026
+                    </td>
+
+                    <td>
+                        01/09/2026
+                    </td>
+
+                    <td>
+                        <strong>15 días</strong>
+                    </td>
+
+                    <td>
+
+                        <span class="kro-badge kro-badge-gray">
+                            Próxima
+                        </span>
+
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+```

@@ -1,0 +1,162 @@
+﻿```cshtml id="m8q2rx"
+@{
+    ViewData["Title"] = "Registrar Pago";
+}
+
+<div class="kro-page-title">
+    Registrar pago
+</div>
+
+<p class="kro-page-subtitle">
+    Registre los pagos de membresía para activar o renovar el acceso de los clientes.
+</p>
+
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Información del pago
+    </div>
+
+
+    <form>
+
+        <div class="kro-form-grid">
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Cliente
+                </label>
+
+                <select class="kro-form-control">
+
+                    <option>Seleccione un cliente</option>
+                    <option>Juan Pérez</option>
+                    <option>María Rodríguez</option>
+                    <option>Carlos Vargas</option>
+                    <option>Ana González</option>
+
+                </select>
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Plan de membresía
+                </label>
+
+                <select class="kro-form-control">
+
+                    <option>Seleccione un plan</option>
+                    <option>Membresía mensual - ₡25.000</option>
+                    <option>Membresía trimestral - ₡65.000</option>
+                    <option>Membresía semestral - ₡120.000</option>
+
+                </select>
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Monto
+                </label>
+
+                <input type="number"
+                       class="kro-form-control"
+                       placeholder="₡0.00" />
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Fecha de pago
+                </label>
+
+                <input type="date"
+                       class="kro-form-control"
+                       value="2026-08-17" />
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Método de pago
+                </label>
+
+                <select class="kro-form-control">
+
+                    <option>Seleccione un método</option>
+                    <option>Efectivo</option>
+                    <option>Tarjeta</option>
+                    <option>Transferencia bancaria</option>
+
+                </select>
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Número de comprobante
+                </label>
+
+                <input type="text"
+                       class="kro-form-control"
+                       placeholder="Ingrese el número de comprobante" />
+
+            </div>
+
+        </div>
+
+
+        <div class="kro-card"
+             style="margin-top:20px; background:#f8f9fa;">
+
+            <div class="kro-card-title">
+                Estado de membresía
+            </div>
+
+            <div style="display:flex; align-items:center; gap:12px;">
+
+                <span class="kro-badge kro-badge-green">
+                    Activa
+                </span>
+
+                <span>
+                    El pago registrado activará o renovará la membresía del cliente.
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="kro-actions">
+
+            <button type="button"
+                    class="kro-btn kro-btn-secondary">
+                Cancelar
+            </button>
+
+            <button type="button"
+                    class="kro-btn kro-btn-primary"
+                    onclick="alert('Pago registrado correctamente.');">
+                Registrar pago
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+```

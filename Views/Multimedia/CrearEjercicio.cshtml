@@ -1,0 +1,130 @@
+﻿```cshtml
+@{
+    ViewData["Title"] = "Crear Ejercicio";
+}
+
+<div class="kro-page-title">
+    Crear ejercicio
+</div>
+
+<p class="kro-page-subtitle">
+    Registre un nuevo ejercicio en la biblioteca de KRÒ Training.
+</p>
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Información del ejercicio
+    </div>
+
+    <form>
+
+        <div class="kro-form-grid">
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Nombre del ejercicio
+                </label>
+
+                <input type="text"
+                       class="kro-form-control"
+                       placeholder="Ingrese el nombre del ejercicio" />
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Grupo muscular
+                </label>
+
+                <select class="kro-form-control">
+
+                    <option>Seleccione un grupo muscular</option>
+                    <option>Pecho</option>
+                    <option>Espalda</option>
+                    <option>Piernas</option>
+                    <option>Hombros</option>
+                    <option>Bíceps</option>
+                    <option>Tríceps</option>
+                    <option>Abdomen</option>
+                    <option>Glúteos</option>
+
+                </select>
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Tipo de ejercicio
+                </label>
+
+                <select class="kro-form-control">
+
+                    <option>Seleccione un tipo</option>
+                    <option>Fuerza</option>
+                    <option>Cardio</option>
+                    <option>Movilidad</option>
+                    <option>Calentamiento</option>
+
+                </select>
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Nivel de dificultad
+                </label>
+
+                <select class="kro-form-control">
+
+                    <option>Seleccione un nivel</option>
+                    <option>Principiante</option>
+                    <option>Intermedio</option>
+                    <option>Avanzado</option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <div class="kro-form-group" style="margin-top:20px;">
+
+            <label class="kro-form-label">
+                Descripción
+            </label>
+
+            <textarea class="kro-form-control"
+                      rows="4"
+                      placeholder="Ingrese una descripción del ejercicio"></textarea>
+
+        </div>
+
+
+        <div class="kro-actions">
+
+            <a href="/Multimedia/Index"
+               class="kro-btn kro-btn-secondary">
+                Cancelar
+            </a>
+
+            <button type="button"
+                    class="kro-btn kro-btn-primary"
+                    onclick="alert('Ejercicio registrado correctamente.');">
+                Guardar ejercicio
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+```

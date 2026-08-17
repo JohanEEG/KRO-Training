@@ -1,0 +1,201 @@
+﻿```cshtml
+@{
+    ViewData["Title"] = "Gestión de Personal";
+}
+
+<div class="kro-page-title">
+    Gestión de Personal
+</div>
+
+<p class="kro-page-subtitle">
+    Administre los colaboradores, entrenadores y personal administrativo de KRÒ Training.
+</p>
+
+<div class="kro-card">
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+
+        <div class="kro-card-title" style="margin:0;">
+            Colaboradores registrados
+        </div>
+
+        <a href="/GestionPersonal/Crear"
+           class="kro-btn kro-btn-primary">
+            + Nuevo colaborador
+        </a>
+
+    </div>
+
+    <div class="kro-search">
+
+        <input type="text"
+               class="kro-form-control"
+               placeholder="Buscar por nombre, correo o rol..." />
+
+    </div>
+
+    <div class="kro-table-container">
+
+        <table class="kro-table">
+
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Teléfono</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <tr>
+
+                    <td>
+                        Carlos Rodríguez
+                    </td>
+
+                    <td>
+                        carlos@krotraining.com
+                    </td>
+
+                    <td>
+                        8888-1111
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-gray">
+                            Entrenador
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-green">
+                            Activo
+                        </span>
+                    </td>
+
+                    <td>
+
+                        <div class="kro-table-actions">
+
+                            <a href="/GestionPersonal/Editar"
+                               class="kro-btn kro-btn-small kro-btn-outline">
+                                Editar
+                            </a>
+
+                            <button type="button"
+                                    class="kro-btn kro-btn-small kro-btn-danger">
+                                Dar de baja
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        María González
+                    </td>
+
+                    <td>
+                        maria@krotraining.com
+                    </td>
+
+                    <td>
+                        8888-2222
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-red">
+                            Administrador
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-green">
+                            Activo
+                        </span>
+                    </td>
+
+                    <td>
+
+                        <div class="kro-table-actions">
+
+                            <a href="/GestionPersonal/Editar"
+                               class="kro-btn kro-btn-small kro-btn-outline">
+                                Editar
+                            </a>
+
+                            <button type="button"
+                                    class="kro-btn kro-btn-small kro-btn-danger">
+                                Dar de baja
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Andrés Vargas
+                    </td>
+
+                    <td>
+                        andres@krotraining.com
+                    </td>
+
+                    <td>
+                        8888-3333
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-gray">
+                            Empleado
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-gray">
+                            Inactivo
+                        </span>
+                    </td>
+
+                    <td>
+
+                        <div class="kro-table-actions">
+
+                            <a href="/GestionPersonal/Editar"
+                               class="kro-btn kro-btn-small kro-btn-outline">
+                                Editar
+                            </a>
+
+                            <button type="button"
+                                    class="kro-btn kro-btn-small kro-btn-primary">
+                                Reactivar
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+```

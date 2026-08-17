@@ -1,0 +1,124 @@
+﻿```cshtml
+@{
+    ViewData["Title"] = "Adjuntar Multimedia";
+}
+
+<div class="kro-page-title">
+    Adjuntar multimedia
+</div>
+
+<p class="kro-page-subtitle">
+    Agregue imágenes o videos para complementar la información de los ejercicios.
+</p>
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Información del ejercicio
+    </div>
+
+    <div class="kro-form-grid">
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Ejercicio
+            </label>
+
+            <select class="kro-form-control">
+
+                <option>Seleccione un ejercicio</option>
+                <option>Press de banca</option>
+                <option>Sentadilla</option>
+                <option>Remo con barra</option>
+                <option>Curl de bíceps</option>
+
+            </select>
+
+        </div>
+
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Tipo de multimedia
+            </label>
+
+            <select class="kro-form-control">
+
+                <option>Seleccione un tipo</option>
+                <option>Imagen</option>
+                <option>Video</option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Archivo multimedia
+    </div>
+
+    <div class="kro-form-group">
+
+        <label class="kro-form-label">
+            Seleccionar archivo
+        </label>
+
+        <input type="file"
+               class="kro-form-control"
+               accept="image/*,video/*" />
+
+        <p class="kro-page-subtitle"
+           style="margin-top:10px; margin-bottom:0;">
+            Formatos permitidos: JPG, PNG, MP4 y MOV. Tamaño máximo: 50 MB.
+        </p>
+
+    </div>
+
+
+    <div class="kro-card"
+         style="margin-top:20px; text-align:center; background:#f8f9fa;">
+
+        <div class="kro-card-title">
+            Vista previa
+        </div>
+
+        <div style="padding:35px 20px; color:#777;">
+
+            <div style="font-size:48px; margin-bottom:10px;">
+                🖼️
+            </div>
+
+            <p style="margin:0;">
+                La vista previa del archivo aparecerá aquí.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="kro-actions">
+
+        <a href="/Multimedia/Index"
+           class="kro-btn kro-btn-secondary">
+            Cancelar
+        </a>
+
+        <button type="button"
+                class="kro-btn kro-btn-primary"
+                onclick="alert('Archivo multimedia adjuntado correctamente.');">
+            Adjuntar archivo
+        </button>
+
+    </div>
+
+</div>
+```

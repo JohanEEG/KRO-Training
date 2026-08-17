@@ -1,0 +1,191 @@
+﻿@{
+    ViewData["Title"] = "Editar Usuario";
+}
+
+<div class="kro-page-title">
+    Editar usuario
+</div>
+
+<p class="kro-page-subtitle">
+    Modifique la información y los permisos de acceso del usuario.
+</p>
+
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Información del usuario
+    </div>
+
+
+    <form>
+
+        <div class="kro-form-grid">
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Nombre completo
+                </label>
+
+                <input type="text"
+                       class="kro-form-control"
+                       value="Administrador del sistema" />
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Nombre de usuario
+                </label>
+
+                <input type="text"
+                       class="kro-form-control"
+                       value="admin" />
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Correo electrónico
+                </label>
+
+                <input type="email"
+                       class="kro-form-control"
+                       value="admin@krotraining.com" />
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Rol
+                </label>
+
+                <select class="kro-form-control">
+
+                    <option selected>
+                        Administrador
+                    </option>
+
+                    <option>
+                        Empleado
+                    </option>
+
+                    <option>
+                        Cliente
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Estado
+                </label>
+
+                <select class="kro-form-control">
+
+                    <option selected>
+                        Activo
+                    </option>
+
+                    <option>
+                        Inactivo
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Nueva contraseña
+                </label>
+
+                <input type="password"
+                       class="kro-form-control"
+                       placeholder="Dejar vacío para conservar la actual" />
+
+            </div>
+
+        </div>
+
+
+        <div class="kro-actions">
+
+            <a href="/Usuarios/Index"
+               class="kro-btn kro-btn-secondary">
+
+                Cancelar
+
+            </a>
+
+
+            <button type="button"
+                    class="kro-btn kro-btn-primary"
+                    onclick="guardarUsuario()">
+
+                Guardar cambios
+
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Estado de la cuenta
+    </div>
+
+
+    <div style="display:flex; align-items:center; justify-content:space-between;">
+
+        <div>
+
+            <strong>
+                Cuenta activa
+            </strong>
+
+            <p style="color:#666; margin-bottom:0;">
+                El usuario puede ingresar actualmente al sistema.
+            </p>
+
+        </div>
+
+
+        <span class="kro-badge kro-badge-green">
+            Activo
+        </span>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    function guardarUsuario() {
+
+        alert(
+            "Los cambios del usuario se guardaron correctamente."
+        );
+
+    }
+
+</script>

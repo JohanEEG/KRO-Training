@@ -1,0 +1,275 @@
+﻿```cshtml
+@{
+    ViewData["Title"] = "Exportar Reporte";
+}
+
+<div class="kro-page-title">
+    Exportar reporte
+</div>
+
+<p class="kro-page-subtitle">
+    Seleccione el reporte y formato en el que desea exportar la información.
+</p>
+
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Opciones de exportación
+    </div>
+
+
+    <div class="kro-form-grid">
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Reporte
+            </label>
+
+            <select class="kro-form-control">
+
+                <option>Seleccione un reporte</option>
+                <option>Clientes en riesgo de deserción</option>
+                <option>Reporte estadístico</option>
+                <option>Reporte de pagos e ingresos</option>
+                <option>Reporte de asistencia</option>
+
+            </select>
+
+        </div>
+
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Formato
+            </label>
+
+            <select class="kro-form-control">
+
+                <option>Seleccione un formato</option>
+                <option>PDF</option>
+                <option>Excel</option>
+
+            </select>
+
+        </div>
+
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Fecha inicial
+            </label>
+
+            <input type="date"
+                   class="kro-form-control" />
+
+        </div>
+
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Fecha final
+            </label>
+
+            <input type="date"
+                   class="kro-form-control" />
+
+        </div>
+
+    </div>
+
+
+    <div class="kro-actions">
+
+        <button type="button"
+                class="kro-btn kro-btn-secondary">
+            Cancelar
+        </button>
+
+        <button type="button"
+                class="kro-btn kro-btn-primary"
+                onclick="alert('Reporte exportado correctamente.');">
+            Exportar reporte
+        </button>
+
+    </div>
+
+</div>
+
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Reporte seleccionado
+    </div>
+
+
+    <div style="display:flex; flex-direction:column; gap:15px;">
+
+        <div>
+
+            <span class="kro-form-label">
+                Nombre del reporte
+            </span>
+
+            <div style="font-size:18px; font-weight:600;">
+                Reporte estadístico de asistencia
+            </div>
+
+        </div>
+
+
+        <div>
+
+            <span class="kro-form-label">
+                Periodo
+            </span>
+
+            <div>
+                01/08/2026 - 17/08/2026
+            </div>
+
+        </div>
+
+
+        <div>
+
+            <span class="kro-form-label">
+                Registros incluidos
+            </span>
+
+            <div>
+                486 registros de asistencia
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Exportaciones recientes
+    </div>
+
+
+    <div class="kro-table-container">
+
+        <table class="kro-table">
+
+            <thead>
+
+                <tr>
+                    <th>Reporte</th>
+                    <th>Fecha</th>
+                    <th>Formato</th>
+                    <th>Usuario</th>
+                    <th>Estado</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                <tr>
+
+                    <td>
+                        Reporte de pagos e ingresos
+                    </td>
+
+                    <td>
+                        17/08/2026
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-gray">
+                            PDF
+                        </span>
+                    </td>
+
+                    <td>
+                        Administrador
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-green">
+                            Completado
+                        </span>
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Reporte estadístico
+                    </td>
+
+                    <td>
+                        16/08/2026
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-gray">
+                            Excel
+                        </span>
+                    </td>
+
+                    <td>
+                        Administrador
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-green">
+                            Completado
+                        </span>
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Clientes en riesgo de deserción
+                    </td>
+
+                    <td>
+                        15/08/2026
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-gray">
+                            PDF
+                        </span>
+                    </td>
+
+                    <td>
+                        Administrador
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-green">
+                            Completado
+                        </span>
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+```

@@ -1,0 +1,192 @@
+﻿```cshtml
+@{
+    ViewData["Title"] = "Multimedia del Ejercicio";
+}
+
+<div class="kro-page-title">
+    Multimedia del ejercicio
+</div>
+
+<p class="kro-page-subtitle">
+    Consulte las imágenes y videos asociados a los ejercicios de KRÒ Training.
+</p>
+
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Información del ejercicio
+    </div>
+
+
+    <div class="kro-form-grid">
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Nombre del ejercicio
+            </label>
+
+            <input type="text"
+                   class="kro-form-control"
+                   value="Press de banca"
+                   readonly />
+
+        </div>
+
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Grupo muscular
+            </label>
+
+            <input type="text"
+                   class="kro-form-control"
+                   value="Pecho"
+                   readonly />
+
+        </div>
+
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Tipo de ejercicio
+            </label>
+
+            <input type="text"
+                   class="kro-form-control"
+                   value="Fuerza"
+                   readonly />
+
+        </div>
+
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Nivel de dificultad
+            </label>
+
+            <input type="text"
+                   class="kro-form-control"
+                   value="Intermedio"
+                   readonly />
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="kro-card">
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+
+        <div class="kro-card-title" style="margin:0;">
+            Contenido multimedia
+        </div>
+
+        <a href="/Multimedia/AdjuntarMultimedia"
+           class="kro-btn kro-btn-primary">
+            + Adjuntar multimedia
+        </a>
+
+    </div>
+
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:20px;">
+
+
+        <div style="border:1px solid #ddd; border-radius:8px; overflow:hidden; background:#fff;">
+
+            <div style="height:200px; display:flex; align-items:center; justify-content:center; background:#f5f5f5;">
+
+                <div style="text-align:center; color:#777;">
+
+                    <div style="font-size:55px;">
+                        🏋️
+                    </div>
+
+                    <p style="margin:10px 0 0;">
+                        Imagen del ejercicio
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div style="padding:15px;">
+
+                <strong>
+                    press-banca.jpg
+                </strong>
+
+                <p style="margin:8px 0; color:#777;">
+                    Imagen demostrativa del ejercicio.
+                </p>
+
+                <span class="kro-badge kro-badge-green">
+                    Imagen
+                </span>
+
+            </div>
+
+        </div>
+
+
+
+        <div style="border:1px solid #ddd; border-radius:8px; overflow:hidden; background:#fff;">
+
+            <div style="height:200px; display:flex; align-items:center; justify-content:center; background:#f5f5f5;">
+
+                <div style="text-align:center; color:#777;">
+
+                    <div style="font-size:55px;">
+                        ▶️
+                    </div>
+
+                    <p style="margin:10px 0 0;">
+                        Video demostrativo
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div style="padding:15px;">
+
+                <strong>
+                    press-banca.mp4
+                </strong>
+
+                <p style="margin:8px 0; color:#777;">
+                    Video demostrativo de la ejecución.
+                </p>
+
+                <span class="kro-badge kro-badge-gray">
+                    Video
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="kro-actions">
+
+    <a href="/Multimedia/CrearEjercicio"
+       class="kro-btn kro-btn-secondary">
+        Volver
+    </a>
+
+</div>
+```

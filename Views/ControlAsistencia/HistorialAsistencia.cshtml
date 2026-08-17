@@ -1,0 +1,276 @@
+﻿```cshtml
+@{
+    ViewData["Title"] = "Historial de Asistencia";
+}
+
+<div class="kro-page-title">
+    Historial de asistencia
+</div>
+
+<p class="kro-page-subtitle">
+    Consulte los registros de asistencia de los clientes del gimnasio.
+</p>
+
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Consultar asistencia
+    </div>
+
+
+    <div class="kro-form-grid">
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Cliente
+            </label>
+
+            <select class="kro-form-control">
+
+                <option>Seleccione un cliente</option>
+                <option>Juan Pérez</option>
+                <option>María Rodríguez</option>
+                <option>Carlos Vargas</option>
+                <option>Ana González</option>
+
+            </select>
+
+        </div>
+
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Fecha inicial
+            </label>
+
+            <input type="date"
+                   class="kro-form-control" />
+
+        </div>
+
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Fecha final
+            </label>
+
+            <input type="date"
+                   class="kro-form-control" />
+
+        </div>
+
+    </div>
+
+
+    <div class="kro-actions">
+
+        <button type="button"
+                class="kro-btn kro-btn-primary"
+                onclick="alert('Consulta realizada correctamente.');">
+            Consultar asistencia
+        </button>
+
+    </div>
+
+</div>
+
+
+<div class="kro-card">
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+
+        <div class="kro-card-title" style="margin:0;">
+            Registros de asistencia
+        </div>
+
+        <a href="/ControlAsistencia/RegistrarIngreso"
+           class="kro-btn kro-btn-outline">
+            + Registrar ingreso
+        </a>
+
+    </div>
+
+
+    <div class="kro-table-container">
+
+        <table class="kro-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>Cliente</th>
+                    <th>Fecha</th>
+                    <th>Hora de ingreso</th>
+                    <th>Estado</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                <tr>
+
+                    <td>
+                        Juan Pérez
+                    </td>
+
+                    <td>
+                        17/08/2026
+                    </td>
+
+                    <td>
+                        08:15 a.m.
+                    </td>
+
+                    <td>
+
+                        <span class="kro-badge kro-badge-green">
+                            Presente
+                        </span>
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        María Rodríguez
+                    </td>
+
+                    <td>
+                        16/08/2026
+                    </td>
+
+                    <td>
+                        05:30 p.m.
+                    </td>
+
+                    <td>
+
+                        <span class="kro-badge kro-badge-green">
+                            Presente
+                        </span>
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Carlos Vargas
+                    </td>
+
+                    <td>
+                        15/08/2026
+                    </td>
+
+                    <td>
+                        07:45 a.m.
+                    </td>
+
+                    <td>
+
+                        <span class="kro-badge kro-badge-green">
+                            Presente
+                        </span>
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Ana González
+                    </td>
+
+                    <td>
+                        14/08/2026
+                    </td>
+
+                    <td>
+                        06:10 p.m.
+                    </td>
+
+                    <td>
+
+                        <span class="kro-badge kro-badge-green">
+                            Presente
+                        </span>
+
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Resumen de asistencia
+    </div>
+
+
+    <div class="kro-stat-grid">
+
+        <div class="kro-stat-card">
+
+            <h3>
+                TOTAL DE INGRESOS
+            </h3>
+
+            <strong>
+                24
+            </strong>
+
+        </div>
+
+
+        <div class="kro-stat-card">
+
+            <h3>
+                PROMEDIO SEMANAL
+            </h3>
+
+            <strong>
+                6
+            </strong>
+
+        </div>
+
+
+        <div class="kro-stat-card">
+
+            <h3>
+                ÚLTIMO INGRESO
+            </h3>
+
+            <strong style="font-size:22px;">
+                17/08/2026
+            </strong>
+
+        </div>
+
+    </div>
+
+</div>
+```

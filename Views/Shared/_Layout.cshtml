@@ -1,0 +1,253 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - KRÒ Training</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Roboto:wght@400;500&display=swap"
+          rel="stylesheet">
+
+    <!-- CSS de KRÒ Training -->
+    <link rel="stylesheet" href="~/css/kro-training.css" />
+</head>
+
+<body>
+
+    <div class="kro-layout">
+
+        <!-- =====================================================
+             MENÚ LATERAL
+             ===================================================== -->
+
+        <aside class="kro-sidebar">
+
+            <!-- LOGO -->
+
+            <div class="kro-logo">
+                <h1>KR<span>Ò</span></h1>
+                <small>TRAINING</small>
+            </div>
+
+
+            <!-- =================================================
+                 PRINCIPAL
+                 ================================================= -->
+
+            <div class="kro-menu-title">
+                Principal
+            </div>
+
+            <ul class="kro-menu">
+
+                <li>
+                    <a href="/Home/Index">
+                        🏠
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+
+            </ul>
+
+
+            <!-- =================================================
+                 GESTIÓN
+                 ================================================= -->
+
+            <div class="kro-menu-title">
+                Gestión
+            </div>
+
+            <ul class="kro-menu">
+
+                <!-- CLIENTES -->
+
+                <li>
+                    <a href="/Clientes/Index">
+                        👥
+                        <span>Clientes</span>
+                    </a>
+                </li>
+
+
+                <!-- USUARIOS -->
+
+                <li>
+                    <a href="/Usuarios/Index">
+                        👤
+                        <span>Usuarios</span>
+                    </a>
+                </li>
+
+
+                <!-- ROLES Y PERMISOS -->
+
+                <li>
+                    <a href="/Usuarios/Roles">
+                        🔐
+                        <span>Roles y permisos</span>
+                    </a>
+                </li>
+
+
+                <!-- MULTIMEDIA -->
+
+                <li>
+                    <a href="/Multimedia/CrearEjercicio">
+                        🎥
+                        <span>Multimedia</span>
+                    </a>
+                </li>
+
+
+                <!-- SEGUIMIENTO FÍSICO -->
+
+                <li>
+                    <a href="/SeguimientoFisico/ProgresoFisico">
+                        📈
+                        <span>Seguimiento físico</span>
+                    </a>
+                </li>
+
+
+                <!-- CONTROL DE ASISTENCIA -->
+
+                <li>
+                    <a href="/ControlAsistencia/HistorialAsistencia">
+                        📝
+                        <span>Asistencia</span>
+                    </a>
+                </li>
+
+
+                <!-- EVENTOS DEPORTIVOS -->
+
+                <li>
+                    <a href="/Eventos/Index">
+                        🏆
+                        <span>Eventos deportivos</span>
+                    </a>
+                </li>
+
+
+                <!-- MEMBRESÍAS Y PAGOS -->
+
+                <li>
+                    <a href="/Membresias/ProximasVencer">
+                        💳
+                        <span>Membresías y pagos</span>
+                    </a>
+                </li>
+
+
+                <!-- REPORTES -->
+
+                <li>
+                    <a href="/Reportes/Estadisticas">
+                        📊
+                        <span>Reportes</span>
+                    </a>
+                </li>
+
+
+                <!-- IA E INNOVACIÓN -->
+
+                <li>
+                    <a href="/IA/DashboardMetas">
+                        🤖
+                        <span>IA e innovación</span>
+                    </a>
+                </li>
+
+
+                <!-- GESTIÓN DE PERSONAL -->
+
+                <li>
+                    <a href="/GestionPersonal/Index">
+                        👔
+                        <span>Gestión de personal</span>
+                    </a>
+                </li>
+
+            </ul>
+
+
+            <!-- =================================================
+                 CUENTA
+                 ================================================= -->
+
+            <div class="kro-menu-title">
+                Cuenta
+            </div>
+
+            <ul class="kro-menu">
+
+                <li>
+                    <a href="/Cuenta/Login">
+                        🚪
+                        <span>Cerrar sesión</span>
+                    </a>
+                </li>
+
+            </ul>
+
+        </aside>
+
+
+        <!-- =====================================================
+             CONTENIDO PRINCIPAL
+             ===================================================== -->
+
+        <main class="kro-main">
+
+            <!-- BARRA SUPERIOR -->
+
+            <header class="kro-topbar">
+
+                <div class="kro-topbar-title">
+                    KRÒ Training
+                </div>
+
+
+                <div class="kro-user">
+
+                    <div>
+                        <strong>Administrador</strong>
+                        <br />
+                        <small>Administrador</small>
+                    </div>
+
+                    <div class="kro-user-icon">
+                        👤
+                    </div>
+
+                </div>
+
+            </header>
+
+
+            <!-- =================================================
+                 CONTENIDO DE LA VISTA
+                 ================================================= -->
+
+            <section class="kro-content">
+
+                @RenderBody()
+
+            </section>
+
+        </main>
+
+    </div>
+
+
+    <!-- SCRIPTS -->
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>

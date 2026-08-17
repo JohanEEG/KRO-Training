@@ -1,0 +1,313 @@
+﻿```cshtml
+@{
+    ViewData["Title"] = "Reporte de Pagos";
+}
+
+<div class="kro-page-title">
+    Reporte de pagos e ingresos
+</div>
+
+<p class="kro-page-subtitle">
+    Consulte los ingresos generados por concepto de membresías durante un periodo determinado.
+</p>
+
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Parámetros del reporte
+    </div>
+
+
+    <div class="kro-form-grid">
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Fecha inicial
+            </label>
+
+            <input type="date"
+                   class="kro-form-control"
+                   value="2026-08-01" />
+
+        </div>
+
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Fecha final
+            </label>
+
+            <input type="date"
+                   class="kro-form-control"
+                   value="2026-08-17" />
+
+        </div>
+
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Tipo de reporte
+            </label>
+
+            <select class="kro-form-control">
+
+                <option>Pagos e ingresos</option>
+                <option>Pagos por membresía</option>
+                <option>Ingresos por periodo</option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+
+    <div class="kro-actions">
+
+        <button type="button"
+                class="kro-btn kro-btn-primary"
+                onclick="alert('Reporte generado correctamente.');">
+            Generar reporte
+        </button>
+
+    </div>
+
+</div>
+
+
+<div class="kro-stat-grid">
+
+    <div class="kro-stat-card">
+
+        <h3>
+            INGRESOS DEL PERIODO
+        </h3>
+
+        <strong>
+            ₡485.000
+        </strong>
+
+    </div>
+
+
+    <div class="kro-stat-card">
+
+        <h3>
+            PAGOS REGISTRADOS
+        </h3>
+
+        <strong>
+            24
+        </strong>
+
+    </div>
+
+
+    <div class="kro-stat-card">
+
+        <h3>
+            MEMBRESÍAS RENOVADAS
+        </h3>
+
+        <strong>
+            18
+        </strong>
+
+    </div>
+
+
+    <div class="kro-stat-card">
+
+        <h3>
+            MEMBRESÍAS NUEVAS
+        </h3>
+
+        <strong>
+            6
+        </strong>
+
+    </div>
+
+</div>
+
+
+<div class="kro-card">
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+
+        <div class="kro-card-title" style="margin:0;">
+            Detalle de pagos
+        </div>
+
+        <button type="button"
+                class="kro-btn kro-btn-outline"
+                onclick="alert('Reporte exportado correctamente.');">
+            Exportar reporte
+        </button>
+
+    </div>
+
+
+    <div class="kro-table-container">
+
+        <table class="kro-table">
+
+            <thead>
+
+                <tr>
+                    <th>Fecha</th>
+                    <th>Cliente</th>
+                    <th>Plan</th>
+                    <th>Método de pago</th>
+                    <th>Monto</th>
+                    <th>Estado</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                <tr>
+
+                    <td>
+                        17/08/2026
+                    </td>
+
+                    <td>
+                        Juan Pérez
+                    </td>
+
+                    <td>
+                        Mensual
+                    </td>
+
+                    <td>
+                        Tarjeta
+                    </td>
+
+                    <td>
+                        ₡25.000
+                    </td>
+
+                    <td>
+
+                        <span class="kro-badge kro-badge-green">
+                            Confirmado
+                        </span>
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        16/08/2026
+                    </td>
+
+                    <td>
+                        María Rodríguez
+                    </td>
+
+                    <td>
+                        Trimestral
+                    </td>
+
+                    <td>
+                        Transferencia
+                    </td>
+
+                    <td>
+                        ₡65.000
+                    </td>
+
+                    <td>
+
+                        <span class="kro-badge kro-badge-green">
+                            Confirmado
+                        </span>
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        15/08/2026
+                    </td>
+
+                    <td>
+                        Carlos Vargas
+                    </td>
+
+                    <td>
+                        Mensual
+                    </td>
+
+                    <td>
+                        Efectivo
+                    </td>
+
+                    <td>
+                        ₡25.000
+                    </td>
+
+                    <td>
+
+                        <span class="kro-badge kro-badge-green">
+                            Confirmado
+                        </span>
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        14/08/2026
+                    </td>
+
+                    <td>
+                        Ana González
+                    </td>
+
+                    <td>
+                        Mensual
+                    </td>
+
+                    <td>
+                        Tarjeta
+                    </td>
+
+                    <td>
+                        ₡25.000
+                    </td>
+
+                    <td>
+
+                        <span class="kro-badge kro-badge-green">
+                            Confirmado
+                        </span>
+
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+```

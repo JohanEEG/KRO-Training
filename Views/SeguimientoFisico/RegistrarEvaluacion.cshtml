@@ -1,0 +1,190 @@
+﻿```cshtml
+@{
+    ViewData["Title"] = "Registrar Evaluación Física";
+}
+
+<div class="kro-page-title">
+    Registrar evaluación física
+</div>
+
+<p class="kro-page-subtitle">
+    Registre las medidas y datos físicos iniciales del cliente.
+</p>
+
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Información de la evaluación
+    </div>
+
+    <form>
+
+        <div class="kro-form-grid">
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Cliente
+                </label>
+
+                <select class="kro-form-control">
+
+                    <option>Seleccione un cliente</option>
+                    <option>Juan Pérez</option>
+                    <option>María Rodríguez</option>
+                    <option>Carlos Vargas</option>
+                    <option>Ana González</option>
+
+                </select>
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Fecha de evaluación
+                </label>
+
+                <input type="date"
+                       class="kro-form-control"
+                       value="2026-08-17" />
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Medidas físicas
+    </div>
+
+    <form>
+
+        <div class="kro-form-grid">
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Peso (kg)
+                </label>
+
+                <input type="number"
+                       class="kro-form-control"
+                       placeholder="Ej. 75.5"
+                       step="0.1" />
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Estatura (cm)
+                </label>
+
+                <input type="number"
+                       class="kro-form-control"
+                       placeholder="Ej. 175"
+                       step="0.1" />
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Cintura (cm)
+                </label>
+
+                <input type="number"
+                       class="kro-form-control"
+                       placeholder="Ej. 82"
+                       step="0.1" />
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Pecho (cm)
+                </label>
+
+                <input type="number"
+                       class="kro-form-control"
+                       placeholder="Ej. 98"
+                       step="0.1" />
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Brazo (cm)
+                </label>
+
+                <input type="number"
+                       class="kro-form-control"
+                       placeholder="Ej. 34"
+                       step="0.1" />
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Muslo (cm)
+                </label>
+
+                <input type="number"
+                       class="kro-form-control"
+                       placeholder="Ej. 55"
+                       step="0.1" />
+
+            </div>
+
+        </div>
+
+
+        <div class="kro-form-group" style="margin-top:20px;">
+
+            <label class="kro-form-label">
+                Observaciones
+            </label>
+
+            <textarea class="kro-form-control"
+                      rows="4"
+                      placeholder="Ingrese observaciones relevantes de la evaluación"></textarea>
+
+        </div>
+
+
+        <div class="kro-actions">
+
+            <a href="/SeguimientoFisico/Index"
+               class="kro-btn kro-btn-secondary">
+                Cancelar
+            </a>
+
+            <button type="button"
+                    class="kro-btn kro-btn-primary"
+                    onclick="alert('Evaluación física registrada correctamente.');">
+                Guardar evaluación
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+```

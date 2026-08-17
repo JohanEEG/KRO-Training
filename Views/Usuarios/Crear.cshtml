@@ -1,0 +1,125 @@
+﻿@{
+    ViewData["Title"] = "Registrar Usuario";
+}
+
+<div class="kro-page-title">
+    Registrar usuario
+</div>
+
+<p class="kro-page-subtitle">
+    Cree una nueva cuenta de acceso para el sistema KRÒ Training.
+</p>
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Información de acceso
+    </div>
+
+    <form>
+
+        <div class="kro-form-grid">
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Nombre completo
+                </label>
+
+                <input type="text"
+                       class="kro-form-control"
+                       placeholder="Ingrese el nombre completo" />
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Nombre de usuario
+                </label>
+
+                <input type="text"
+                       class="kro-form-control"
+                       placeholder="Ingrese el nombre de usuario" />
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Correo electrónico
+                </label>
+
+                <input type="email"
+                       class="kro-form-control"
+                       placeholder="usuario@krotraining.com" />
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Rol
+                </label>
+
+                <select class="kro-form-control">
+
+                    <option>Seleccione un rol</option>
+                    <option>Administrador</option>
+                    <option>Empleado</option>
+                    <option>Cliente</option>
+
+                </select>
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Contraseña
+                </label>
+
+                <input type="password"
+                       class="kro-form-control"
+                       placeholder="Ingrese la contraseña" />
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Confirmar contraseña
+                </label>
+
+                <input type="password"
+                       class="kro-form-control"
+                       placeholder="Confirme la contraseña" />
+
+            </div>
+
+        </div>
+
+
+        <div class="kro-actions">
+
+            <a href="/Usuarios/Index"
+               class="kro-btn kro-btn-secondary">
+                Cancelar
+            </a>
+
+            <button type="button"
+                    class="kro-btn kro-btn-primary"
+                    onclick="alert('Usuario registrado correctamente.');">
+                Registrar usuario
+            </button>
+
+        </div>
+
+    </form>
+
+</div>

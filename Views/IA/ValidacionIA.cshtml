@@ -1,0 +1,235 @@
+﻿```cshtml
+@{
+    ViewData["Title"] = "Validación de IA";
+}
+
+<div class="kro-page-title">
+    Validación de inteligencia artificial
+</div>
+
+<p class="kro-page-subtitle">
+    Revise las predicciones generadas por el sistema y registre su validación para mejorar el modelo.
+</p>
+
+
+<div class="kro-stat-grid">
+
+    <div class="kro-stat-card">
+
+        <h3>
+            PREDICCIONES
+        </h3>
+
+        <strong>
+            128
+        </strong>
+
+    </div>
+
+
+    <div class="kro-stat-card">
+
+        <h3>
+            VALIDADAS
+        </h3>
+
+        <strong>
+            96
+        </strong>
+
+    </div>
+
+
+    <div class="kro-stat-card">
+
+        <h3>
+            CORRECTAS
+        </h3>
+
+        <strong>
+            84
+        </strong>
+
+    </div>
+
+
+    <div class="kro-stat-card">
+
+        <h3>
+            PRECISIÓN
+        </h3>
+
+        <strong>
+            87,5%
+        </strong>
+
+    </div>
+
+</div>
+
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Predicciones pendientes de validación
+    </div>
+
+
+    <div class="kro-table-container">
+
+        <table class="kro-table">
+
+            <thead>
+
+                <tr>
+                    <th>Cliente</th>
+                    <th>Predicción</th>
+                    <th>Nivel de confianza</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                <tr>
+
+                    <td>
+                        Juan Pérez
+                    </td>
+
+                    <td>
+                        Riesgo alto de deserción
+                    </td>
+
+                    <td>
+                        91%
+                    </td>
+
+                    <td>
+                        15/08/2026
+                    </td>
+
+                    <td>
+
+                        <span class="kro-badge kro-badge-red">
+                            Pendiente
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <div class="kro-table-actions">
+
+                            <button type="button"
+                                    class="kro-btn kro-btn-small kro-btn-primary">
+                                Correcta
+                            </button>
+
+                            <button type="button"
+                                    class="kro-btn kro-btn-small kro-btn-danger">
+                                Incorrecta
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        María Rodríguez
+                    </td>
+
+                    <td>
+                        Riesgo medio de deserción
+                    </td>
+
+                    <td>
+                        76%
+                    </td>
+
+                    <td>
+                        14/08/2026
+                    </td>
+
+                    <td>
+
+                        <span class="kro-badge kro-badge-red">
+                            Pendiente
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <div class="kro-table-actions">
+
+                            <button type="button"
+                                    class="kro-btn kro-btn-small kro-btn-primary">
+                                Correcta
+                            </button>
+
+                            <button type="button"
+                                    class="kro-btn kro-btn-small kro-btn-danger">
+                                Incorrecta
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Carlos Vargas
+                    </td>
+
+                    <td>
+                        Riesgo bajo de deserción
+                    </td>
+
+                    <td>
+                        84%
+                    </td>
+
+                    <td>
+                        13/08/2026
+                    </td>
+
+                    <td>
+
+                        <span class="kro-badge kro-badge-green">
+                            Validada
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <span class="kro-badge kro-badge-gray">
+                            Correcta
+                        </span>
+
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+```

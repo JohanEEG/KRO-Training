@@ -1,0 +1,243 @@
+﻿```cshtml
+@{
+    ViewData["Title"] = "Historial de Evaluaciones";
+}
+
+<div class="kro-page-title">
+    Historial de evaluaciones físicas
+</div>
+
+<p class="kro-page-subtitle">
+    Consulte la evolución física de los clientes mediante sus evaluaciones registradas.
+</p>
+
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Consultar evaluaciones
+    </div>
+
+    <div class="kro-form-grid">
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Cliente
+            </label>
+
+            <select class="kro-form-control">
+
+                <option>Seleccione un cliente</option>
+                <option>Juan Pérez</option>
+                <option>María Rodríguez</option>
+                <option>Carlos Vargas</option>
+                <option>Ana González</option>
+
+            </select>
+
+        </div>
+
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Fecha inicial
+            </label>
+
+            <input type="date"
+                   class="kro-form-control" />
+
+        </div>
+
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Fecha final
+            </label>
+
+            <input type="date"
+                   class="kro-form-control" />
+
+        </div>
+
+    </div>
+
+
+    <div class="kro-actions">
+
+        <button type="button"
+                class="kro-btn kro-btn-primary"
+                onclick="alert('Consulta realizada correctamente.');">
+            Consultar
+        </button>
+
+    </div>
+
+</div>
+
+
+<div class="kro-card">
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+
+        <div class="kro-card-title" style="margin:0;">
+            Evaluaciones registradas
+        </div>
+
+        <a href="/SeguimientoFisico/RegistrarEvaluacion"
+           class="kro-btn kro-btn-outline">
+            + Nueva evaluación
+        </a>
+
+    </div>
+
+
+    <div class="kro-table-container">
+
+        <table class="kro-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>Fecha</th>
+                    <th>Peso</th>
+                    <th>Estatura</th>
+                    <th>Cintura</th>
+                    <th>Pecho</th>
+                    <th>Brazo</th>
+                    <th>Muslo</th>
+                    <th>Estado</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                <tr>
+
+                    <td>
+                        15/08/2026
+                    </td>
+
+                    <td>
+                        75.5 kg
+                    </td>
+
+                    <td>
+                        175 cm
+                    </td>
+
+                    <td>
+                        82 cm
+                    </td>
+
+                    <td>
+                        98 cm
+                    </td>
+
+                    <td>
+                        34 cm
+                    </td>
+
+                    <td>
+                        55 cm
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-green">
+                            Registrada
+                        </span>
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        15/07/2026
+                    </td>
+
+                    <td>
+                        76.2 kg
+                    </td>
+
+                    <td>
+                        175 cm
+                    </td>
+
+                    <td>
+                        84 cm
+                    </td>
+
+                    <td>
+                        97 cm
+                    </td>
+
+                    <td>
+                        33 cm
+                    </td>
+
+                    <td>
+                        54 cm
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-green">
+                            Registrada
+                        </span>
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        15/06/2026
+                    </td>
+
+                    <td>
+                        77.1 kg
+                    </td>
+
+                    <td>
+                        175 cm
+                    </td>
+
+                    <td>
+                        86 cm
+                    </td>
+
+                    <td>
+                        96 cm
+                    </td>
+
+                    <td>
+                        32 cm
+                    </td>
+
+                    <td>
+                        53 cm
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-green">
+                            Registrada
+                        </span>
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+```
