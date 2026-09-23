@@ -1,0 +1,283 @@
+﻿@{
+    ViewData["Title"] = "Roles y Permisos";
+}
+
+<div class="kro-page-title">
+    Roles y permisos
+</div>
+
+<p class="kro-page-subtitle">
+    Administre los niveles de acceso y las acciones disponibles para cada rol.
+</p>
+
+
+<div class="kro-card">
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+
+        <div class="kro-card-title" style="margin:0;">
+            Roles registrados
+        </div>
+
+        <a href="/Usuarios/NuevoRol"
+           class="kro-btn kro-btn-primary">
+
+            + Nuevo rol
+
+        </a>
+
+    </div>
+
+
+    <div class="kro-table-container">
+
+        <table class="kro-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>Rol</th>
+
+                    <th>Clientes</th>
+
+                    <th>Usuarios</th>
+
+                    <th>Rutinas</th>
+
+                    <th>Asistencia</th>
+
+                    <th>Reportes</th>
+
+                    <th>Acciones</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                <!-- ADMINISTRADOR -->
+
+                <tr>
+
+                    <td>
+                        <span class="kro-badge kro-badge-red">
+                            Administrador
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-green">
+                            ✓
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-green">
+                            ✓
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-green">
+                            ✓
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-green">
+                            ✓
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-green">
+                            ✓
+                        </span>
+                    </td>
+
+                    <td>
+
+                        <a href="/Usuarios/EditarRol"
+                           class="kro-btn kro-btn-small kro-btn-outline">
+
+                            Editar
+
+                        </a>
+
+                    </td>
+
+                </tr>
+
+
+                <!-- EMPLEADO -->
+
+                <tr>
+
+                    <td>
+                        <span class="kro-badge kro-badge-gray">
+                            Empleado
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-green">
+                            ✓
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-gray">
+                            —
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-green">
+                            ✓
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-green">
+                            ✓
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-green">
+                            ✓
+                        </span>
+                    </td>
+
+                    <td>
+
+                        <a href="/Usuarios/EditarRol"
+                           class="kro-btn kro-btn-small kro-btn-outline">
+
+                            Editar
+
+                        </a>
+
+                    </td>
+
+                </tr>
+
+
+                <!-- CLIENTE -->
+
+                <tr>
+
+                    <td>
+                        <span class="kro-badge kro-badge-gray">
+                            Cliente
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-green">
+                            ✓
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-gray">
+                            —
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-green">
+                            ✓
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-green">
+                            ✓
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-gray">
+                            —
+                        </span>
+                    </td>
+
+                    <td>
+
+                        <a href="/Usuarios/EditarRol"
+                           class="kro-btn kro-btn-small kro-btn-outline">
+
+                            Editar
+
+                        </a>
+
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Descripción de roles
+    </div>
+
+
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:20px;">
+
+        <div>
+
+            <h3 style="font-family:Montserrat;">
+                Administrador
+            </h3>
+
+            <p style="color:#666; font-size:14px;">
+                Tiene acceso completo a los módulos,
+                usuarios, clientes, configuraciones y reportes.
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3 style="font-family:Montserrat;">
+                Empleado
+            </h3>
+
+            <p style="color:#666; font-size:14px;">
+                Puede gestionar clientes, rutinas,
+                asistencia y consultar reportes.
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3 style="font-family:Montserrat;">
+                Cliente
+            </h3>
+
+            <p style="color:#666; font-size:14px;">
+                Puede consultar su información,
+                rutinas y asistencia.
+            </p>
+
+        </div>
+
+    </div>
+
+</div>

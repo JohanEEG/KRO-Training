@@ -1,0 +1,81 @@
+﻿@model KROTraining.Models.Usuario
+
+@{
+    ViewData["Title"] = "Mi Perfil";
+}
+
+<div class="container mt-4 mb-5" style="max-width: 800px;">
+
+    <h2 class="mb-4" style="font-family: 'Montserrat', sans-serif; font-weight: 700; color: #333;">Mi Perfil</h2>
+
+    <!-- Alertas de éxito o error -->
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Mensaje"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow-sm p-4 mb-4" style="border-radius: 10px;">
+        <h4 class="mb-3" style="font-family: 'Montserrat', sans-serif; font-weight: 600;">Datos Personales</h4>
+
+        <form asp-action="ActualizarPerfil" method="post">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="kro-form-label">Nombre completo</label>
+                    <input type="text" name="nombre" class="kro-form-control" value="@Model.Nombre" required />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="kro-form-label">Teléfono</label>
+                    <input type="text" name="telefono" class="kro-form-control" value="@Model.Telefono" placeholder="Ej. 88888888" />
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="kro-form-label">URL de Fotografía de Perfil</label>
+                <input type="text" name="fotoPerfil" class="kro-form-control" value="@Model.FotoPerfil" placeholder="https://..." />
+            </div>
+
+            <button type="submit" class="kro-btn kro-btn-primary" style="padding: 10px 20px;">Guardar Cambios</button>
+        </form>
+    </div>
+
+    <!-- Sección de Credenciales y Correo -->
+    <div class="card shadow-sm p-4 mb-4" style="border-radius: 10px;">
+        <h4 class="mb-3" style="font-family: 'Montserrat', sans-serif; font-weight: 600;">Correo de Acceso</h4>
+        <form asp-action="ActualizarCredenciales" method="post">
+            <div class="mb-3">
+                <label class="kro-form-label">Correo electrónico</label>
+                <input type="email" name="nuevoCorreo" class="kro-form-control" value="@Model.Correo" required />
+            </div>
+            <button type="submit" class="btn btn-warning" style="padding: 10px 20px; font-weight: 500;">Actualizar Correo (Requiere reingresar)</button>
+        </form>
+    </div>
+
+    <!-- Sección de Cambio de Contraseña -->
+    <div class="card shadow-sm p-4" style="border-radius: 10px;">
+        <h4 class="mb-3" style="font-family: 'Montserrat', sans-serif; font-weight: 600;">Cambiar Contraseña</h4>
+        <form asp-action="CambiarPassword" method="post">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="kro-form-label">Contraseña actual</label>
+                    <input type="password" name="passwordActual" class="kro-form-control" required />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="kro-form-label">Nueva contraseña</label>
+                    <input type="password" name="nuevoPassword" class="kro-form-control" required />
+                </div>
+            </div>
+            <button type="submit" class="btn btn-dark" style="padding: 10px 20px;">Cambiar Contraseña</button>
+        </form>
+    </div>
+
+</div>

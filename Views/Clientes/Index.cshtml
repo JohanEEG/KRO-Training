@@ -1,0 +1,210 @@
+﻿@{
+    ViewData["Title"] = "Gestión de Clientes";
+}
+
+<div class="kro-page-title">
+    Gestión de Clientes
+</div>
+
+<p class="kro-page-subtitle">
+    Consulta y administra la información de los clientes registrados en KRÒ Training.
+</p>
+
+<div class="kro-card">
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+
+        <div class="kro-card-title" style="margin:0;">
+            Clientes registrados
+        </div>
+
+        <a href="/Clientes/Crear" class="kro-btn kro-btn-primary">
+            + Nuevo cliente
+        </a>
+
+    </div>
+
+
+    <!-- BUSCADOR -->
+
+    <div class="kro-search">
+
+        <input type="text"
+               class="kro-form-control"
+               placeholder="Buscar por nombre o cédula..." />
+
+        <button class="kro-btn kro-btn-secondary">
+            🔍 Buscar
+        </button>
+
+    </div>
+
+
+    <!-- TABLA -->
+
+    <div class="kro-table-container">
+
+        <table class="kro-table">
+
+            <thead>
+
+                <tr>
+                    <th>Cédula</th>
+                    <th>Nombre</th>
+                    <th>Teléfono</th>
+                    <th>Correo</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                <tr>
+
+                    <td>1-1111-1111</td>
+
+                    <td>
+                        Juan Pérez
+                    </td>
+
+                    <td>
+                        8888-8888
+                    </td>
+
+                    <td>
+                        juan@email.com
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-green">
+                            Activo
+                        </span>
+                    </td>
+
+                    <td>
+
+                        <div class="kro-table-actions">
+
+                            <button class="kro-btn kro-btn-small kro-btn-secondary">
+                                Ver
+                            </button>
+
+                            <a href="/Clientes/Editar"
+                               class="kro-btn kro-btn-small kro-btn-outline">
+                                Editar
+                            </a>
+
+                            <button class="kro-btn kro-btn-small kro-btn-danger"
+                                    onclick="return confirm('¿Está seguro de eliminar este cliente?');">
+                                Eliminar
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>1-2222-2222</td>
+
+                    <td>
+                        María López
+                    </td>
+
+                    <td>
+                        8777-7777
+                    </td>
+
+                    <td>
+                        maria@email.com
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-green">
+                            Activo
+                        </span>
+                    </td>
+
+                    <td>
+
+                        <div class="kro-table-actions">
+
+                            <button class="kro-btn kro-btn-small kro-btn-secondary">
+                                Ver
+                            </button>
+
+                            <a href="/Clientes/Editar"
+                               class="kro-btn kro-btn-small kro-btn-outline">
+                                Editar
+                            </a>
+
+                            <button class="kro-btn kro-btn-small kro-btn-danger"
+                                    onclick="return confirm('¿Está seguro de eliminar este cliente?');">
+                                Eliminar
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>1-3333-3333</td>
+
+                    <td>
+                        Carlos Rodríguez
+                    </td>
+
+                    <td>
+                        8666-6666
+                    </td>
+
+                    <td>
+                        carlos@email.com
+                    </td>
+
+                    <td>
+                        <span class="kro-badge kro-badge-gray">
+                            Inactivo
+                        </span>
+                    </td>
+
+                    <td>
+
+                        <div class="kro-table-actions">
+
+                            <button class="kro-btn kro-btn-small kro-btn-secondary">
+                                Ver
+                            </button>
+
+                            <a href="/Clientes/Editar"
+                               class="kro-btn kro-btn-small kro-btn-outline">
+                                Editar
+                            </a>
+
+                            <button class="kro-btn kro-btn-small kro-btn-danger"
+                                    onclick="return confirm('¿Está seguro de eliminar este cliente?');">
+                                Eliminar
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>

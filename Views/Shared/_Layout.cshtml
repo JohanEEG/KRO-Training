@@ -1,0 +1,191 @@
+﻿@using System.Security.Claims
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - KRÒ Training</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Roboto:wght@400;500&display=swap"
+          rel="stylesheet">
+
+    <!-- CSS de KRÒ Training -->
+    <link rel="stylesheet" href="~/css/kro-training.css" />
+</head>
+<body>
+
+    <div class="kro-layout">
+
+        <!-- =====================================================
+             MENÚ LATERAL
+             ===================================================== -->
+
+        <aside class="kro-sidebar">
+
+            <!-- LOGO -->
+            <div class="kro-logo">
+                <h1>KR<span>Ò</span></h1>
+                <small>TRAINING</small>
+            </div>
+
+            <!-- PRINCIPAL -->
+            <div class="kro-menu-title">
+                Principal
+            </div>
+
+            <ul class="kro-menu">
+                <li>
+                    <a href="/Home/Index">
+                        🏠
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- GESTIÓN -->
+            <div class="kro-menu-title">
+                Gestión
+            </div>
+
+            <ul class="kro-menu">
+                <li>
+                    <a href="/Clientes/Index">
+                        👥
+                        <span>Clientes</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/Usuarios/Index">
+                        👤
+                        <span>Usuarios</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/Usuarios/Roles">
+                        🔐
+                        <span>Roles y permisos</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/Multimedia/CrearEjercicio">
+                        🎥
+                        <span>Multimedia</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/SeguimientoFisico/ProgresoFisico">
+                        📈
+                        <span>Seguimiento físico</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/ControlAsistencia/HistorialAsistencia">
+                        📝
+                        <span>Asistencia</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/Eventos/Index">
+                        🏆
+                        <span>Eventos deportivos</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/Membresias/ProximasVencer">
+                        💳
+                        <span>Membresías y pagos</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/Reportes/Estadisticas">
+                        📊
+                        <span>Reportes</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/IA/DashboardMetas">
+                        🤖
+                        <span>IA e innovación</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/GestionPersonal/Index">
+                        👔
+                        <span>Gestión de personal</span>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- =================================================
+                 CUENTA (Conectado a Persona 1)
+                 ================================================= -->
+            <div class="kro-menu-title">
+                Cuenta
+            </div>
+
+            <ul class="kro-menu">
+                <li>
+                    <a href="/Cuenta/Perfil">
+                        ⚙️
+                        <span>Mi Perfil</span>
+                    </a>
+                </li>
+                <li>
+                    <form asp-controller="Cuenta" asp-action="Logout" method="post" id="logoutForm" style="display: inline;">
+                        <button type="submit" style="background: none; border: none; color: inherit; width: 100%; text-align: left; padding: 10px 15px; display: flex; align-items: center; gap: 10px; cursor: pointer; font-family: inherit; font-size: inherit;">
+                            🚪
+                            <span>Cerrar sesión</span>
+                        </button>
+                    </form>
+                </li>
+            </ul>
+
+        </aside>
+
+
+        <!-- =====================================================
+             CONTENIDO PRINCIPAL
+             ===================================================== -->
+
+        <main class="kro-main">
+
+            <!-- BARRA SUPERIOR DINÁMICA -->
+            <header class="kro-topbar">
+
+                <div class="kro-topbar-title">
+                    KRÒ Training
+                </div>
+
+                <div class="kro-user">
+                    <div>
+                        <strong>@(User.Identity!.IsAuthenticated ? User.Identity.Name : "Invitado")</strong>
+                        <br />
+                        <small>@(User.FindFirst(ClaimTypes.Role)?.Value ?? "Usuario")</small>
+                    </div>
+
+                    <div class="kro-user-icon">
+                        👤
+                    </div>
+                </div>
+
+            </header>
+
+            <!-- CONTENIDO DE LA VISTA -->
+            <section class="kro-content">
+                @RenderBody()
+            </section>
+
+        </main>
+
+    </div>
+
+    <!-- SCRIPTS -->
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

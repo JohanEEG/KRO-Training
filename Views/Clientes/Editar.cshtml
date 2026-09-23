@@ -1,0 +1,133 @@
+﻿@{
+    ViewData["Title"] = "Modificar Cliente";
+}
+
+<div class="kro-page-title">
+    Modificar información del cliente
+</div>
+
+<p class="kro-page-subtitle">
+    Actualice los datos personales del cliente seleccionado.
+</p>
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Información del cliente
+    </div>
+
+    <form>
+
+        <div class="kro-form-grid">
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Cédula
+                </label>
+
+                <input type="text"
+                       class="kro-form-control"
+                       value="1-1111-1111"
+                       readonly />
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Nombre
+                </label>
+
+                <input type="text"
+                       class="kro-form-control"
+                       value="Juan" />
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Primer apellido
+                </label>
+
+                <input type="text"
+                       class="kro-form-control"
+                       value="Pérez" />
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Segundo apellido
+                </label>
+
+                <input type="text"
+                       class="kro-form-control"
+                       value="Gómez" />
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Teléfono
+                </label>
+
+                <input type="tel"
+                       class="kro-form-control"
+                       value="8888-8888" />
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Correo electrónico
+                </label>
+
+                <input type="email"
+                       class="kro-form-control"
+                       value="juan@email.com" />
+
+            </div>
+
+        </div>
+
+
+        <div class="kro-form-group">
+
+            <label class="kro-form-label">
+                Dirección
+            </label>
+
+            <textarea class="kro-form-control"
+                      rows="3">San José, Costa Rica</textarea>
+
+        </div>
+
+
+        <div class="kro-actions">
+
+            <a href="/Clientes/Index"
+               class="kro-btn kro-btn-secondary">
+                Cancelar
+            </a>
+
+            <button type="button"
+                    class="kro-btn kro-btn-primary"
+                    onclick="alert('Los cambios se han guardado correctamente.');">
+                Guardar cambios
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
