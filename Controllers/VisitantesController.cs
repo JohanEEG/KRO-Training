@@ -2,19 +2,19 @@
 
 namespace KRO_Training_Performance.Controllers
 {
-    public class ControlAsistenciaController : Controller
+    public class VisitantesController : Controller
     {
-        public IActionResult RegistrarIngreso()
+        public IActionResult Informacion()
         {
             return View();
         }
 
-        public IActionResult HistorialAsistencia()
+        public IActionResult Registro()
         {
             return View();
         }
 
-        public IActionResult VisualizarAsistencia()
+        public IActionResult RegistroExitoso()
         {
             return View();
         }
