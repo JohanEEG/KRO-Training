@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - KRÒ Training</title>
+
+    <!-- Tipografías -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Roboto:wght@400;500&display=swap"
+          rel="stylesheet" />
+
+    <!-- Bootstrap existente en el proyecto -->
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" />
+
+    <!-- Estilos exclusivos de las páginas públicas -->
+    <link rel="stylesheet"
+          href="~/css/kro-publico.css"
+          asp-append-version="true" />
+</head>
+
+<body class="public-site">
+    <a href="#contenido" class="skip-link">
+        Saltar al contenido
+    </a>
+
+    <header class="public-header">
+        <nav class="container public-nav"
+             aria-label="Navegación principal">
+
+            <a asp-controller="Visitantes"
+               asp-action="Informacion"
+               class="public-brand"
+               aria-label="KRÒ Training, inicio">
+                KR<span>Ò</span>
+                <small>TRAINING</small>
+            </a>
+
+            <div class="public-nav-links">
+                <a asp-controller="Visitantes"
+                   asp-action="Informacion"
+                   asp-fragment="servicios"
+                   class="public-nav-link">
+                    Servicios
+                </a>
+
+                <a asp-controller="Cuenta"
+                   asp-action="Login"
+                   class="public-button public-button-primary">
+                    <i class="bi bi-box-arrow-in-right"
+                       aria-hidden="true"></i>
+                    Iniciar sesión
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <main id="contenido" tabindex="-1">
+        @RenderBody()
+    </main>
+
+    <footer class="public-footer">
+        <div class="container public-footer-content">
+            <span class="public-footer-brand">KRÒ Training</span>
+            <span>Entrenamiento y seguimiento físico</span>
+            <small>© @DateTime.Now.Year KRÒ Training</small>
+        </div>
+    </footer>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
