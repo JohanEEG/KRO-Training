@@ -9,8 +9,15 @@
 </h1>
 
 <p class="kro-page-subtitle">
-    Consulte los colaboradores registrados y actualice su información.
+    Consulte los colaboradores registrados y administre su información.
 </p>
+
+@if (TempData["MensajeExito"] is string mensaje)
+{
+    <div class="alert alert-success" role="alert">
+        @mensaje
+    </div>
+}
 
 <div class="kro-card">
 
@@ -60,13 +67,25 @@
                             <td>@colaborador.Rol.Nombre</td>
                             <td>@colaborador.Estado</td>
                             <td>
-                                <a asp-controller="GestionPersonal"
-                                   asp-action="Editar"
-                                   asp-route-id="@colaborador.UsuarioId"
-                                   class="kro-btn kro-btn-small kro-btn-outline"
-                                   aria-label="@($"Editar a {colaborador.Nombre}")">
-                                    Editar
-                                </a>
+                                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                    <a asp-controller="GestionPersonal"
+                                       asp-action="Editar"
+                                       asp-route-id="@colaborador.UsuarioId"
+                                       class="kro-btn kro-btn-small kro-btn-outline"
+                                       aria-label="@($"Editar a {colaborador.Nombre}")">
+                                        Editar
+                                    </a>
+
+                                    <a asp-controller="GestionPersonal"
+                                       asp-action="DarBaja"
+                                       asp-route-id="@colaborador.UsuarioId"
+                                       class="kro-btn kro-btn-small kro-btn-outline"
+                                       aria-label="@($"Consultar baja de {colaborador.Nombre}")">
+                                        @(colaborador.Estado == "INACTIVO"
+                                            ? "Ver baja"
+                                            : "Dar de baja")
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     }
@@ -74,5 +93,4 @@
             </table>
         </div>
     }
-
 </div>

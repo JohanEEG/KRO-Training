@@ -1,0 +1,139 @@
+﻿@model KROTraining.Models.DarBajaColaboradorViewModel
+
+@{
+    ViewData["Title"] = "Dar de baja a colaborador";
+    var estaInactivo = Model.Estado == "INACTIVO";
+}
+
+<link rel="stylesheet"
+      href="~/css/kro-baja.css"
+      asp-append-version="true" />
+
+<div class="kro-baja">
+
+    <a asp-controller="GestionPersonal"
+       asp-action="Index"
+       class="baja-back">
+        ← Volver a colaboradores
+    </a>
+
+    <section class="baja-card" aria-labelledby="baja-title">
+
+        <header class="baja-header">
+            <p class="baja-eyebrow">Gestión de personal</p>
+
+            <h1 id="baja-title" class="baja-title">
+                @(estaInactivo
+                    ? "Colaborador inactivo"
+                    : "Dar de baja a colaborador")
+            </h1>
+
+            <p class="baja-description">
+                @(estaInactivo
+                    ? "Consulta los datos del colaborador y su estado actual."
+                    : "Revisa la información del colaborador antes de confirmar la baja.")
+            </p>
+        </header>
+
+        <div class="baja-body">
+
+            @if (!estaInactivo)
+            {
+                <div asp-validation-summary="All"
+                     class="baja-errors"
+                     role="alert"></div>
+            }
+
+            <h2 class="baja-section-title">
+                Información del colaborador
+            </h2>
+
+            <dl class="baja-details">
+                <div>
+                    <dt>Nombre completo</dt>
+                    <dd>@Model.Nombre</dd>
+                </div>
+
+                <div>
+                    <dt>Correo electrónico</dt>
+                    <dd>@Model.Correo</dd>
+                </div>
+
+                <div>
+                    <dt>Rol asignado</dt>
+                    <dd>@Model.Rol</dd>
+                </div>
+
+                <div>
+                    <dt>Estado actual</dt>
+                    <dd>
+                        <span class="baja-badge @(Model.Estado == "ACTIVO" ? "baja-badge-active" : "")">
+                            @Model.Estado
+                        </span>
+                    </dd>
+                </div>
+            </dl>
+
+            @if (estaInactivo)
+            {
+                <div class="baja-notice baja-notice-neutral" role="status">
+                    <strong>Este colaborador ya está inactivo</strong>
+                    <p>
+                        Sus datos e historial se conservan.
+                        No es necesario realizar otra baja.
+                    </p>
+                </div>
+
+                <div class="baja-actions">
+                    <a asp-controller="GestionPersonal"
+                       asp-action="Index"
+                       class="baja-button">
+                        Volver al listado
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="baja-notice">
+                    <strong>Antes de continuar</strong>
+                    <p>
+                        El colaborador pasará al estado INACTIVO.
+                        Sus datos e historial permanecerán registrados.
+                    </p>
+                </div>
+
+                <form asp-controller="GestionPersonal"
+                      asp-action="DarBaja"
+                      asp-route-id="@Model.UsuarioId"
+                      method="post">
+
+                    <input asp-for="UsuarioId" type="hidden" />
+
+                    <label class="baja-confirm" for="ConfirmarBaja">
+                        <input asp-for="ConfirmarBaja"
+                               aria-describedby="confirmacion-texto" />
+
+                        <span id="confirmacion-texto">
+                            Confirmo que deseo dar de baja a
+                            <strong>@Model.Nombre</strong>.
+                        </span>
+                    </label>
+
+                    <div class="baja-actions">
+                        <a asp-controller="GestionPersonal"
+                           asp-action="Index"
+                           class="baja-button">
+                            Cancelar
+                        </a>
+
+                        <button type="submit"
+                                class="baja-button baja-button-danger">
+                            Confirmar baja
+                        </button>
+                    </div>
+                </form>
+            }
+
+        </div>
+    </section>
+</div>

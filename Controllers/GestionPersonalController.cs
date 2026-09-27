@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace KRO_Training_Performance.Controllers
 {
@@ -295,6 +296,124 @@ namespace KRO_Training_Performance.Controllers
                 "La información del colaborador se actualizó correctamente.";
 
             return RedirectToAction(nameof(Editar), new { id });
+        }
+        [HttpGet]
+        public async Task<IActionResult> DarBaja(int id)
+        {
+            var usuario = await _context.Usuarios
+                .AsNoTracking()
+                .Include(u => u.Rol)
+                .SingleOrDefaultAsync(u =>
+                    u.UsuarioId == id &&
+                    (u.Rol.Nombre == "ADMINISTRADOR" ||
+                     u.Rol.Nombre == "ENTRENADOR"));
+
+            if (usuario == null)
+            {
+                return NotFound("El colaborador no fue encontrado.");
+            }
+
+            var model = new DarBajaColaboradorViewModel
+            {
+                UsuarioId = usuario.UsuarioId,
+                Nombre = usuario.Nombre,
+                Correo = usuario.Correo,
+                Rol = usuario.Rol.Nombre,
+                Estado = usuario.Estado
+            };
+
+            if (usuario.Estado == "INACTIVO")
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Este colaborador ya está inactivo.");
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DarBaja(
+            int id,
+            DarBajaColaboradorViewModel model)
+        {
+            if (id != model.UsuarioId)
+            {
+                return BadRequest(
+                    "El identificador del colaborador no coincide.");
+            }
+
+            var usuario = await _context.Usuarios
+                .AsNoTracking()
+                .Include(u => u.Rol)
+                .SingleOrDefaultAsync(u =>
+                    u.UsuarioId == id &&
+                    (u.Rol.Nombre == "ADMINISTRADOR" ||
+                     u.Rol.Nombre == "ENTRENADOR"));
+
+            if (usuario == null)
+            {
+                return NotFound("El colaborador no fue encontrado.");
+            }
+
+            // Recuperar de la base de datos los datos informativos.
+            model.Nombre = usuario.Nombre;
+            model.Correo = usuario.Correo;
+            model.Rol = usuario.Rol.Nombre;
+            model.Estado = usuario.Estado;
+
+            if (usuario.Estado == "INACTIVO")
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Este colaborador ya está inactivo.");
+
+                return View(model);
+            }
+
+            var identificadorActual =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!int.TryParse(identificadorActual, out var usuarioActualId))
+            {
+                return Forbid();
+            }
+
+            if (usuarioActualId == id)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "No puede dar de baja su propia cuenta.");
+
+                return View(model);
+            }
+
+            // Incluye la validación de la confirmación obligatoria.
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            // Cambiar el estado conservando sus datos y relaciones.
+            var filasActualizadas = await _context.Usuarios
+                .Where(u =>
+                    u.UsuarioId == id &&
+                    u.Estado != "INACTIVO" &&
+                    (u.Rol.Nombre == "ADMINISTRADOR" ||
+                     u.Rol.Nombre == "ENTRENADOR"))
+                .ExecuteUpdateAsync(cambios => cambios
+                    .SetProperty(u => u.Estado, "INACTIVO"));
+
+            if (filasActualizadas == 0)
+            {
+                return RedirectToAction(nameof(DarBaja), new { id });
+            }
+
+            TempData["MensajeExito"] =
+                "El colaborador fue dado de baja correctamente.";
+
+            return RedirectToAction(nameof(Index));
         }
 
         private async Task CargarRolesAsync(int? seleccionado = null)
