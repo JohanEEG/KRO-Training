@@ -1,200 +1,78 @@
-﻿@{
-    ViewData["Title"] = "Gestión de Personal";
+﻿@model System.Collections.Generic.List<KROTraining.Models.Usuario>
+
+@{
+    ViewData["Title"] = "Gestión de personal";
 }
 
-<div class="kro-page-title">
-    Gestión de Personal
-</div>
+<h1 class="kro-page-title">
+    Gestión de personal
+</h1>
 
 <p class="kro-page-subtitle">
-    Administre los colaboradores, entrenadores y personal administrativo de KRÒ Training.
+    Consulte los colaboradores registrados y actualice su información.
 </p>
 
 <div class="kro-card">
 
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <div style="display:flex; justify-content:space-between;
+        align-items:center; gap:16px; flex-wrap:wrap;
+        margin-bottom:20px;">
 
-        <div class="kro-card-title" style="margin:0;">
+        <h2 class="kro-card-title" style="margin:0;">
             Colaboradores registrados
-        </div>
+        </h2>
 
-        <a href="/GestionPersonal/Crear"
+        <a asp-controller="GestionPersonal"
+           asp-action="Crear"
            class="kro-btn kro-btn-primary">
             + Nuevo colaborador
         </a>
-
     </div>
 
-    <div class="kro-search">
+    @if (Model.Count == 0)
+    {
+        <p role="status">
+            No hay colaboradores registrados.
+        </p>
+    }
+    else
+    {
+        <div class="kro-table-container">
+            <table class="kro-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Nombre</th>
+                        <th scope="col">Correo</th>
+                        <th scope="col">Teléfono</th>
+                        <th scope="col">Rol</th>
+                        <th scope="col">Estado</th>
+                        <th scope="col">Acciones</th>
+                    </tr>
+                </thead>
 
-        <input type="text"
-               class="kro-form-control"
-               placeholder="Buscar por nombre, correo o rol..." />
-
-    </div>
-
-    <div class="kro-table-container">
-
-        <table class="kro-table">
-
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Correo</th>
-                    <th>Teléfono</th>
-                    <th>Rol</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-
-            <tbody>
-
-                <tr>
-
-                    <td>
-                        Carlos Rodríguez
-                    </td>
-
-                    <td>
-                        carlos@krotraining.com
-                    </td>
-
-                    <td>
-                        8888-1111
-                    </td>
-
-                    <td>
-                        <span class="kro-badge kro-badge-gray">
-                            Entrenador
-                        </span>
-                    </td>
-
-                    <td>
-                        <span class="kro-badge kro-badge-green">
-                            Activo
-                        </span>
-                    </td>
-
-                    <td>
-
-                        <div class="kro-table-actions">
-
-                            <a href="/GestionPersonal/Editar"
-                               class="kro-btn kro-btn-small kro-btn-outline">
-                                Editar
-                            </a>
-
-                            <button type="button"
-                                    class="kro-btn kro-btn-small kro-btn-danger">
-                                Dar de baja
-                            </button>
-
-                        </div>
-
-                    </td>
-
-                </tr>
-
-
-                <tr>
-
-                    <td>
-                        María González
-                    </td>
-
-                    <td>
-                        maria@krotraining.com
-                    </td>
-
-                    <td>
-                        8888-2222
-                    </td>
-
-                    <td>
-                        <span class="kro-badge kro-badge-red">
-                            Administrador
-                        </span>
-                    </td>
-
-                    <td>
-                        <span class="kro-badge kro-badge-green">
-                            Activo
-                        </span>
-                    </td>
-
-                    <td>
-
-                        <div class="kro-table-actions">
-
-                            <a href="/GestionPersonal/Editar"
-                               class="kro-btn kro-btn-small kro-btn-outline">
-                                Editar
-                            </a>
-
-                            <button type="button"
-                                    class="kro-btn kro-btn-small kro-btn-danger">
-                                Dar de baja
-                            </button>
-
-                        </div>
-
-                    </td>
-
-                </tr>
-
-
-                <tr>
-
-                    <td>
-                        Andrés Vargas
-                    </td>
-
-                    <td>
-                        andres@krotraining.com
-                    </td>
-
-                    <td>
-                        8888-3333
-                    </td>
-
-                    <td>
-                        <span class="kro-badge kro-badge-gray">
-                            Empleado
-                        </span>
-                    </td>
-
-                    <td>
-                        <span class="kro-badge kro-badge-gray">
-                            Inactivo
-                        </span>
-                    </td>
-
-                    <td>
-
-                        <div class="kro-table-actions">
-
-                            <a href="/GestionPersonal/Editar"
-                               class="kro-btn kro-btn-small kro-btn-outline">
-                                Editar
-                            </a>
-
-                            <button type="button"
-                                    class="kro-btn kro-btn-small kro-btn-primary">
-                                Reactivar
-                            </button>
-
-                        </div>
-
-                    </td>
-
-                </tr>
-
-            </tbody>
-
-        </table>
-
-    </div>
+                <tbody>
+                    @foreach (var colaborador in Model)
+                    {
+                        <tr>
+                            <td>@colaborador.Nombre</td>
+                            <td>@colaborador.Correo</td>
+                            <td>@(colaborador.Telefono ?? "—")</td>
+                            <td>@colaborador.Rol.Nombre</td>
+                            <td>@colaborador.Estado</td>
+                            <td>
+                                <a asp-controller="GestionPersonal"
+                                   asp-action="Editar"
+                                   asp-route-id="@colaborador.UsuarioId"
+                                   class="kro-btn kro-btn-small kro-btn-outline"
+                                   aria-label="@($"Editar a {colaborador.Nombre}")">
+                                    Editar
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
 
 </div>
-```

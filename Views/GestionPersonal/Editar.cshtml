@@ -1,127 +1,123 @@
-﻿@{
-    ViewData["Title"] = "Editar Colaborador";
+﻿@model KROTraining.Models.EditarColaboradorViewModel
+
+@{
+    ViewData["Title"] = "Editar colaborador";
 }
 
-<div class="kro-page-title">
+<h1 class="kro-page-title">
     Editar colaborador
-</div>
+</h1>
 
 <p class="kro-page-subtitle">
     Actualice la información y el rol del colaborador seleccionado.
 </p>
 
-<div class="kro-card">
-
-    <div class="kro-card-title">
-        Información del colaborador
+@if (TempData["MensajeExito"] is string mensaje)
+{
+    <div role="status"
+         style="padding:16px; margin-bottom:20px;
+        background:#E8F5E9; color:#205723;
+        border:1px solid #A5D6A7; border-radius:8px;">
+        @mensaje
     </div>
+}
 
-    <form>
+<div class="kro-card">
+    <h2 class="kro-card-title">
+        Información del colaborador
+    </h2>
+
+    <p>Los campos marcados con * son obligatorios.</p>
+
+    <form asp-controller="GestionPersonal"
+          asp-action="Editar"
+          asp-route-id="@Model.UsuarioId"
+          method="post">
+
+        <input asp-for="UsuarioId" type="hidden" />
+
+        <div asp-validation-summary="All"
+             role="alert"
+             style="color:#B71C1C; margin-bottom:20px;">
+        </div>
 
         <div class="kro-form-grid">
 
             <div class="kro-form-group">
-
-                <label class="kro-form-label">
-                    Nombre completo
+                <label asp-for="Nombre" class="kro-form-label">
+                    Nombre completo *
                 </label>
 
-                <input type="text"
+                <input asp-for="Nombre"
                        class="kro-form-control"
-                       value="Carlos Rodríguez" />
+                       maxlength="150"
+                       required />
 
+                <span asp-validation-for="Nombre"
+                      style="color:#B71C1C;"></span>
             </div>
 
-
             <div class="kro-form-group">
-
-                <label class="kro-form-label">
-                    Correo electrónico
+                <label asp-for="Correo" class="kro-form-label">
+                    Correo electrónico *
                 </label>
 
-                <input type="email"
+                <input asp-for="Correo"
+                       type="email"
                        class="kro-form-control"
-                       value="carlos@krotraining.com" />
+                       maxlength="150"
+                       required />
 
+                <span asp-validation-for="Correo"
+                      style="color:#B71C1C;"></span>
             </div>
 
-
             <div class="kro-form-group">
+                <label asp-for="Telefono"
+                       class="kro-form-label"></label>
 
-                <label class="kro-form-label">
-                    Número de teléfono
-                </label>
-
-                <input type="tel"
+                <input asp-for="Telefono"
+                       type="tel"
                        class="kro-form-control"
-                       value="8888-1111" />
+                       maxlength="30" />
 
+                <span asp-validation-for="Telefono"
+                      style="color:#B71C1C;"></span>
             </div>
 
-
             <div class="kro-form-group">
-
-                <label class="kro-form-label">
-                    Rol
+                <label asp-for="RolId" class="kro-form-label">
+                    Rol *
                 </label>
 
-                <select class="kro-form-control">
-
-                    <option>Entrenador</option>
-                    <option>Empleado</option>
-                    <option>Administrador</option>
-
+                <select asp-for="RolId"
+                        asp-items="ViewBag.Roles"
+                        class="kro-form-control"
+                        required>
+                    <option value="">Seleccione un rol</option>
                 </select>
 
-            </div>
+                <span asp-validation-for="RolId"
+                      style="color:#B71C1C;"></span>
 
-
-            <div class="kro-form-group">
-
-                <label class="kro-form-label">
-                    Nombre de usuario
-                </label>
-
-                <input type="text"
-                       class="kro-form-control"
-                       value="carlos01" />
-
-            </div>
-
-
-            <div class="kro-form-group">
-
-                <label class="kro-form-label">
-                    Estado
-                </label>
-
-                <select class="kro-form-control">
-
-                    <option>Activo</option>
-                    <option>Inactivo</option>
-
-                </select>
-
+                <small style="display:block; margin-top:8px;">
+                    ADMINISTRADOR concede acceso administrativo.
+                </small>
             </div>
 
         </div>
 
-
         <div class="kro-actions">
-
-            <a href="/GestionPersonal/Index"
+            <a asp-controller="GestionPersonal"
+               asp-action="Index"
                class="kro-btn kro-btn-secondary">
-                Cancelar
+                Volver al listado
             </a>
 
-            <button type="button"
+            <button type="submit"
                     class="kro-btn kro-btn-primary">
                 Guardar cambios
             </button>
-
         </div>
-
     </form>
-
 </div>
-```
