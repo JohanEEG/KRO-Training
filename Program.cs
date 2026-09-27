@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using KROTraining.Models;
+using Microsoft.AspNetCore.Identity;
 // Agregado para el manejo de la sesión y autenticación:
 using Microsoft.AspNetCore.Authentication.Cookies;
 
@@ -7,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-
+builder.Services.AddScoped<IPasswordHasher<Usuario>, PasswordHasher<Usuario>>();
 // --- CONFIGURACIÓN DE LA BASE DE DATOS ---
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<KroTrainingContext>(options =>
