@@ -1,0 +1,119 @@
+﻿@model KROTraining.Models.AsignarRolViewModel
+
+@{
+    ViewData["Title"] = "Asignar rol";
+}
+
+<h1 class="kro-page-title">
+    Asignar rol
+</h1>
+
+<p class="kro-page-subtitle">
+    Seleccione el rol que tendrá este usuario en el sistema.
+</p>
+
+<div class="kro-card" style="max-width:780px; margin:0 auto;">
+
+    <h2 class="kro-card-title">
+        Información del usuario
+    </h2>
+
+    <dl style="display:grid;
+        grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+        gap:24px;
+        margin:24px 0;
+        padding-bottom:24px;
+        border-bottom:1px solid #E5E5E5;">
+
+        <div>
+            <dt style="color:#656565; font-size:13px; margin-bottom:8px;">
+                Nombre completo
+            </dt>
+            <dd style="margin:0; font-weight:600; overflow-wrap:anywhere;">
+                @Model.Nombre
+            </dd>
+        </div>
+
+        <div>
+            <dt style="color:#656565; font-size:13px; margin-bottom:8px;">
+                Correo electrónico
+            </dt>
+            <dd style="margin:0; font-weight:600; overflow-wrap:anywhere;">
+                @Model.Correo
+            </dd>
+        </div>
+
+        <div>
+            <dt style="color:#656565; font-size:13px; margin-bottom:8px;">
+                Rol actual
+            </dt>
+            <dd style="margin:0; font-weight:600;">
+                @Model.RolActual
+            </dd>
+        </div>
+    </dl>
+
+    <form asp-controller="Usuarios"
+          asp-action="AsignarRol"
+          asp-route-id="@Model.UsuarioId"
+          method="post">
+
+        <input asp-for="UsuarioId" type="hidden" />
+
+        <div asp-validation-summary="ModelOnly"
+             style="color:#B71C1C; margin-bottom:16px;"
+             role="alert"></div>
+
+        <div class="kro-form-group">
+            <label asp-for="RolId" class="kro-form-label">
+                Nuevo rol *
+            </label>
+
+            <select asp-for="RolId"
+                    asp-items="ViewBag.Roles"
+                    class="kro-form-control"
+                    aria-describedby="rol-ayuda rol-error"
+                    required>
+                <option value="">Seleccione un rol</option>
+            </select>
+
+            <span asp-validation-for="RolId"
+                  id="rol-error"
+                  style="display:block; color:#B71C1C; margin-top:8px;"></span>
+        </div>
+
+        <div id="rol-ayuda"
+             style="background:#F5F5F5;
+            border-left:4px solid #D62828;
+            border-radius:8px;
+            padding:16px 20px;
+            margin-top:24px;
+            line-height:1.6;">
+
+            <strong>Revise el rol antes de guardar</strong>
+
+            <p style="margin:6px 0 0; color:#3A3A3A;">
+                ADMINISTRADOR concede acceso administrativo.
+                Este cambio conserva los datos y el historial del usuario.
+            </p>
+        </div>
+
+        <div style="display:flex;
+            justify-content:flex-end;
+            flex-wrap:wrap;
+            gap:12px;
+            margin-top:28px;">
+
+            <a asp-controller="Usuarios"
+               asp-action="Index"
+               class="kro-btn kro-btn-outline">
+                Cancelar
+            </a>
+
+            <button type="submit"
+                    class="kro-btn kro-btn-primary">
+                Guardar rol
+            </button>
+        </div>
+    </form>
+</div>

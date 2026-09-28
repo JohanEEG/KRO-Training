@@ -1,272 +1,147 @@
-﻿@{
-    ViewData["Title"] = "Gestión de Usuarios";
+﻿@model System.Collections.Generic.List<KROTraining.Models.Usuario>
+
+@{
+    ViewData["Title"] = "Gestión de usuarios";
 }
 
-<div class="kro-page-title">
-    Gestión de Usuarios
-</div>
+<h1 class="kro-page-title">
+    Gestión de usuarios
+</h1>
 
 <p class="kro-page-subtitle">
-    Administre las cuentas de acceso al sistema KRÒ Training.
+    Consulte las cuentas registradas y asigne sus roles.
 </p>
+
+@if (TempData["MensajeExito"] is string mensaje)
+{
+    <div role="status"
+         style="padding:16px 20px;
+        margin-bottom:20px;
+        border:1px solid #B8DCC4;
+        border-radius:10px;
+        background:#EAF5EE;
+        color:#24643D;">
+        @mensaje
+    </div>
+}
 
 <div class="kro-card">
 
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <div style="display:flex;
+        justify-content:space-between;
+        align-items:center;
+        gap:16px;
+        flex-wrap:wrap;
+        margin-bottom:24px;">
 
-        <div class="kro-card-title" style="margin:0;">
+        <h2 class="kro-card-title" style="margin:0;">
             Usuarios registrados
+        </h2>
+
+        <span style="color:#656565; font-size:14px;">
+            Total: @Model.Count
+        </span>
+    </div>
+
+    @if (Model.Count == 0)
+    {
+        <p role="status">
+            No hay usuarios registrados.
+        </p>
+    }
+    else
+    {
+        <div class="kro-form-group" style="margin-bottom:24px;">
+            <label for="buscarUsuario" class="kro-form-label">
+                Buscar usuario
+            </label>
+
+            <input type="search"
+                   id="buscarUsuario"
+                   class="kro-form-control"
+                   placeholder="Nombre, correo, rol o estado..." />
         </div>
 
-        <a href="/Usuarios/Crear"
-           class="kro-btn kro-btn-primary">
-            + Nuevo usuario
-        </a>
+        <div class="kro-table-container" style="overflow-x:auto;">
+            <table class="kro-table" id="tablaUsuarios">
+                <thead>
+                    <tr>
+                        <th scope="col">Nombre</th>
+                        <th scope="col">Correo</th>
+                        <th scope="col">Rol</th>
+                        <th scope="col">Estado</th>
+                        <th scope="col">Acciones</th>
+                    </tr>
+                </thead>
 
-    </div>
+                <tbody>
+                    @foreach (var usuario in Model)
+                    {
+                        <tr>
+                            <td>@usuario.Nombre</td>
+                            <td>@usuario.Correo</td>
+                            <td>
+                                <span class="kro-badge kro-badge-gray">
+                                    @usuario.Rol.Nombre
+                                </span>
+                            </td>
+                            <td>
+                                <span class="kro-badge @(usuario.Estado == "ACTIVO" ? "kro-badge-green" : "kro-badge-gray")">
+                                    @usuario.Estado
+                                </span>
+                            </td>
+                            <td>
+                                <a asp-controller="Usuarios"
+                                   asp-action="AsignarRol"
+                                   asp-route-id="@usuario.UsuarioId"
+                                   class="kro-btn kro-btn-small kro-btn-outline"
+                                   aria-label="@($"Asignar rol a {usuario.Nombre}")">
+                                    Asignar rol
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
 
-
-    <div class="kro-search">
-
-        <input type="text"
-               id="buscarUsuario"
-               class="kro-form-control"
-               placeholder="Buscar usuario, nombre o correo..."
-               onkeyup="filtrarUsuarios()" />
-
-    </div>
-
-
-    <div class="kro-table-container">
-
-        <table class="kro-table" id="tablaUsuarios">
-
-            <thead>
-
-                <tr>
-                    <th>Usuario</th>
-                    <th>Nombre</th>
-                    <th>Correo</th>
-                    <th>Rol</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-                <!-- ADMINISTRADOR -->
-
-                <tr>
-
-                    <td>
-                        admin
-                    </td>
-
-                    <td>
-                        Administrador del sistema
-                    </td>
-
-                    <td>
-                        admin@krotraining.com
-                    </td>
-
-                    <td>
-                        <span class="kro-badge kro-badge-red">
-                            Administrador
-                        </span>
-                    </td>
-
-                    <td>
-                        <span class="kro-badge kro-badge-green">
-                            Activo
-                        </span>
-                    </td>
-
-                    <td>
-
-                        <div class="kro-table-actions">
-
-                            <a href="/Usuarios/Editar"
-                               class="kro-btn kro-btn-small kro-btn-outline">
-                                Editar
-                            </a>
-
-                            <button type="button"
-                                    class="kro-btn kro-btn-small kro-btn-danger"
-                                    onclick="eliminarUsuario('admin')">
-                                Eliminar
-                            </button>
-
-                        </div>
-
-                    </td>
-
-                </tr>
-
-
-                <!-- EMPLEADO -->
-
-                <tr>
-
-                    <td>
-                        empleado01
-                    </td>
-
-                    <td>
-                        Empleado KRÒ
-                    </td>
-
-                    <td>
-                        empleado@krotraining.com
-                    </td>
-
-                    <td>
-                        <span class="kro-badge kro-badge-gray">
-                            Empleado
-                        </span>
-                    </td>
-
-                    <td>
-                        <span class="kro-badge kro-badge-green">
-                            Activo
-                        </span>
-                    </td>
-
-                    <td>
-
-                        <div class="kro-table-actions">
-
-                            <a href="/Usuarios/Editar"
-                               class="kro-btn kro-btn-small kro-btn-outline">
-                                Editar
-                            </a>
-
-                            <button type="button"
-                                    class="kro-btn kro-btn-small kro-btn-danger"
-                                    onclick="eliminarUsuario('empleado01')">
-                                Eliminar
-                            </button>
-
-                        </div>
-
-                    </td>
-
-                </tr>
-
-
-                <!-- CLIENTE -->
-
-                <tr>
-
-                    <td>
-                        cliente01
-                    </td>
-
-                    <td>
-                        Juan Pérez
-                    </td>
-
-                    <td>
-                        juan@email.com
-                    </td>
-
-                    <td>
-                        <span class="kro-badge kro-badge-gray">
-                            Cliente
-                        </span>
-                    </td>
-
-                    <td>
-                        <span class="kro-badge kro-badge-green">
-                            Activo
-                        </span>
-                    </td>
-
-                    <td>
-
-                        <div class="kro-table-actions">
-
-                            <a href="/Usuarios/Editar"
-                               class="kro-btn kro-btn-small kro-btn-outline">
-                                Editar
-                            </a>
-
-                            <button type="button"
-                                    class="kro-btn kro-btn-small kro-btn-danger"
-                                    onclick="eliminarUsuario('cliente01')">
-                                Eliminar
-                            </button>
-
-                        </div>
-
-                    </td>
-
-                </tr>
-
-            </tbody>
-
-        </table>
-
-    </div>
-
+        <p id="sinResultados" role="status" hidden>
+            No hay usuarios que coincidan con la búsqueda.
+        </p>
+    }
 </div>
 
-
 <script>
+    (() => {
+        const buscador = document.getElementById("buscarUsuario");
+        const tabla = document.getElementById("tablaUsuarios");
+        const aviso = document.getElementById("sinResultados");
 
-    function eliminarUsuario(usuario) {
-
-        const confirmar = confirm(
-            "¿Está seguro de que desea eliminar el usuario '" +
-            usuario +
-            "'?\n\nEsta acción no podrá deshacerse."
-        );
-
-        if (confirmar) {
-
-            alert(
-                "Usuario '" +
-                usuario +
-                "' eliminado correctamente."
-            );
-
+        if (!buscador || !tabla || !aviso) {
+            return;
         }
 
-    }
+        buscador.addEventListener("input", () => {
+            const busqueda = buscador.value.trim().toLocaleLowerCase();
+            let visibles = 0;
 
+            for (const fila of tabla.tBodies[0].rows) {
+                const texto = Array.from(fila.cells)
+                    .slice(0, 4)
+                    .map(celda => celda.textContent)
+                    .join(" ")
+                    .toLocaleLowerCase();
 
-    function filtrarUsuarios() {
+                const coincide = texto.includes(busqueda);
 
-        const input = document
-            .getElementById("buscarUsuario")
-            .value
-            .toLowerCase();
+                fila.hidden = !coincide;
 
-        const filas = document
-            .getElementById("tablaUsuarios")
-            .getElementsByTagName("tbody")[0]
-            .getElementsByTagName("tr");
-
-        for (let i = 0; i < filas.length; i++) {
-
-            const texto = filas[i]
-                .textContent
-                .toLowerCase();
-
-            if (texto.includes(input)) {
-
-                filas[i].style.display = "";
-
-            } else {
-
-                filas[i].style.display = "none";
-
+                if (coincide) {
+                    visibles++;
+                }
             }
 
-        }
-
-    }
-
+            aviso.hidden = visibles > 0;
+        });
+    })();
 </script>
