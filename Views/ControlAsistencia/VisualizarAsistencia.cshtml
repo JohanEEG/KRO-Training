@@ -1,14 +1,25 @@
-﻿@{
+﻿@model List<KROTraining.Models.Cliente>
+
+@{
     ViewData["Title"] = "Visualizar Asistencia";
 }
 
 <div class="kro-page-title">
-    Asistencia de clientes
+    Asistencia de mis clientes
 </div>
 
 <p class="kro-page-subtitle">
-    Visualice el resumen de asistencia por cliente.
+    Consulte la constancia de entrenamiento de sus clientes asignados.
 </p>
+
+<div class="kro-actions" style="margin-bottom:20px; flex-wrap:wrap;">
+    <a href="/ControlAsistencia/VisualizarAsistencia" class="kro-btn kro-btn-outline">Mis clientes</a>
+    <a href="/Cuenta/Perfil" class="kro-btn kro-btn-outline">Mi perfil</a>
+    <form asp-controller="Cuenta" asp-action="Logout" method="post" style="display:inline;">
+        @Html.AntiForgeryToken()
+        <button type="submit" class="kro-btn kro-btn-secondary">Cerrar sesión</button>
+    </form>
+</div>
 
 <div class="kro-card">
 
@@ -16,75 +27,42 @@
         Resumen por cliente
     </div>
 
-    <div class="kro-table-container">
-
-        <table class="kro-table">
-
-            <thead>
-                <tr>
-                    <th>Cliente</th>
-                    <th>Total de asistencias</th>
-                    <th>Última asistencia</th>
-                    <th>Estado</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                <tr>
-                    <td>Juan Pérez</td>
-                    <td>12</td>
-                    <td>17/08/2026</td>
-                    <td><span class="kro-badge kro-badge-green">Activo</span></td>
-                </tr>
-                <tr>
-                    <td>María Rodríguez</td>
-                    <td>9</td>
-                    <td>16/08/2026</td>
-                    <td><span class="kro-badge kro-badge-green">Activo</span></td>
-                </tr>
-                <tr>
-                    <td>Carlos Vargas</td>
-                    <td>15</td>
-                    <td>15/08/2026</td>
-                    <td><span class="kro-badge kro-badge-green">Activo</span></td>
-                </tr>
-                <tr>
-                    <td>Ana González</td>
-                    <td>3</td>
-                    <td>14/08/2026</td>
-                    <td><span class="kro-badge kro-badge-green">Activo</span></td>
-                </tr>
-            </tbody>
-
-        </table>
-
-    </div>
-
-</div>
-
-<div class="kro-card">
-
-    <div class="kro-card-title">
-        Estadísticas generales
-    </div>
-
-    <div class="kro-stat-grid">
-
-        <div class="kro-stat-card">
-            <h3>TOTAL CLIENTES CON ASISTENCIA</h3>
-            <strong>4</strong>
+    @if (!Model.Any())
+    {
+        <p>Aún no tiene clientes asignados.</p>
+    }
+    else
+    {
+        <div class="kro-table-container">
+            <table class="kro-table">
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Total de asistencias</th>
+                        <th>Última asistencia</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var c in Model)
+                    {
+                        <tr>
+                            <td>@c.Usuario.Nombre</td>
+                            <td>@c.Asistencia.Count</td>
+                            <td>
+                                @if (c.Asistencia.Any())
+                                {
+                                    @c.Asistencia.Max(a => a.Fecha).ToString("dd/MM/yyyy")
+                                }
+                                else
+                                {
+                                    <span>Sin registros de asistencia</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
-
-        <div class="kro-stat-card">
-            <h3>PROMEDIO DE ASISTENCIAS</h3>
-            <strong>9.75</strong>
-        </div>
-
-        <div class="kro-stat-card">
-            <h3>CLIENTE MÁS FRECUENTE</h3>
-            <strong style="font-size:22px;">Carlos Vargas</strong>
-        </div>
-
-    </div>
+    }
 
 </div>

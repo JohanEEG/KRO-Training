@@ -1,4 +1,6 @@
-﻿@{
+﻿@model KROTraining.Models.Cliente
+
+@{
     ViewData["Title"] = "Registrar Ingreso";
 }
 
@@ -7,105 +9,68 @@
 </div>
 
 <p class="kro-page-subtitle">
-    Registre el ingreso de los clientes al gimnasio KRÒ Training.
+    Registre su ingreso al gimnasio KRÒ Training.
 </p>
 
+<div class="kro-actions" style="margin-bottom:20px; flex-wrap:wrap;">
+    <a href="/Cuenta/Perfil" class="kro-btn kro-btn-outline">Mi perfil</a>
+    <form asp-controller="Cuenta" asp-action="Logout" method="post" style="display:inline;">
+        @Html.AntiForgeryToken()
+        <button type="submit" class="kro-btn kro-btn-secondary">Cerrar sesión</button>
+    </form>
+</div>
+
+@if (TempData["Mensaje"] != null)
+{
+    <div class="kro-badge kro-badge-green" style="display:inline-block; padding:10px 16px; margin-bottom:16px;">
+        @TempData["Mensaje"]
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="kro-badge" style="background:#f8d7da; color:#842029; display:inline-block; padding:10px 16px; margin-bottom:16px;">
+        @TempData["Error"]
+    </div>
+}
 
 <div class="kro-card">
 
     <div class="kro-card-title">
-        Registro de asistencia
+        Bienvenido, @Model?.Usuario?.Nombre
     </div>
 
-    <form>
+    <div class="kro-card" style="margin-top:20px; background:#f8f9fa;">
 
-        <div class="kro-form-grid">
-
-            <div class="kro-form-group">
-
-                <label class="kro-form-label">
-                    Cliente
-                </label>
-
-                <select class="kro-form-control">
-
-                    <option>Seleccione un cliente</option>
-                    <option>Juan Pérez</option>
-                    <option>María Rodríguez</option>
-                    <option>Carlos Vargas</option>
-                    <option>Ana González</option>
-
-                </select>
-
-            </div>
-
-
-            <div class="kro-form-group">
-
-                <label class="kro-form-label">
-                    Fecha
-                </label>
-
-                <input type="date"
-                       class="kro-form-control"
-                       value="2026-08-17" />
-
-            </div>
-
-
-            <div class="kro-form-group">
-
-                <label class="kro-form-label">
-                    Hora de ingreso
-                </label>
-
-                <input type="time"
-                       class="kro-form-control"
-                       value="16:00" />
-
-            </div>
-
+        <div class="kro-card-title">
+            Estado de la membresía
         </div>
 
+        @{
+            var membresiaActiva = Model?.Membresia?.Any(m => m.Estado == "ACTIVA" && m.FechaFin >= DateOnly.FromDateTime(DateTime.Today)) ?? false;
+        }
 
-        <div class="kro-card"
-             style="margin-top:20px; background:#f8f9fa;">
-
-            <div class="kro-card-title">
-                Estado de la membresía
-            </div>
-
-            <div style="display:flex; align-items:center; gap:12px;">
-
-                <span class="kro-badge kro-badge-green">
-                    Membresía activa
-                </span>
-
-                <span>
-                    El cliente puede registrar su ingreso.
-                </span>
-
-            </div>
-
+        <div style="display:flex; align-items:center; gap:12px;">
+            @if (membresiaActiva)
+            {
+                <span class="kro-badge kro-badge-green">Membresía activa</span>
+                <span>Puede registrar su ingreso.</span>
+            }
+            else
+            {
+                <span class="kro-badge" style="background:#f8d7da; color:#842029;">Membresía vencida</span>
+                <span>Renueve su membresía para registrar ingreso.</span>
+            }
         </div>
 
+    </div>
 
+    <form asp-action="RegistrarIngreso" method="post" style="margin-top:20px;">
+        @Html.AntiForgeryToken()
         <div class="kro-actions">
-
-            <a href="/ControlAsistencia/HistorialAsistencia"
-               class="kro-btn kro-btn-secondary">
-                Cancelar
-            </a>
-
-            <button type="button"
-                    class="kro-btn kro-btn-primary"
-                    onclick="alert('Ingreso registrado correctamente.');">
-                Registrar ingreso
+            <button type="submit" class="kro-btn kro-btn-primary">
+                Registrar mi ingreso
             </button>
-
         </div>
-
     </form>
 
-</div>
-```
+</div>  

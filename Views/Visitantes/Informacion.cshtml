@@ -1,188 +1,66 @@
 ﻿@{
-    ViewData["Title"] = "Conoce el gimnasio";
-    Layout = "_LayoutPublico";
+    ViewData["Title"] = "Información KRÒ Training";
 }
 
-<section class="public-hero" aria-labelledby="presentacion-titulo">
-    <div class="container">
-        <div class="row align-items-center g-5">
+<div class="kro-page-title">
+    Conoce KRÒ Training
+</div>
 
-            <div class="col-lg-7">
-                <span class="public-eyebrow">
-                    KRÒ Training · Conoce el gimnasio
-                </span>
+<p class="kro-page-subtitle">
+    Servicios disponibles para nuestros clientes.
+</p>
 
-                <h1 id="presentacion-titulo">
-                    Tu próximo paso<br />
-                    <span>empieza aquí.</span>
-                </h1>
+<div class="kro-actions" style="margin-bottom:20px; flex-wrap:wrap;">
+    @if (User.Identity!.IsAuthenticated)
+    {
+        @if (User.IsInRole("CLIENTE"))
+        {
+            <a href="/ControlAsistencia/RegistrarIngreso" class="kro-btn kro-btn-outline">Registrar mi ingreso</a>
+        }
+        @if (User.IsInRole("ADMINISTRADOR"))
+        {
+            <a href="/ControlAsistencia/HistorialAsistencia" class="kro-btn kro-btn-outline">Historial de asistencia</a>
+        }
+        @if (User.IsInRole("ENTRENADOR"))
+        {
+            <a href="/ControlAsistencia/VisualizarAsistencia" class="kro-btn kro-btn-outline">Mis clientes</a>
+        }
+        <a href="/Cuenta/Perfil" class="kro-btn kro-btn-outline">Mi perfil</a>
+        <form asp-controller="Cuenta" asp-action="Logout" method="post" style="display:inline;">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="kro-btn kro-btn-secondary">Cerrar sesión</button>
+        </form>
+    }
+    else
+    {
+        <a href="/Cuenta/Login" class="kro-btn kro-btn-outline">Iniciar sesión</a>
+        <a href="/Cuenta/Registro" class="kro-btn kro-btn-primary">Crear cuenta</a>
+    }
+</div>
 
-                <p class="public-lead">
-                    Conoce nuestros servicios de entrenamiento,
-                    seguimiento físico y actividades grupales.
-                    Encuentra una forma de avanzar hacia tus objetivos.
-                </p>
+<div class="kro-card">
 
-                <div class="public-actions">
-                    <a href="#servicios"
-                       class="public-button public-button-primary">
-                        Explorar servicios
-                        <i class="bi bi-arrow-right"
-                           aria-hidden="true"></i>
-                    </a>
-
-                    <a href="#informacion"
-                       class="public-button public-button-outline">
-                        Conocer el gimnasio
-                    </a>
-                </div>
-
-                <p class="public-note">
-                    Consulta la información sin crear una cuenta.
-                </p>
-            </div>
-
-            <div class="col-lg-5">
-                <aside class="public-highlight"
-                       aria-labelledby="enfoque-titulo">
-
-                    <p class="public-highlight-label">
-                        NUESTRO ENFOQUE
-                    </p>
-
-                    <h2 id="enfoque-titulo">
-                        Entrena con un objetivo.
-                    </h2>
-
-                    <div class="public-feature">
-                        <span class="public-feature-number"
-                              aria-hidden="true">01</span>
-                        <div>
-                            <h3>Entrenamiento</h3>
-                            <p>Rutinas según tu nivel y objetivo.</p>
-                        </div>
-                    </div>
-
-                    <div class="public-feature">
-                        <span class="public-feature-number"
-                              aria-hidden="true">02</span>
-                        <div>
-                            <h3>Seguimiento</h3>
-                            <p>Evaluaciones para conocer tu progreso.</p>
-                        </div>
-                    </div>
-
-                    <div class="public-feature">
-                        <span class="public-feature-number"
-                              aria-hidden="true">03</span>
-                        <div>
-                            <h3>Participación</h3>
-                            <p>Clases y actividades grupales.</p>
-                        </div>
-                    </div>
-                </aside>
-            </div>
-
-        </div>
+    <div class="kro-card-title">
+        Nuestros servicios
     </div>
-</section>
 
-<section id="informacion"
-         class="public-section public-about"
-         aria-labelledby="informacion-titulo">
+    <div class="kro-stat-grid">
 
-    <div class="container">
-        <div class="public-section-heading mb-0">
-            <span class="public-eyebrow">
-                Información general
-            </span>
-
-            <h2 id="informacion-titulo">
-                Conoce KRÒ Training
-            </h2>
-
-            <p>
-                KRÒ Training ofrece servicios de entrenamiento
-                y seguimiento físico, además de eventos y clases.
-                Explora las opciones disponibles antes de crear
-                una cuenta o iniciar sesión.
-            </p>
+        <div class="kro-stat-card">
+            <h3>ENTRENAMIENTO PERSONALIZADO</h3>
+            <strong style="font-size:16px;">Rutinas según tu nivel y objetivo</strong>
         </div>
+
+        <div class="kro-stat-card">
+            <h3>SEGUIMIENTO FÍSICO</h3>
+            <strong style="font-size:16px;">Evaluaciones y metas medibles</strong>
+        </div>
+
+        <div class="kro-stat-card">
+            <h3>EVENTOS Y CLASES</h3>
+            <strong style="font-size:16px;">Actividades grupales todo el año</strong>
+        </div>
+
     </div>
-</section>
 
-<section id="servicios"
-         class="public-section"
-         aria-labelledby="servicios-titulo">
-
-    <div class="container">
-        <div class="public-section-heading">
-            <span class="public-eyebrow">
-                Nuestros servicios
-            </span>
-
-            <h2 id="servicios-titulo">
-                Opciones para acompañar tu entrenamiento
-            </h2>
-
-            <p>
-                Conoce las áreas de trabajo disponibles en el gimnasio.
-            </p>
-        </div>
-
-        <div class="row g-4">
-
-            <div class="col-md-6 col-lg-4">
-                <article class="public-service-card">
-                    <div class="public-service-icon">
-                        <i class="bi bi-bullseye"
-                           aria-hidden="true"></i>
-                    </div>
-
-                    <h3>Entrenamiento personalizado</h3>
-
-                    <p>
-                        Rutinas orientadas a tu nivel y objetivo,
-                        para dar dirección a tus sesiones
-                        de entrenamiento.
-                    </p>
-                </article>
-            </div>
-
-            <div class="col-md-6 col-lg-4">
-                <article class="public-service-card">
-                    <div class="public-service-icon">
-                        <i class="bi bi-graph-up-arrow"
-                           aria-hidden="true"></i>
-                    </div>
-
-                    <h3>Seguimiento físico</h3>
-
-                    <p>
-                        Evaluaciones y seguimiento de metas
-                        para conocer tu evolución a lo largo
-                        del entrenamiento.
-                    </p>
-                </article>
-            </div>
-
-            <div class="col-md-6 col-lg-4">
-                <article class="public-service-card">
-                    <div class="public-service-icon">
-                        <i class="bi bi-people"
-                           aria-hidden="true"></i>
-                    </div>
-
-                    <h3>Eventos y clases</h3>
-
-                    <p>
-                        Actividades grupales para complementar
-                        tu entrenamiento y compartir
-                        con otras personas.
-                    </p>
-                </article>
-            </div>
-
-        </div>
-    </div>
-</section>
+</div>

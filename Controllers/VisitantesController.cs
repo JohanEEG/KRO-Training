@@ -1,23 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace KRO_Training_Performance.Controllers
+namespace KROTraining.Controllers
 {
     public class VisitantesController : Controller
     {
+        // HU-12 — Consultar información general del gimnasio
         [AllowAnonymous]
         [HttpGet]
         public IActionResult Informacion()
-        {
-            return View();
-        }
-
-        public IActionResult Registro()
-        {
-            return View();
-        }
-
-        public IActionResult RegistroExitoso()
         {
             return View();
         }

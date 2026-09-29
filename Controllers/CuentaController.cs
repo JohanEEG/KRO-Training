@@ -62,7 +62,13 @@ namespace KROTraining.Controllers
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
-            return RedirectToAction("Index", "Home");
+            return usuario.Rol?.Nombre switch
+            {
+                "ADMINISTRADOR" => RedirectToAction("HistorialAsistencia", "ControlAsistencia"),
+                "ENTRENADOR" => RedirectToAction("VisualizarAsistencia", "ControlAsistencia"),
+                "CLIENTE" => RedirectToAction("RegistrarIngreso", "ControlAsistencia"),
+                _ => RedirectToAction("Index", "Home")
+            };
         }
 
         // POST: /Cuenta/Logout (HU-11)
@@ -97,7 +103,7 @@ namespace KROTraining.Controllers
             if (string.IsNullOrEmpty(nombre) || string.IsNullOrEmpty(correo) || string.IsNullOrEmpty(contrasena))
             {
                 ModelState.AddModelError(string.Empty, "Por favor, complete los campos obligatorios.");
-                return View();
+                return View(); // HU-14: información obligatoria incompleta
             }
 
             // Validar si el correo ya está registrado
@@ -105,23 +111,54 @@ namespace KROTraining.Controllers
             if (existeCorreo)
             {
                 ModelState.AddModelError(string.Empty, "El correo electrónico ya se encuentra registrado.");
+                return View(); // HU-14: correo ya registrado
+            }
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                // 1. Registro de trazabilidad en VISITANTE (HU-14)
+                var visitante = new Visitante
+                {
+                    Nombre = nombre,
+                    Correo = correo,
+                    Telefono = telefono,
+                    FechaRegistro = DateTime.Now,
+                    ConvertidoCliente = false
+                };
+                _context.Visitantes.Add(visitante);
+                await _context.SaveChangesAsync();
+
+                // 2. Crear el USUARIO con rol CLIENTE (rol_id = 3, corregido: antes decía 2 = ENTRENADOR)
+                var nuevoUsuario = new Usuario
+                {
+                    Nombre = nombre,
+                    Correo = correo,
+                    ContrasenaHash = contrasena,
+                    Telefono = telefono,
+                    RolId = 3 // CLIENTE
+                };
+                _context.Usuarios.Add(nuevoUsuario);
+                await _context.SaveChangesAsync();
+
+                // 3. Crear la fila en CLIENTE (antes faltaba por completo)
+                _context.Clientes.Add(new Cliente { UsuarioId = nuevoUsuario.UsuarioId });
+
+                // 4. Vincular el visitante con la cuenta ya creada
+                visitante.UsuarioId = nuevoUsuario.UsuarioId;
+                visitante.ConvertidoCliente = true;
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                ModelState.AddModelError(string.Empty, "Ocurrió un error al procesar el registro. Intente de nuevo.");
                 return View();
             }
 
-            // Crear el nuevo usuario
-            var nuevoUsuario = new Usuario
-            {
-                Nombre = nombre,
-                Correo = correo,
-                ContrasenaHash = contrasena,
-                Telefono = telefono,
-                RolId = 2 // Asegúrese de que este ID exista en su tabla Rol (ej. "Cliente")
-            };
-
-            _context.Usuarios.Add(nuevoUsuario);
-            await _context.SaveChangesAsync();
-
-            TempData["Mensaje"] = "Cuenta creada exitosamente. Ahora puede iniciar sesión.";
+            TempData["Mensaje"] = "Cuenta creada exitosamente. Ahora puede iniciar sesión."; // HU-14: registro exitoso
             return RedirectToAction(nameof(Login));
         }
 

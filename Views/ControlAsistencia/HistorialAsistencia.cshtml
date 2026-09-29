@@ -1,4 +1,6 @@
-﻿@{
+﻿@model List<KROTraining.Models.Asistencium>
+
+@{
     ViewData["Title"] = "Historial de Asistencia";
 }
 
@@ -10,266 +12,76 @@
     Consulte los registros de asistencia de los clientes del gimnasio.
 </p>
 
+<div class="kro-actions" style="margin-bottom:20px; flex-wrap:wrap;">
+    <a href="/ControlAsistencia/HistorialAsistencia" class="kro-btn kro-btn-outline">Historial de asistencia</a>
+    <a href="/Cuenta/Perfil" class="kro-btn kro-btn-outline">Mi perfil</a>
+    <form asp-controller="Cuenta" asp-action="Logout" method="post" style="display:inline;">
+        @Html.AntiForgeryToken()
+        <button type="submit" class="kro-btn kro-btn-secondary">Cerrar sesión</button>
+    </form>
+</div>
 
 <div class="kro-card">
 
     <div class="kro-card-title">
-        Consultar asistencia
+        Filtrar por rango de fechas
     </div>
 
-
-    <div class="kro-form-grid">
-
-        <div class="kro-form-group">
-
-            <label class="kro-form-label">
-                Cliente
-            </label>
-
-            <select class="kro-form-control">
-
-                <option>Seleccione un cliente</option>
-                <option>Juan Pérez</option>
-                <option>María Rodríguez</option>
-                <option>Carlos Vargas</option>
-                <option>Ana González</option>
-
-            </select>
-
-        </div>
-
+    <form method="get" class="kro-form-grid">
 
         <div class="kro-form-group">
-
-            <label class="kro-form-label">
-                Fecha inicial
-            </label>
-
-            <input type="date"
-                   class="kro-form-control" />
-
+            <label class="kro-form-label">Fecha inicial</label>
+            <input type="date" name="fechaInicio" class="kro-form-control"
+                   value="@(ViewBag.FechaInicio != null ? ((DateOnly)ViewBag.FechaInicio).ToString("yyyy-MM-dd") : "")" />
         </div>
-
 
         <div class="kro-form-group">
-
-            <label class="kro-form-label">
-                Fecha final
-            </label>
-
-            <input type="date"
-                   class="kro-form-control" />
-
+            <label class="kro-form-label">Fecha final</label>
+            <input type="date" name="fechaFin" class="kro-form-control"
+                   value="@(ViewBag.FechaFin != null ? ((DateOnly)ViewBag.FechaFin).ToString("yyyy-MM-dd") : "")" />
         </div>
 
-    </div>
+        <div class="kro-form-group" style="align-self:flex-end;">
+            <button type="submit" class="kro-btn kro-btn-primary">Consultar asistencia</button>
+        </div>
 
-
-    <div class="kro-actions">
-
-        <button type="button"
-                class="kro-btn kro-btn-primary"
-                onclick="alert('Consulta realizada correctamente.');">
-            Consultar asistencia
-        </button>
-
-    </div>
+    </form>
 
 </div>
-
-
-<div class="kro-card">
-
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-
-        <div class="kro-card-title" style="margin:0;">
-            Registros de asistencia
-        </div>
-
-        <a href="/ControlAsistencia/RegistrarIngreso"
-           class="kro-btn kro-btn-outline">
-            + Registrar ingreso
-        </a>
-
-    </div>
-
-
-    <div class="kro-table-container">
-
-        <table class="kro-table">
-
-            <thead>
-
-                <tr>
-
-                    <th>Cliente</th>
-                    <th>Fecha</th>
-                    <th>Hora de ingreso</th>
-                    <th>Estado</th>
-
-                </tr>
-
-            </thead>
-
-
-            <tbody>
-
-                <tr>
-
-                    <td>
-                        Juan Pérez
-                    </td>
-
-                    <td>
-                        17/08/2026
-                    </td>
-
-                    <td>
-                        08:15 a.m.
-                    </td>
-
-                    <td>
-
-                        <span class="kro-badge kro-badge-green">
-                            Presente
-                        </span>
-
-                    </td>
-
-                </tr>
-
-
-                <tr>
-
-                    <td>
-                        María Rodríguez
-                    </td>
-
-                    <td>
-                        16/08/2026
-                    </td>
-
-                    <td>
-                        05:30 p.m.
-                    </td>
-
-                    <td>
-
-                        <span class="kro-badge kro-badge-green">
-                            Presente
-                        </span>
-
-                    </td>
-
-                </tr>
-
-
-                <tr>
-
-                    <td>
-                        Carlos Vargas
-                    </td>
-
-                    <td>
-                        15/08/2026
-                    </td>
-
-                    <td>
-                        07:45 a.m.
-                    </td>
-
-                    <td>
-
-                        <span class="kro-badge kro-badge-green">
-                            Presente
-                        </span>
-
-                    </td>
-
-                </tr>
-
-
-                <tr>
-
-                    <td>
-                        Ana González
-                    </td>
-
-                    <td>
-                        14/08/2026
-                    </td>
-
-                    <td>
-                        06:10 p.m.
-                    </td>
-
-                    <td>
-
-                        <span class="kro-badge kro-badge-green">
-                            Presente
-                        </span>
-
-                    </td>
-
-                </tr>
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-</div>
-
 
 <div class="kro-card">
 
     <div class="kro-card-title">
-        Resumen de asistencia
+        Registros de asistencia
     </div>
 
-
-    <div class="kro-stat-grid">
-
-        <div class="kro-stat-card">
-
-            <h3>
-                TOTAL DE INGRESOS
-            </h3>
-
-            <strong>
-                24
-            </strong>
-
+    @if (ViewBag.SinResultados)
+    {
+        <p>No hay registros de asistencia para el rango seleccionado.</p>
+    }
+    else
+    {
+        <div class="kro-table-container">
+            <table class="kro-table">
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Fecha</th>
+                        <th>Hora de ingreso</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var a in Model)
+                    {
+                        <tr>
+                            <td>@a.Cliente.Usuario.Nombre</td>
+                            <td>@a.Fecha.ToString("dd/MM/yyyy")</td>
+                            <td>@a.Hora.ToString("hh\\:mm tt")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
-
-
-        <div class="kro-stat-card">
-
-            <h3>
-                PROMEDIO SEMANAL
-            </h3>
-
-            <strong>
-                6
-            </strong>
-
-        </div>
-
-
-        <div class="kro-stat-card">
-
-            <h3>
-                ÚLTIMO INGRESO
-            </h3>
-
-            <strong style="font-size:22px;">
-                17/08/2026
-            </strong>
-
-        </div>
-
-    </div>
+    }
 
 </div>
-```

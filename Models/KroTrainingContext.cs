@@ -77,6 +77,8 @@ public partial class KroTrainingContext : DbContext
 
     public virtual DbSet<ValidacionPrediccion> ValidacionPrediccions { get; set; }
 
+    public virtual DbSet<Visitante> Visitantes { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -896,6 +898,35 @@ public partial class KroTrainingContext : DbContext
                 .HasForeignKey<ValidacionPrediccion>(d => d.PrediccionId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_VALIDACION_PREDICCION");
+        });
+
+        modelBuilder.Entity<Visitante>(entity =>
+        {
+            entity.HasKey(e => e.VisitanteId);
+
+            entity.ToTable("VISITANTE");
+
+            entity.HasIndex(e => e.Correo, "UQ_VISITANTE_CORREO").IsUnique();
+
+            entity.Property(e => e.VisitanteId).HasColumnName("visitante_id");
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(150)
+                .HasColumnName("nombre");
+            entity.Property(e => e.Correo)
+                .HasMaxLength(150)
+                .HasColumnName("correo");
+            entity.Property(e => e.Telefono)
+                .HasMaxLength(30)
+                .HasColumnName("telefono");
+            entity.Property(e => e.FechaRegistro)
+                .HasDefaultValueSql("(sysdatetime())")
+                .HasColumnName("fecha_registro");
+            entity.Property(e => e.ConvertidoCliente).HasColumnName("convertido_cliente");
+            entity.Property(e => e.UsuarioId).HasColumnName("usuario_id");
+
+            entity.HasOne(d => d.Usuario).WithMany()
+                .HasForeignKey(d => d.UsuarioId)
+                .HasConstraintName("FK_VISITANTE_USUARIO");
         });
 
         OnModelCreatingPartial(modelBuilder);
