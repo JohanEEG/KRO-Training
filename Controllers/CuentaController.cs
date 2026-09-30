@@ -106,7 +106,6 @@ namespace KROTraining.Controllers
                 return View(); // HU-14: información obligatoria incompleta
             }
 
-            // Validar si el correo ya está registrado
             var existeCorreo = await _context.Usuarios.AnyAsync(u => u.Correo == correo);
             if (existeCorreo)
             {
@@ -114,22 +113,9 @@ namespace KROTraining.Controllers
                 return View(); // HU-14: correo ya registrado
             }
 
-            using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                // 1. Registro de trazabilidad en VISITANTE (HU-14)
-                var visitante = new Visitante
-                {
-                    Nombre = nombre,
-                    Correo = correo,
-                    Telefono = telefono,
-                    FechaRegistro = DateTime.Now,
-                    ConvertidoCliente = false
-                };
-                _context.Visitantes.Add(visitante);
-                await _context.SaveChangesAsync();
-
-                // 2. Crear el USUARIO con rol CLIENTE (rol_id = 3, corregido: antes decía 2 = ENTRENADOR)
+                // Paso 1: crear el Usuario primero, para obtener su UsuarioId generado por la BD
                 var nuevoUsuario = new Usuario
                 {
                     Nombre = nombre,
@@ -141,24 +127,36 @@ namespace KROTraining.Controllers
                 _context.Usuarios.Add(nuevoUsuario);
                 await _context.SaveChangesAsync();
 
-                // 3. Crear la fila en CLIENTE (antes faltaba por completo)
-                _context.Clientes.Add(new Cliente { UsuarioId = nuevoUsuario.UsuarioId });
+                // Paso 2: crear Cliente con un badge único (evita el choque de UNIQUE en NULL)
+                var nuevoCliente = new Cliente
+                {
+                    UsuarioId = nuevoUsuario.UsuarioId,
+                    BadgeNumero = $"CLI-{nuevoUsuario.UsuarioId:D5}"
+                };
+                _context.Clientes.Add(nuevoCliente);
 
-                // 4. Vincular el visitante con la cuenta ya creada
-                visitante.UsuarioId = nuevoUsuario.UsuarioId;
-                visitante.ConvertidoCliente = true;
+                // Paso 3: registro de trazabilidad en VISITANTE
+                var visitante = new Visitante
+                {
+                    Nombre = nombre,
+                    Correo = correo,
+                    Telefono = telefono,
+                    FechaRegistro = DateTime.Now,
+                    ConvertidoCliente = true,
+                    UsuarioId = nuevoUsuario.UsuarioId
+                };
+                _context.Visitantes.Add(visitante);
 
                 await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
             }
-            catch
+            catch (Exception ex)
             {
-                await transaction.RollbackAsync();
-                ModelState.AddModelError(string.Empty, "Ocurrió un error al procesar el registro. Intente de nuevo.");
+                var mensajeError = ex.InnerException?.Message ?? ex.Message;
+                ModelState.AddModelError(string.Empty, $"Ocurrió un error al procesar el registro: {mensajeError}");
                 return View();
             }
 
-            TempData["Mensaje"] = "Cuenta creada exitosamente. Ahora puede iniciar sesión."; // HU-14: registro exitoso
+            TempData["Mensaje"] = "Cuenta creada exitosamente. Ahora puede iniciar sesión.";
             return RedirectToAction(nameof(Login));
         }
 
