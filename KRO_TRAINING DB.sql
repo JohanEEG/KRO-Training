@@ -918,3 +918,104 @@ GO
 
 
    ALTER TABLE USUARIO ADD cedula NVARCHAR(20) NULL;
+
+
+   -- ============================================================
+-- Correr esto, no borra nada, solo agrega si falta algo
+-- ============================================================
+
+USE KRO_Training;
+GO
+
+-- PASO 1: Tabla VISITANTE
+IF OBJECT_ID('dbo.VISITANTE', 'U') IS NULL
+BEGIN
+    CREATE TABLE VISITANTE
+    (
+        visitante_id       INT IDENTITY(1,1) NOT NULL,
+        nombre             NVARCHAR(150) NOT NULL,
+        correo             NVARCHAR(150) NOT NULL,
+        telefono           NVARCHAR(30) NULL,
+        fecha_registro     DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+        convertido_cliente BIT NOT NULL DEFAULT 0,
+        usuario_id         INT NULL,
+
+        CONSTRAINT PK_VISITANTE PRIMARY KEY (visitante_id),
+        CONSTRAINT UQ_VISITANTE_CORREO UNIQUE (correo),
+        CONSTRAINT FK_VISITANTE_USUARIO FOREIGN KEY (usuario_id) REFERENCES USUARIO(usuario_id)
+    );
+END
+GO
+
+-- PASO 2: Corregir clientes con badge_numero en NULL
+UPDATE CLIENTE
+SET badge_numero = 'CLI-' + RIGHT('00000' + CAST(usuario_id AS VARCHAR), 5)
+WHERE badge_numero IS NULL;
+GO
+
+-- PASO 3: Usuarios de prueba
+IF NOT EXISTS (SELECT 1 FROM USUARIO WHERE correo = 'admin@kro.com')
+BEGIN
+    INSERT INTO USUARIO (nombre, correo, contrasena_hash, rol_id, estado)
+    VALUES ('Admin Prueba', 'admin@kro.com', '1234', 1, 'ACTIVO');
+
+    INSERT INTO ADMINISTRADOR (usuario_id)
+    VALUES ((SELECT usuario_id FROM USUARIO WHERE correo = 'admin@kro.com'));
+END
+GO
+
+IF NOT EXISTS (SELECT 1 FROM USUARIO WHERE correo = 'entrenador@kro.com')
+BEGIN
+    INSERT INTO USUARIO (nombre, correo, contrasena_hash, rol_id, estado)
+    VALUES ('Entrenador Prueba', 'entrenador@kro.com', '1234', 2, 'ACTIVO');
+
+    INSERT INTO ENTRENADOR (usuario_id)
+    VALUES ((SELECT usuario_id FROM USUARIO WHERE correo = 'entrenador@kro.com'));
+END
+GO
+
+IF NOT EXISTS (SELECT 1 FROM USUARIO WHERE correo = 'cliente@kro.com')
+BEGIN
+    INSERT INTO USUARIO (nombre, correo, contrasena_hash, rol_id, estado)
+    VALUES ('Cliente Prueba', 'cliente@kro.com', '1234', 3, 'ACTIVO');
+
+    INSERT INTO CLIENTE (usuario_id, badge_numero)
+    VALUES (
+        (SELECT usuario_id FROM USUARIO WHERE correo = 'cliente@kro.com'),
+        'CLI-' + RIGHT('00000' + CAST((SELECT usuario_id FROM USUARIO WHERE correo = 'cliente@kro.com') AS VARCHAR), 5)
+    );
+END
+GO
+
+-- PASO 4: Plan y membresía activa para el cliente de prueba
+IF NOT EXISTS (SELECT 1 FROM PLAN_MEMBRESIA WHERE nombre = 'Mensual')
+BEGIN
+    INSERT INTO PLAN_MEMBRESIA (nombre, duracion_meses, precio)
+    VALUES ('Mensual', 1, 20000);
+END
+GO
+
+IF NOT EXISTS (
+    SELECT 1 FROM MEMBRESIA
+    WHERE cliente_id = (SELECT usuario_id FROM USUARIO WHERE correo = 'cliente@kro.com')
+)
+BEGIN
+    INSERT INTO MEMBRESIA (cliente_id, plan_id, fecha_inicio, fecha_fin, estado)
+    VALUES (
+        (SELECT usuario_id FROM USUARIO WHERE correo = 'cliente@kro.com'),
+        (SELECT plan_id FROM PLAN_MEMBRESIA WHERE nombre = 'Mensual'),
+        GETDATE(),
+        DATEADD(MONTH, 1, GETDATE()),
+        'ACTIVA'
+    );
+END
+GO
+
+-- PASO 5: Asignar el cliente de prueba al entrenador de prueba
+UPDATE CLIENTE
+SET entrenador_id = (SELECT usuario_id FROM USUARIO WHERE correo = 'entrenador@kro.com')
+WHERE usuario_id = (SELECT usuario_id FROM USUARIO WHERE correo = 'cliente@kro.com');
+GO
+
+PRINT 'Script completado.';
+GO
