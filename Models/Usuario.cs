@@ -17,6 +17,8 @@ public partial class Usuario
 
     public string? FotoPerfil { get; set; }
 
+    public string? Cedula { get; set; }
+
     public string Estado { get; set; } = null!;
 
     public DateTime FechaRegistro { get; set; }
