@@ -203,9 +203,21 @@ namespace KROTraining.Controllers
             return View();
         }
 
-        public IActionResult Roles()
+        [HttpGet]
+        public async Task<IActionResult> Roles()
         {
-            return View();
+            if (!await EsAdministradorActivoAsync())
+            {
+                return Forbid();
+            }
+
+            var roles = await _context.Rols
+                .AsNoTracking()
+                .Include(r => r.Permisos)
+                .OrderBy(r => r.Nombre)
+                .ToListAsync();
+
+            return View(roles);
         }
 
         public IActionResult NuevoRol()
@@ -213,11 +225,192 @@ namespace KROTraining.Controllers
             return View();
         }
 
-        public IActionResult EditarRol()
+        [HttpGet]
+        public async Task<IActionResult> EditarRol(int id)
         {
-            return View();
+            if (!await EsAdministradorActivoAsync())
+            {
+                return Forbid();
+            }
+
+            var rol = await _context.Rols
+                .AsNoTracking()
+                .Include(r => r.Permisos)
+                .SingleOrDefaultAsync(r => r.RolId == id);
+
+            if (rol == null)
+            {
+                return NotFound("El rol no fue encontrado.");
+            }
+
+            var permisosDisponibles = await _context.Permisos
+                .AsNoTracking()
+                .OrderBy(p => p.Nombre)
+                .Select(p => new PermisoOpcionViewModel
+                {
+                    PermisoId = p.PermisoId,
+                    Nombre = p.Nombre,
+                    Descripcion = p.Descripcion
+                })
+                .ToListAsync();
+
+            var model = new ConfigurarPermisosViewModel
+            {
+                RolId = rol.RolId,
+                NombreRol = rol.Nombre,
+                PermisosSeleccionados = rol.Permisos
+                    .Select(p => p.PermisoId)
+                    .ToList(),
+                PermisosDisponibles = permisosDisponibles
+            };
+
+            return View(model);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditarRol(
+    int id,
+    ConfigurarPermisosViewModel model)
+        {
+            // Comprobar el rol y el estado actual del administrador en la BD.
+            if (!await EsAdministradorActivoAsync())
+            {
+                return Forbid();
+            }
+
+            if (id <= 0 || id != model.RolId)
+            {
+                return BadRequest("El identificador del rol no es válido.");
+            }
+
+            var rol = await _context.Rols
+                .Include(r => r.Permisos)
+                .SingleOrDefaultAsync(r => r.RolId == id);
+
+            if (rol == null)
+            {
+                return NotFound("El rol no fue encontrado.");
+            }
+
+            var catalogo = await _context.Permisos
+                .OrderBy(p => p.Nombre)
+                .ToListAsync();
+
+            // Recuperar los datos informativos desde la base de datos.
+            model.NombreRol = rol.Nombre;
+
+            model.PermisosDisponibles = catalogo
+                .Select(p => new PermisoOpcionViewModel
+                {
+                    PermisoId = p.PermisoId,
+                    Nombre = p.Nombre,
+                    Descripcion = p.Descripcion
+                })
+                .ToList();
+
+            model.PermisosSeleccionados =
+                (model.PermisosSeleccionados ?? new List<int>())
+                .Distinct()
+                .ToList();
+
+            var seleccionados = model.PermisosSeleccionados.ToHashSet();
+            var idsDisponibles = catalogo
+                .Select(p => p.PermisoId)
+                .ToHashSet();
+
+            if (seleccionados.Any(idPermiso => !idsDisponibles.Contains(idPermiso)))
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Uno o más permisos seleccionados no existen. " +
+                    "Recargue la página y revise la selección.");
+            }
+
+            var nombresSeleccionados = catalogo
+                .Where(p => seleccionados.Contains(p.PermisoId))
+                .Select(p => p.Nombre)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            // Reglas de conflicto acordadas para la HU-66.
+            var dependencias = new[]
+            {
+        (
+            Accion: "COLABORADORES_EDITAR",
+            Consulta: "COLABORADORES_VER"
+        ),
+        (
+            Accion: "USUARIOS_ASIGNAR_ROL",
+            Consulta: "USUARIOS_VER"
+        ),
+        (
+            Accion: "ROLES_CONFIGURAR",
+            Consulta: "ROLES_VER"
+        )
+    };
+
+            foreach (var dependencia in dependencias)
+            {
+                if (nombresSeleccionados.Contains(dependencia.Accion) &&
+                    !nombresSeleccionados.Contains(dependencia.Consulta))
+                {
+                    ModelState.AddModelError(
+                        string.Empty,
+                        $"Conflicto de permisos: para asignar " +
+                        $"{dependencia.Accion}, también debe seleccionar " +
+                        $"{dependencia.Consulta}.");
+                }
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            // Retirar únicamente las asignaciones que se desmarcaron.
+            var permisosARetirar = rol.Permisos
+                .Where(p => !seleccionados.Contains(p.PermisoId))
+                .ToList();
+
+            foreach (var permiso in permisosARetirar)
+            {
+                rol.Permisos.Remove(permiso);
+            }
+
+            // Agregar únicamente las asignaciones que faltan.
+            var idsAsignados = rol.Permisos
+                .Select(p => p.PermisoId)
+                .ToHashSet();
+
+            foreach (var permiso in catalogo)
+            {
+                if (seleccionados.Contains(permiso.PermisoId) &&
+                    !idsAsignados.Contains(permiso.PermisoId))
+                {
+                    rol.Permisos.Add(permiso);
+                }
+            }
+
+            try
+            {
+                // EF guarda estos cambios juntos en una transacción.
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "No se pudo guardar la configuración. " +
+                    "Recargue la página e inténtelo nuevamente.");
+
+                return View(model);
+            }
+
+            TempData["MensajeExito"] =
+                $"Los permisos del rol {rol.Nombre} se guardaron correctamente.";
+
+            return RedirectToAction(nameof(Roles));
+        }
         private async Task CargarRolesAsync(int? seleccionado = null)
         {
             var roles = await _context.Rols

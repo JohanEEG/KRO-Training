@@ -1,304 +1,138 @@
-﻿@{
-    ViewData["Title"] = "Editar Rol";
+﻿@model KROTraining.Models.ConfigurarPermisosViewModel
+
+@{
+    ViewData["Title"] = "Configurar permisos";
 }
 
 <div class="kro-page-title">
-    Editar rol
+    Configurar permisos
 </div>
 
 <p class="kro-page-subtitle">
-    Modifique las acciones y permisos disponibles para este rol.
+    Seleccione los permisos asociados al rol.
 </p>
 
+<form asp-controller="Usuarios"
+      asp-action="EditarRol"
+      asp-route-id="@Model.RolId"
+      method="post">
 
-<div class="kro-card">
+    <input asp-for="RolId" type="hidden" />
 
-    <div class="kro-card-title">
-        Información del rol
+    <div asp-validation-summary="All"
+         role="alert"
+         style="color:#B71C1C; margin-bottom:16px;">
     </div>
 
-
-    <div class="kro-form-grid">
+    <div class="kro-card">
+        <div class="kro-card-title">
+            Información del rol
+        </div>
 
         <div class="kro-form-group">
-
-            <label class="kro-form-label">
+            <label for="nombreRol" class="kro-form-label">
                 Nombre del rol
             </label>
 
-            <input type="text"
+            <input id="nombreRol"
+                   type="text"
                    class="kro-form-control"
-                   value="Empleado" />
-
+                   value="@Model.NombreRol"
+                   readonly />
         </div>
 
-
-        <div class="kro-form-group">
-
-            <label class="kro-form-label">
-                Estado
-            </label>
-
-            <select class="kro-form-control">
-
-                <option selected>
-                    Activo
-                </option>
-
-                <option>
-                    Inactivo
-                </option>
-
-            </select>
-
-        </div>
-
+        <p style="color:#666; font-size:14px; margin-bottom:0;">
+            Esta pantalla configura los permisos del rol.
+            Su nombre se conserva.
+        </p>
     </div>
 
+    <div class="kro-card">
+        <div class="kro-card-title">
+            Acciones y permisos
+        </div>
 
-    <div class="kro-form-group">
+        <p style="color:#666; font-size:14px;">
+            Marque los permisos que desea asignar y desmarque
+            los que desea retirar.
+        </p>
 
-        <label class="kro-form-label">
-            Descripción
-        </label>
+        @if (Model.PermisosDisponibles.Count == 0)
+        {
+            <p role="status">
+                No hay permisos registrados en el catálogo.
+            </p>
+        }
+        else
+        {
+            <div style="display:grid;
+                grid-template-columns:repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+                gap:16px;">
 
-        <textarea class="kro-form-control"
-                  rows="3">Puede gestionar clientes, rutinas, asistencia y consultar reportes.</textarea>
+                @foreach (var permiso in Model.PermisosDisponibles)
+                {
+                    var seleccionado =
+                        Model.PermisosSeleccionados.Contains(permiso.PermisoId);
 
+                    <div class="kro-permission-module"
+                         style="padding:18px;
+                        border:1px solid #DDD;
+                        border-radius:8px;">
+
+                        <label for="permiso-@permiso.PermisoId"
+                               style="display:flex;
+                            align-items:flex-start;
+                            gap:10px;
+                            cursor:pointer;">
+
+                            <input id="permiso-@permiso.PermisoId"
+                                   type="checkbox"
+                                   name="PermisosSeleccionados"
+                                   value="@permiso.PermisoId"
+                                   checked="@seleccionado"
+                                   style="margin-top:3px;
+                            accent-color:#D62828;" />
+
+                            <span>
+                                <strong style="overflow-wrap:anywhere;">
+                                    @permiso.Nombre
+                                </strong>
+
+                                @if (!string.IsNullOrWhiteSpace(permiso.Descripcion))
+                                {
+                                    <span style="display:block;
+                                        margin-top:6px;
+                                        color:#666;
+                                        font-size:14px;
+                                        line-height:1.5;">
+                                        @permiso.Descripcion
+                                    </span>
+                                }
+                            </span>
+                        </label>
+                    </div>
+                }
+            </div>
+        }
+
+        <div class="kro-actions"
+             style="display:flex;
+            justify-content:flex-end;
+            flex-wrap:wrap;
+            gap:12px;
+            margin-top:24px;">
+
+            <a asp-controller="Usuarios"
+               asp-action="Roles"
+               class="kro-btn kro-btn-secondary">
+                Cancelar
+            </a>
+
+            <button type="submit"
+                    class="kro-btn kro-btn-primary"
+                    disabled="@(Model.PermisosDisponibles.Count == 0)">
+                Guardar cambios
+            </button>
+        </div>
     </div>
-
-</div>
-
-
-<div class="kro-card">
-
-    <div class="kro-card-title">
-        Acciones y permisos
-    </div>
-
-
-    <p style="color:#666; font-size:14px;">
-        Active o desactive las acciones que los usuarios pertenecientes a este rol podrán realizar.
-    </p>
-
-
-    <div class="kro-permission-grid">
-
-
-        <!-- CLIENTES -->
-
-        <div class="kro-permission-module">
-
-            <h3>
-                Clientes
-            </h3>
-
-            <label class="kro-permission">
-                <input type="checkbox" checked>
-                Ver
-            </label>
-
-            <label class="kro-permission">
-                <input type="checkbox" checked>
-                Crear
-            </label>
-
-            <label class="kro-permission">
-                <input type="checkbox" checked>
-                Editar
-            </label>
-
-            <label class="kro-permission">
-                <input type="checkbox">
-                Eliminar
-            </label>
-
-        </div>
-
-
-        <!-- USUARIOS -->
-
-        <div class="kro-permission-module">
-
-            <h3>
-                Usuarios
-            </h3>
-
-            <label class="kro-permission">
-                <input type="checkbox">
-                Ver
-            </label>
-
-            <label class="kro-permission">
-                <input type="checkbox">
-                Crear
-            </label>
-
-            <label class="kro-permission">
-                <input type="checkbox">
-                Editar
-            </label>
-
-            <label class="kro-permission">
-                <input type="checkbox">
-                Eliminar
-            </label>
-
-        </div>
-
-
-        <!-- RUTINAS -->
-
-        <div class="kro-permission-module">
-
-            <h3>
-                Rutinas
-            </h3>
-
-            <label class="kro-permission">
-                <input type="checkbox" checked>
-                Ver
-            </label>
-
-            <label class="kro-permission">
-                <input type="checkbox" checked>
-                Crear
-            </label>
-
-            <label class="kro-permission">
-                <input type="checkbox" checked>
-                Editar
-            </label>
-
-            <label class="kro-permission">
-                <input type="checkbox">
-                Eliminar
-            </label>
-
-        </div>
-
-
-        <!-- ASISTENCIA -->
-
-        <div class="kro-permission-module">
-
-            <h3>
-                Asistencia
-            </h3>
-
-            <label class="kro-permission">
-                <input type="checkbox" checked>
-                Ver
-            </label>
-
-            <label class="kro-permission">
-                <input type="checkbox" checked>
-                Registrar
-            </label>
-
-            <label class="kro-permission">
-                <input type="checkbox">
-                Editar
-            </label>
-
-            <label class="kro-permission">
-                <input type="checkbox">
-                Eliminar
-            </label>
-
-        </div>
-
-
-        <!-- REPORTES -->
-
-        <div class="kro-permission-module">
-
-            <h3>
-                Reportes
-            </h3>
-
-            <label class="kro-permission">
-                <input type="checkbox" checked>
-                Consultar
-            </label>
-
-            <label class="kro-permission">
-                <input type="checkbox" checked>
-                Generar
-            </label>
-
-            <label class="kro-permission">
-                <input type="checkbox">
-                Exportar
-            </label>
-
-        </div>
-
-
-        <!-- EVENTOS -->
-
-        <div class="kro-permission-module">
-
-            <h3>
-                Eventos deportivos
-            </h3>
-
-            <label class="kro-permission">
-                <input type="checkbox" checked>
-                Ver
-            </label>
-
-            <label class="kro-permission">
-                <input type="checkbox">
-                Crear
-            </label>
-
-            <label class="kro-permission">
-                <input type="checkbox">
-                Editar
-            </label>
-
-            <label class="kro-permission">
-                <input type="checkbox">
-                Eliminar
-            </label>
-
-        </div>
-
-    </div>
-
-
-    <div class="kro-actions">
-
-        <a href="/Usuarios/Roles"
-           class="kro-btn kro-btn-secondary">
-
-            Cancelar
-
-        </a>
-
-
-        <button type="button"
-                class="kro-btn kro-btn-primary"
-                onclick="guardarRol()">
-
-            Guardar cambios
-
-        </button>
-
-    </div>
-
-</div>
-
-
-<script>
-
-    function guardarRol() {
-
-        alert(
-            "Los permisos del rol se actualizaron correctamente."
-        );
-
-    }
-
-</script>
+</form>

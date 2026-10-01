@@ -1024,3 +1024,78 @@ GO
 /* ============================================================
    FIN DEL SCRIPT para el sprint1
    ============================================================ */
+
+   /* ============================================================
+   ACTUALIZACION HU-66 / SCRUM-63
+   OBJETIVO: Agregar el catalogo inicial de permisos.
+
+   Ejecutar UNICAMENTE este bloque completo.
+   Requiere las tablas existentes de KRO_Training.
+   No elimina datos ni asigna permisos a los roles.
+   Puede repetirse: agrega solamente los nombres que falten.
+   ============================================================ */
+
+USE [KRO_Training];
+GO
+
+SET XACT_ABORT ON;
+
+BEGIN TRY
+    BEGIN TRANSACTION;
+
+    INSERT INTO dbo.PERMISO (nombre, descripcion)
+    SELECT propuesta.nombre, propuesta.descripcion
+    FROM
+    (
+        VALUES
+        (N'COLABORADORES_VER',
+         N'Consultar el listado de colaboradores.'),
+
+        (N'COLABORADORES_CREAR',
+         N'Registrar nuevos colaboradores.'),
+
+        (N'COLABORADORES_EDITAR',
+         N'Editar la información y el rol de colaboradores.'),
+
+        (N'COLABORADORES_BAJA',
+         N'Dar de baja a colaboradores.'),
+
+        (N'USUARIOS_VER',
+         N'Consultar el listado de usuarios.'),
+
+        (N'USUARIOS_ASIGNAR_ROL',
+         N'Asignar un rol a un usuario.'),
+
+        (N'ROLES_VER',
+         N'Consultar los roles y sus permisos.'),
+
+        (N'ROLES_CONFIGURAR',
+         N'Configurar los permisos asociados a un rol.'),
+
+        (N'PANEL_VER',
+         N'Acceder al panel principal.')
+    ) AS propuesta(nombre, descripcion)
+    WHERE NOT EXISTS
+    (
+        SELECT 1
+        FROM dbo.PERMISO AS existente
+        WHERE existente.nombre = propuesta.nombre
+    );
+
+    COMMIT TRANSACTION;
+
+    PRINT N'HU-66: catálogo de permisos actualizado.';
+
+    SELECT permiso_id, nombre, descripcion
+    FROM dbo.PERMISO
+    ORDER BY nombre;
+END TRY
+BEGIN CATCH
+    IF XACT_STATE() <> 0
+        ROLLBACK TRANSACTION;
+
+    THROW;
+END CATCH;
+GO
+
+/* ================= FIN ACTUALIZACION HU-66 ================= */
