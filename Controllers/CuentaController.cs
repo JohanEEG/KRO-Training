@@ -6,17 +6,84 @@ using Microsoft.AspNetCore.Mvc;
 using KROTraining.Models;
 using System.Net;
 using System.Net.Mail;
+using Microsoft.AspNetCore.Identity;
 
 namespace KROTraining.Controllers
 {
     public class CuentaController : Controller
     {
         private readonly KroTrainingContext _context;
+        private readonly IPasswordHasher<Usuario> _passwordHasher;
 
-        // Inyectamos el contexto de la base de datos
-        public CuentaController(KroTrainingContext context)
+        public CuentaController(
+            KroTrainingContext context,
+            IPasswordHasher<Usuario> passwordHasher)
         {
             _context = context;
+            _passwordHasher = passwordHasher;
+        }
+        private bool VerificarContrasena(
+    Usuario usuario,
+    string contrasena,
+    out bool actualizarHash)
+        {
+            actualizarHash = false;
+
+            if (string.IsNullOrEmpty(contrasena) ||
+                string.IsNullOrEmpty(usuario.ContrasenaHash))
+            {
+                return false;
+            }
+
+            var almacenada = usuario.ContrasenaHash;
+
+            // Reconocer el formato de PasswordHasher de ASP.NET Core Identity.
+            bool formatoIdentity = false;
+
+            try
+            {
+                var datos = Convert.FromBase64String(almacenada);
+
+                formatoIdentity = datos.Length > 0 &&
+                    (datos[0] == 0 || datos[0] == 1);
+            }
+            catch (FormatException)
+            {
+                // Las contraseñas antiguas pueden no ser Base64.
+            }
+
+            if (formatoIdentity)
+            {
+                try
+                {
+                    var resultado = _passwordHasher.VerifyHashedPassword(
+                        usuario,
+                        almacenada,
+                        contrasena);
+
+                    actualizarHash =
+                        resultado == PasswordVerificationResult.SuccessRehashNeeded;
+
+                    return resultado != PasswordVerificationResult.Failed;
+                }
+                catch (FormatException)
+                {
+                    return false;
+                }
+            }
+
+            // Compatibilidad temporal con las cuentas antiguas.
+            // Si coincide, el login la convertirá a hash.
+            if (!string.Equals(
+                    almacenada,
+                    contrasena,
+                    StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            actualizarHash = true;
+            return true;
         }
 
         // GET: /Cuenta/Login
@@ -45,12 +112,35 @@ namespace KROTraining.Controllers
                 .Include(u => u.Rol)
                 .FirstOrDefaultAsync(u => u.Correo == correo);
 
-            if (usuario == null || usuario.ContrasenaHash != contrasena)
+            if (usuario == null)
             {
-                ModelState.AddModelError(string.Empty, "Correo o contraseña incorrectos.");
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Correo o contraseña incorrectos.");
+
                 return View();
             }
 
+            if (!VerificarContrasena(
+                    usuario,
+                    contrasena,
+                    out var actualizarHash))
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Correo o contraseña incorrectos.");
+
+                return View();
+            }
+
+            if (actualizarHash)
+            {
+                usuario.ContrasenaHash = _passwordHasher.HashPassword(
+                    usuario,
+                    contrasena);
+
+                await _context.SaveChangesAsync();
+            }
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, usuario.UsuarioId.ToString()),
@@ -120,10 +210,12 @@ namespace KROTraining.Controllers
                 {
                     Nombre = nombre,
                     Correo = correo,
-                    ContrasenaHash = contrasena,
                     Telefono = telefono,
                     RolId = 3 // CLIENTE
                 };
+                nuevoUsuario.ContrasenaHash = _passwordHasher.HashPassword(
+                nuevoUsuario,
+                contrasena);
                 _context.Usuarios.Add(nuevoUsuario);
                 await _context.SaveChangesAsync();
 
@@ -365,7 +457,9 @@ namespace KROTraining.Controllers
             }
 
             // Actualizamos la contraseña en la base de datos
-            usuario.ContrasenaHash = model.NuevaContrasena;
+            usuario.ContrasenaHash = _passwordHasher.HashPassword(
+            usuario,
+            model.NuevaContrasena);
             _context.Update(usuario);
             await _context.SaveChangesAsync();
 
@@ -385,13 +479,22 @@ namespace KROTraining.Controllers
             }
 
             var usuario = await _context.Usuarios.FindAsync(usuarioId);
-            if (usuario == null || usuario.ContrasenaHash != passwordActual)
+            if (usuario == null ||
+            !VerificarContrasena(usuario, passwordActual, out _))
             {
                 TempData["Error"] = "La contraseña actual es incorrecta.";
                 return RedirectToAction(nameof(Perfil));
             }
 
-            usuario.ContrasenaHash = nuevoPassword;
+            if (string.IsNullOrWhiteSpace(nuevoPassword))
+            {
+                TempData["Error"] = "Ingrese la nueva contraseña.";
+                return RedirectToAction(nameof(Perfil));
+            }
+
+            usuario.ContrasenaHash = _passwordHasher.HashPassword(
+                usuario,
+                nuevoPassword);
             _context.Update(usuario);
             await _context.SaveChangesAsync();
 
