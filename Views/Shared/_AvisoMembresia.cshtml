@@ -1,0 +1,100 @@
+﻿@{
+    var aviso = TempData["AvisoMembresia"] as string;
+    var mensaje = TempData["AvisoMensaje"] as string;
+    var errorNotif = TempData["ErrorNotificacion"] as string;
+    var urlPago = "/Membresias/RegistrarPago";
+}
+
+@if (!string.IsNullOrEmpty(aviso))
+{
+    var vencida = aviso == "VENCIDA";
+    <style>
+        .aviso-fondo {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.55);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .aviso-caja {
+            background: #fff;
+            border-radius: 10px;
+            padding: 30px;
+            max-width: 440px;
+            width: 90%;
+            text-align: center;
+            border-top: 6px solid @(vencida ? "#D62828" : "#d99a00");
+        }
+
+            .aviso-caja h3 {
+                margin: 0 0 10px;
+                color: #1C1C1C;
+            }
+
+            .aviso-caja p {
+                color: #3A3A3A;
+                margin-bottom: 24px;
+            }
+
+        .aviso-btns {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .aviso-pagar, .aviso-cancelar {
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 1.2;
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            color: #fff;
+            display: inline-block;
+        }
+
+        .aviso-pagar {
+            background: #16A34A;
+        }
+
+            .aviso-pagar:hover {
+                background: #15803D;
+                color: #fff;
+            }
+
+        .aviso-cancelar {
+            background: #D62828;
+        }
+
+            .aviso-cancelar:hover {
+                background: #B91C1C;
+            }
+    </style>
+
+    <div class="aviso-fondo" id="avisoMembresia">
+        <div class="aviso-caja">
+            <h3>@(vencida ? "Su membresía está vencida" : "Su membresía está por vencer")</h3>
+            <p>@mensaje</p>
+            <div class="aviso-btns">
+                <a href="@urlPago" class="aviso-pagar">Pagar membresía</a>
+                <button type="button" class="aviso-cancelar"
+                        onclick="document.getElementById('avisoMembresia').style.display='none'">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(errorNotif))
+{
+    <div class="kro-badge" style="background:#f8d7da; color:#842029; display:inline-block; padding:8px 14px; margin-bottom:12px;">
+        @errorNotif
+    </div>
+}

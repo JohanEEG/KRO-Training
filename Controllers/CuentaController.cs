@@ -152,6 +152,26 @@ namespace KROTraining.Controllers
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
+            // HU-29: aviso de membresía vencida / por vencer al iniciar sesión
+            if (usuario.Rol?.Nombre == "CLIENTE")
+            {
+                try
+                {
+                    var estadoMembresia = await MembresiaHelper.ObtenerEstadoAsync(_context, usuario.UsuarioId);
+
+                    if (estadoMembresia.Estado == "VENCIDA" || estadoMembresia.Estado == "POR_VENCER")
+                    {
+                        await MembresiaHelper.RegistrarNotificacionAsync(_context, usuario.UsuarioId, estadoMembresia);
+                        TempData["AvisoMembresia"] = estadoMembresia.Estado;
+                        TempData["AvisoMensaje"] = estadoMembresia.Mensaje;
+                    }
+                }
+                catch
+                {
+                    TempData["ErrorNotificacion"] = "No se pudo generar la notificación de membresía.";
+                }
+            }
+
             return usuario.Rol?.Nombre switch
             {
                 "ADMINISTRADOR" => RedirectToAction("HistorialAsistencia", "ControlAsistencia"),

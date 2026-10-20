@@ -12,7 +12,10 @@
     Registre su ingreso al gimnasio KRÒ Training.
 </p>
 
+<partial name="_AvisoMembresia" />
+
 <div class="kro-actions" style="margin-bottom:20px; flex-wrap:wrap;">
+    <a href="/MiMembresia/Index" class="kro-btn kro-btn-outline">Mi membresía</a>
     <a href="/Cuenta/Perfil" class="kro-btn kro-btn-outline">Mi perfil</a>
     <form asp-controller="Cuenta" asp-action="Logout" method="post" style="display:inline;">
         @Html.AntiForgeryToken()
@@ -73,4 +76,4 @@
         </div>
     </form>
 
-</div>  
+</div>

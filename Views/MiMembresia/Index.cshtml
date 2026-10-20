@@ -1,0 +1,107 @@
+﻿@model KROTraining.Models.MembresiaEstadoViewModel
+
+@{
+    ViewData["Title"] = "Mi membresía";
+    var notificaciones = ViewBag.Notificaciones as List<KROTraining.Models.Notificacion> ?? new List<KROTraining.Models.Notificacion>();
+}
+
+<style>
+    .m-badge { display:inline-block; padding:6px 14px; border-radius:20px; font-size:13px; font-weight:600; }
+    .m-verde { background:#d1e7dd; color:#0f5132; }
+    .m-ambar { background:#fff3cd; color:#664d03; }
+    .m-rojo  { background:#f8d7da; color:#842029; }
+    .m-gris  { background:#e2e3e5; color:#3A3A3A; }
+
+    .m-btn-azul {
+        background: #16A34A;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+    }
+        .m-btn-azul:hover {
+            background: #15803D;
+            color: #fff;
+        }
+    .m-dato { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #eee; }
+</style>
+
+<div class="kro-page-title">Mi membresía</div>
+<p class="kro-page-subtitle">Consulte la vigencia y la fecha de vencimiento de su membresía.</p>
+
+<div class="kro-actions" style="margin-bottom:20px; flex-wrap:wrap;">
+    <a href="/ControlAsistencia/RegistrarIngreso" class="kro-btn kro-btn-outline">Registrar ingreso</a>
+    <a href="/Cuenta/Perfil" class="kro-btn kro-btn-outline">Mi perfil</a>
+    <form asp-controller="Cuenta" asp-action="Logout" method="post" style="display:inline;">
+        @Html.AntiForgeryToken()
+        <button type="submit" class="kro-btn kro-btn-secondary">Cerrar sesión</button>
+    </form>
+</div>
+
+<div class="kro-card">
+    <div class="kro-card-title">Estado de la membresía</div>
+
+    @if (Model.Estado == "INEXISTENTE")
+    {
+        <p><span class="m-badge m-gris">Sin membresía</span></p>
+        <p>@Model.Mensaje</p>
+        <a href="/Membresias/RegistrarPago" class="m-btn-azul">Adquirir membresía</a>
+    }
+    else
+    {
+        <p>
+            @if (Model.Estado == "VIGENTE")
+            {
+                <span class="m-badge m-verde">Vigente</span>
+            }
+            else if (Model.Estado == "POR_VENCER")
+            {
+
+                <span class="m-badge m-ambar">Por vencer</span>
+            }
+            else
+            {
+
+                <span class="m-badge m-rojo">Vencida</span>
+            }
+        </p>
+        <p>@Model.Mensaje</p>
+
+        <div class="m-dato"><span>Plan</span><strong>@Model.Plan</strong></div>
+        <div class="m-dato"><span>Fecha de inicio</span><strong>@Model.FechaInicio?.ToString("dd/MM/yyyy")</strong></div>
+        <div class="m-dato"><span>Fecha de vencimiento</span><strong>@Model.FechaFin?.ToString("dd/MM/yyyy")</strong></div>
+        @if (Model.Estado != "VENCIDA")
+        {
+            <div class="m-dato"><span>Días restantes</span><strong>@Model.DiasRestantes</strong></div>
+        }
+
+        @if (Model.Estado != "VIGENTE")
+        {
+            <div style="margin-top:20px;">
+                <a href="/Membresias/RegistrarPago" class="m-btn-azul">Pagar / renovar membresía</a>
+            </div>
+        }
+    }
+</div>
+
+<div class="kro-card">
+    <div class="kro-card-title">Notificaciones</div>
+
+    @if (!notificaciones.Any())
+    {
+        <p>No tienes notificaciones pendientes.</p>
+    }
+    else
+    {
+        @foreach (var n in notificaciones)
+        {
+            <div class="m-dato">
+                <span>@n.Mensaje</span>
+                <small>@n.Fecha.ToString("dd/MM/yyyy HH:mm")</small>
+            </div>
+        }
+    }
+</div>
