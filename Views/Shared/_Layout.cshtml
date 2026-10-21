@@ -61,6 +61,15 @@
                     </a>
                 </li>
                 <li>
+                    @if (User.IsInRole("ENTRENADOR"))
+                    {
+                        <li>
+                            <a asp-controller="Rutinas" asp-action="Index">
+                                💪
+                                <span>Rutinas</span>
+                            </a>
+                        </li>
+                    }
                     <a href="/Usuarios/Index">
                         👤
                         <span>Usuarios</span>

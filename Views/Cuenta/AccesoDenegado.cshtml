@@ -1,0 +1,35 @@
+﻿@{
+    ViewData["Title"] = "Acceso denegado";
+}
+
+<div class="kro-page-title">
+    Acceso denegado
+</div>
+
+<p class="kro-page-subtitle">
+    Su cuenta no tiene permisos suficientes para acceder a esta función.
+</p>
+
+<div class="kro-card" style="max-width:720px;">
+    <div style="border-left:4px solid #D62828;
+                padding:16px 20px;
+                background:#FFF3F3;
+                border-radius:8px;">
+
+        <h2 style="margin:0 0 10px; font-size:20px;">
+            No puede realizar esta acción
+        </h2>
+
+        <p style="margin:0; line-height:1.6;">
+            Si necesita acceso, comuníquese con el administrador del sistema.
+        </p>
+    </div>
+
+    <div class="kro-actions" style="margin-top:24px;">
+        <a asp-controller="Cuenta"
+           asp-action="Perfil"
+           class="kro-btn kro-btn-primary">
+            Ir a mi perfil
+        </a>
+    </div>
+</div>

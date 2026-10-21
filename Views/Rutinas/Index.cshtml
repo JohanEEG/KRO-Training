@@ -1,0 +1,90 @@
+﻿@model System.Collections.Generic.List<KROTraining.Models.Rutina>
+
+@{
+    ViewData["Title"] = "Rutinas";
+}
+
+<h1 class="kro-page-title">Rutinas</h1>
+
+<p class="kro-page-subtitle">
+    Consulte las rutinas que ha creado y registre nuevos planes de entrenamiento.
+</p>
+
+@if (TempData["MensajeExito"] is string mensaje)
+{
+    <div role="status"
+         style="background:#E8F5E9; color:#1B5E20;
+        border-left:4px solid #2E7D32;
+        padding:16px; border-radius:8px; margin-bottom:20px;">
+        @mensaje
+    </div>
+}
+
+<div class="kro-card">
+
+    <div style="display:flex; justify-content:space-between;
+        align-items:center; gap:16px; flex-wrap:wrap;
+        margin-bottom:20px;">
+
+        <h2 class="kro-card-title" style="margin:0;">
+            Mis rutinas creadas
+        </h2>
+
+        <a asp-controller="Rutinas"
+           asp-action="Crear"
+           class="kro-btn kro-btn-primary">
+            + Crear rutina
+        </a>
+    </div>
+
+    @if (Model.Count == 0)
+    {
+        <p style="color:#666; padding:20px 0;">
+            Todavía no ha creado rutinas.
+            Utilice el botón «Crear rutina» para registrar la primera.
+        </p>
+    }
+    else
+    {
+        <div class="kro-table-container" style="overflow-x:auto;">
+            <table class="kro-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Nombre</th>
+                        <th scope="col">Objetivo</th>
+                        <th scope="col">Nivel</th>
+                        <th scope="col">Fecha de creación</th>
+                        <th scope="col">Estado</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var rutina in Model)
+                    {
+                        <tr>
+                            <td>@rutina.Nombre</td>
+
+                            <td>
+                                @(string.IsNullOrWhiteSpace(rutina.Objetivo)
+                                    ? "Sin especificar"
+                                    : rutina.Objetivo)
+                            </td>
+
+                            <td>
+                                @(string.IsNullOrWhiteSpace(rutina.Nivel)
+                                    ? "Sin especificar"
+                                    : rutina.Nivel)
+                            </td>
+
+                            <td>
+                                @rutina.FechaCreacion.ToString("dd/MM/yyyy")
+                            </td>
+
+                            <td>@rutina.Estado</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

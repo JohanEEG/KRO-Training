@@ -1,0 +1,129 @@
+﻿@model KROTraining.Models.CrearRutinaViewModel
+
+@{
+    ViewData["Title"] = "Crear rutina";
+}
+
+<h1 class="kro-page-title">Crear rutina de entrenamiento</h1>
+
+<p class="kro-page-subtitle">
+    Defina el nombre, el objetivo y el nivel de la nueva rutina.
+</p>
+
+@if (TempData["MensajeExito"] is string mensaje)
+{
+    <div role="status"
+         style="background:#E8F5E9; color:#1B5E20;
+        border-left:4px solid #2E7D32;
+        padding:16px; border-radius:8px; margin-bottom:20px;">
+        @mensaje
+    </div>
+}
+
+<div class="kro-card" style="max-width:800px; margin:0 auto;">
+
+    <h2 class="kro-card-title">Información de la rutina</h2>
+
+    <p style="color:#666;">
+        Los campos con asterisco (*) son obligatorios.
+    </p>
+
+    <form asp-controller="Rutinas"
+          asp-action="Crear"
+          method="post">
+
+        <div asp-validation-summary="ModelOnly"
+             role="alert"
+             style="color:#B71C1C; margin-bottom:16px;">
+        </div>
+
+        <div style="margin-bottom:20px;">
+            <label asp-for="Nombre"
+                   class="kro-form-label">
+                Nombre de la rutina *
+            </label>
+
+            <input asp-for="Nombre"
+                   class="kro-form-control"
+                   maxlength="150"
+                   required
+                   placeholder="Ejemplo: Fuerza inicial"
+                   aria-describedby="nombre-error" />
+
+            <span asp-validation-for="Nombre"
+                  id="nombre-error"
+                  style="display:block; color:#B71C1C; margin-top:6px;">
+            </span>
+        </div>
+
+        <div style="margin-bottom:20px;">
+            <label asp-for="Descripcion"
+                   class="kro-form-label">
+            </label>
+
+            <textarea asp-for="Descripcion"
+                      class="kro-form-control"
+                      rows="4"
+                      placeholder="Describa en qué consiste la rutina."
+                      aria-describedby="descripcion-error"></textarea>
+
+            <span asp-validation-for="Descripcion"
+                  id="descripcion-error"
+                  style="display:block; color:#B71C1C; margin-top:6px;">
+            </span>
+        </div>
+
+        <div style="margin-bottom:20px;">
+            <label asp-for="Objetivo"
+                   class="kro-form-label">
+            </label>
+
+            <input asp-for="Objetivo"
+                   class="kro-form-control"
+                   maxlength="100"
+                   placeholder="Ejemplo: Mejorar la fuerza"
+                   aria-describedby="objetivo-error" />
+
+            <span asp-validation-for="Objetivo"
+                  id="objetivo-error"
+                  style="display:block; color:#B71C1C; margin-top:6px;">
+            </span>
+        </div>
+
+        <div style="margin-bottom:20px;">
+            <label asp-for="Nivel"
+                   class="kro-form-label">
+            </label>
+
+            <select asp-for="Nivel"
+                    class="kro-form-control"
+                    aria-describedby="nivel-error">
+                <option value="">Sin especificar</option>
+                <option value="PRINCIPIANTE">Principiante</option>
+                <option value="INTERMEDIO">Intermedio</option>
+                <option value="AVANZADO">Avanzado</option>
+            </select>
+
+            <span asp-validation-for="Nivel"
+                  id="nivel-error"
+                  style="display:block; color:#B71C1C; margin-top:6px;">
+            </span>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end;
+            gap:12px; flex-wrap:wrap; margin-top:28px;">
+
+            <a asp-controller="Rutinas"
+               asp-action="Index"
+               class="kro-btn kro-btn-outline">
+                Cancelar
+            </a>
+
+            <button type="submit"
+                    class="kro-btn kro-btn-primary">
+                Crear rutina
+            </button>
+        </div>
+
+    </form>
+</div>

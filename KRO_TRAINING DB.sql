@@ -1099,3 +1099,74 @@ END CATCH;
 GO
 
 /* ================= FIN ACTUALIZACION HU-66 ================= */
+
+/* ======================SPRINT 2======================================
+   ACTUALIZACIÓN: Campos de salud y actividad de asistencia
+   Fecha: 2026-10-21
+
+   Compatible con los campos definidos en las migraciones:
+   AgregarCamposSaludCliente
+   AgregarTipoActividadAsistencia
+
+   Ejecutar únicamente este bloque.
+   Conserva los registros existentes.
+   Agrega cada columna solamente si falta.
+   ============================================================ */
+
+USE [KRO_Training];
+GO
+
+SET XACT_ABORT ON;
+
+BEGIN TRY
+    BEGIN TRANSACTION;
+
+    IF OBJECT_ID(N'dbo.CLIENTE', N'U') IS NULL
+       OR OBJECT_ID(N'dbo.ASISTENCIA', N'U') IS NULL
+    BEGIN
+        THROW 50001,
+            'No se encontraron las tablas CLIENTE y ASISTENCIA. Revise la base seleccionada.',
+            1;
+    END;
+
+    IF COL_LENGTH(N'dbo.CLIENTE', N'Alergias') IS NULL
+    BEGIN
+        ALTER TABLE dbo.CLIENTE
+        ADD Alergias NVARCHAR(MAX) NULL;
+    END;
+
+    IF COL_LENGTH(N'dbo.CLIENTE', N'ContactoEmergencia') IS NULL
+    BEGIN
+        ALTER TABLE dbo.CLIENTE
+        ADD ContactoEmergencia NVARCHAR(MAX) NULL;
+    END;
+
+    IF COL_LENGTH(N'dbo.CLIENTE', N'Medicamentos') IS NULL
+    BEGIN
+        ALTER TABLE dbo.CLIENTE
+        ADD Medicamentos NVARCHAR(MAX) NULL;
+    END;
+
+    IF COL_LENGTH(N'dbo.CLIENTE', N'Padecimientos') IS NULL
+    BEGIN
+        ALTER TABLE dbo.CLIENTE
+        ADD Padecimientos NVARCHAR(MAX) NULL;
+    END;
+
+    IF COL_LENGTH(N'dbo.ASISTENCIA', N'TipoActividad') IS NULL
+    BEGIN
+        ALTER TABLE dbo.ASISTENCIA
+        ADD TipoActividad NVARCHAR(MAX) NULL;
+    END;
+
+    COMMIT TRANSACTION;
+
+    PRINT 'Actualización completada correctamente.';
+END TRY
+BEGIN CATCH
+    IF @@TRANCOUNT > 0
+        ROLLBACK TRANSACTION;
+
+    THROW;
+END CATCH;
+GO
