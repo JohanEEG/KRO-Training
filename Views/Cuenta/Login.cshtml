@@ -2,102 +2,140 @@
     ViewData["Title"] = "Iniciar sesión";
     Layout = null;
 }
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>Iniciar sesión - KRÒ Training</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+
+    <meta name="theme-color" content="#111827" />
+    <meta name="description" content="Inicie sesión en KRÒ Training para acceder a su cuenta y gestionar su experiencia en el gimnasio." />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Roboto:wght@400;500&display=swap"
+          rel="stylesheet" />
+
     <link rel="stylesheet" href="~/css/kro-training.css" />
 </head>
+
 <body>
+    <main class="kro-login-page">
 
-    <div class="kro-login-page">
+        <section class="kro-login-card" aria-labelledby="login-title">
 
-        <div class="kro-login-card">
-
+            <!-- LOGOTIPO -->
             <div class="kro-login-logo">
                 <h1>
                     KR<span>Ò</span>
                 </h1>
+
                 <strong>
                     TRAINING
                 </strong>
             </div>
 
-            <div class="kro-card-title" style="text-align:center;">
+            <!-- TÍTULO -->
+            <div class="kro-card-title" id="login-title" style="text-align: center;">
                 Iniciar sesión
             </div>
 
-            <!-- Formulario conectado al controlador Cuenta y acción Login -->
-            <form asp-controller="Cuenta" asp-action="Login" method="post">
+            <!-- FORMULARIO DE ACCESO -->
+            <form asp-controller="Cuenta"
+                  asp-action="Login"
+                  method="post">
 
-                <!-- Resumen por si las credenciales fallan -->
-                <div asp-validation-summary="ModelOnly" class="text-danger" style="text-align:center; margin-bottom:15px; font-size:13px;"></div>
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger"
+                     role="alert"
+                     style="text-align: center; margin-bottom: 15px; font-size: 13px;">
+                </div>
 
                 <div class="kro-form-group">
-                    <label class="kro-form-label">
+                    <label for="correo" class="kro-form-label">
                         Correo electrónico
                     </label>
+
                     <input type="email"
+                           id="correo"
                            name="correo"
                            class="kro-form-control"
                            placeholder="Ingrese su correo"
+                           autocomplete="username"
+                           maxlength="254"
                            required />
                 </div>
 
                 <div class="kro-form-group">
-                    <label class="kro-form-label">
+                    <label for="contrasena" class="kro-form-label">
                         Contraseña
                     </label>
+
                     <input type="password"
+                           id="contrasena"
                            name="contrasena"
                            class="kro-form-control"
                            placeholder="Ingrese su contraseña"
+                           autocomplete="current-password"
                            required />
                 </div>
 
-                <div style="text-align:right; margin-bottom:20px;">
-                    <a href="/Cuenta/RecuperarPassword"
+                <!-- RECUPERACIÓN DE CONTRASEÑA -->
+                <div style="text-align: right; margin-bottom: 20px;">
+                    <a asp-controller="Cuenta"
+                       asp-action="RecuperarPassword"
                        class="kro-login-link">
-                        ¿Olvidaste tu contraseña?
+                        ¿Olvidó su contraseña?
                     </a>
                 </div>
 
-                <!-- Cambiado a type="submit" para que procese el envío del formulario -->
+                <!-- BOTÓN DE ACCESO -->
                 <button type="submit"
                         class="kro-btn kro-btn-primary"
-                        style="width:100%;">
+                        style="width: 100%;">
                     Iniciar sesión
                 </button>
 
             </form>
-            <div style="text-align:center; margin-top:20px;">
+
+            <!-- INFORMACIÓN PÚBLICA -->
+            <div style="text-align: center; margin-top: 20px;">
                 <a asp-controller="Visitantes"
                    asp-action="Informacion"
                    class="kro-login-link">
-                    Conoce el gimnasio y nuestros servicios
+                    Conozca el gimnasio y nuestros servicios
                 </a>
             </div>
 
-            <!-- Opción para registrarse -->
-            <div style="text-align:center; margin-top:20px; font-size:14px; font-family:'Roboto', sans-serif;">
-                <span style="color:#666;">¿No tienes una cuenta?</span>
-                <a href="/Cuenta/Registro" class="kro-login-link" style="display:inline-block; margin-top:5px; font-weight:600;">
-                    Crear cuenta
+            <!-- REGISTRO -->
+            <div style="text-align: center; margin-top: 20px; font-size: 14px; font-family: 'Roboto', sans-serif;">
+                <span style="color: #9ca3af;">
+                    ¿Todavía no tiene una cuenta?
+                </span>
+
+                <a asp-controller="Cuenta"
+                   asp-action="Registro"
+                   class="kro-login-link"
+                   style="display: inline-block; margin-top: 5px; font-weight: 600;">
+                    Crear una cuenta
                 </a>
             </div>
 
-            <div style="text-align:center; margin-top:25px; color:#777; font-size:13px;">
+            <!-- PIE DE PÁGINA -->
+            <footer style="text-align: center; margin-top: 25px; color: #9ca3af; font-size: 13px;">
                 Sistema de gestión
                 <br />
                 <strong>KRÒ Training</strong>
-            </div>
+            </footer>
 
-        </div>
+        </section>
 
-    </div></body>
+    </main>
+</body>
 </html>

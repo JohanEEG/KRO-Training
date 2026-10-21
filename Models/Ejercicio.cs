@@ -13,6 +13,11 @@ public partial class Ejercicio
 
     public string? GrupoMuscular { get; set; }
 
+    // Nuevos campos añadidos para el formulario
+    public string? Tipo { get; set; }
+
+    public string? Nivel { get; set; }
+
     public virtual ICollection<MultimediaEjercicio> MultimediaEjercicios { get; set; } = new List<MultimediaEjercicio>();
 
     public virtual ICollection<RutinaEjercicio> RutinaEjercicios { get; set; } = new List<RutinaEjercicio>();

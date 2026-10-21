@@ -2,86 +2,825 @@
 
 @{
     ViewData["Title"] = "Historial de Asistencia";
+
+    int paginaActual = ViewBag.PaginaActual ?? 1;
+    int totalPaginas = ViewBag.TotalPaginas ?? 1;
+    int? clienteIdSel = ViewBag.ClienteIdSeleccionado as int?;
+    string buscarCliente = ViewBag.BuscarCliente ?? "";
+    string actividadSel = ViewBag.ActividadSeleccionada ?? "";
+
+    var listaClientes = ViewBag.ClientesList as IEnumerable<dynamic>;
+    var listaActividades = ViewBag.ActividadesList as List<string>
+        ?? new List<string>
+        {
+            "Spinning",
+            "Musculación",
+            "Crossfit",
+            "Funcional",
+            "Yoga"
+        };
+
+    string fechaInicioTexto = ViewBag.FechaInicio != null
+        ? ((DateOnly)ViewBag.FechaInicio).ToString("yyyy-MM-dd")
+        : "";
+
+    string fechaFinTexto = ViewBag.FechaFin != null
+        ? ((DateOnly)ViewBag.FechaFin).ToString("yyyy-MM-dd")
+        : "";
 }
 
-<div class="kro-page-title">
-    Historial de asistencia
-</div>
+<div class="kro-page-title">Historial de asistencia</div>
 
 <p class="kro-page-subtitle">
-    Consulte los registros de asistencia de los clientes del gimnasio.
+    Consulta los registros de asistencia de los clientes y filtra por cliente,
+    actividad y rango de fechas.
 </p>
 
-<div class="kro-actions" style="margin-bottom:20px; flex-wrap:wrap;">
-    <a href="/ControlAsistencia/HistorialAsistencia" class="kro-btn kro-btn-outline">Historial de asistencia</a>
-    <a href="/Cuenta/Perfil" class="kro-btn kro-btn-outline">Mi perfil</a>
-    <form asp-controller="Cuenta" asp-action="Logout" method="post" style="display:inline;">
+<!-- NAVEGACIÓN RÁPIDA -->
+<div class="kro-attendance-navigation">
+    <a asp-controller="ControlAsistencia"
+       asp-action="HistorialAsistencia"
+       class="kro-attendance-nav-link kro-attendance-nav-active">
+        <i class="bi bi-calendar-check" aria-hidden="true"></i>
+        Historial de asistencia
+    </a>
+
+    <a asp-controller="Cuenta"
+       asp-action="Perfil"
+       class="kro-attendance-nav-link">
+        <i class="bi bi-person-circle" aria-hidden="true"></i>
+        Mi perfil
+    </a>
+
+    <form asp-controller="Cuenta"
+          asp-action="Logout"
+          method="post"
+          class="kro-attendance-logout-form">
         @Html.AntiForgeryToken()
-        <button type="submit" class="kro-btn kro-btn-secondary">Cerrar sesión</button>
+
+        <button type="submit" class="kro-attendance-nav-link">
+            <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+            Cerrar sesión
+        </button>
     </form>
 </div>
 
-<div class="kro-card">
+<!-- FILTROS -->
+<div class="kro-card kro-attendance-filter-card">
 
-    <div class="kro-card-title">
-        Filtrar por rango de fechas
+    <div class="kro-attendance-section-heading">
+        <div class="kro-attendance-section-icon">
+            <i class="bi bi-funnel" aria-hidden="true"></i>
+        </div>
+
+        <div>
+            <div class="kro-card-title">Filtros de asistencia</div>
+            <p>Selecciona los criterios para consultar los registros.</p>
+        </div>
     </div>
 
-    <form method="get" class="kro-form-grid">
+    <form method="get"
+          asp-controller="ControlAsistencia"
+          asp-action="HistorialAsistencia"
+          class="kro-attendance-filters">
 
-        <div class="kro-form-group">
-            <label class="kro-form-label">Fecha inicial</label>
-            <input type="date" name="fechaInicio" class="kro-form-control"
-                   value="@(ViewBag.FechaInicio != null ? ((DateOnly)ViewBag.FechaInicio).ToString("yyyy-MM-dd") : "")" />
+        <div class="kro-attendance-filter-field kro-attendance-client-field">
+            <label class="kro-form-label" for="clienteId">
+                Cliente
+            </label>
+
+            <select id="clienteId"
+                    name="clienteId"
+                    class="kro-form-control">
+
+                @if (!clienteIdSel.HasValue)
+                {
+                    <option value="" selected>Todos los clientes</option>
+                }
+                else
+                {
+                    <option value="">Todos los clientes</option>
+                }
+
+                @if (listaClientes != null)
+                {
+                    foreach (var item in listaClientes)
+                    {
+                        if (clienteIdSel.HasValue &&
+                            clienteIdSel.Value == (int)item.ClienteId)
+                        {
+                            <option value="@item.ClienteId" selected>
+                                @item.NombreCompleto
+                            </option>
+                        }
+                        else
+                        {
+                            <option value="@item.ClienteId">
+                                @item.NombreCompleto
+                            </option>
+                        }
+                    }
+                }
+            </select>
         </div>
 
-        <div class="kro-form-group">
-            <label class="kro-form-label">Fecha final</label>
-            <input type="date" name="fechaFin" class="kro-form-control"
-                   value="@(ViewBag.FechaFin != null ? ((DateOnly)ViewBag.FechaFin).ToString("yyyy-MM-dd") : "")" />
+        <div class="kro-attendance-filter-field kro-attendance-activity-field">
+            <label class="kro-form-label" for="actividad">
+                Actividad o clase
+            </label>
+
+            <select id="actividad"
+                    name="actividad"
+                    class="kro-form-control">
+
+                @if (string.IsNullOrEmpty(actividadSel))
+                {
+                    <option value="" selected>Todas las actividades</option>
+                }
+                else
+                {
+                    <option value="">Todas las actividades</option>
+                }
+
+                @foreach (var act in listaActividades)
+                {
+                    if (actividadSel == act)
+                    {
+                        <option value="@act" selected>@act</option>
+                    }
+                    else
+                    {
+                        <option value="@act">@act</option>
+                    }
+                }
+            </select>
         </div>
 
-        <div class="kro-form-group" style="align-self:flex-end;">
-            <button type="submit" class="kro-btn kro-btn-primary">Consultar asistencia</button>
+        <div class="kro-attendance-filter-field kro-attendance-search-field">
+            <label class="kro-form-label" for="buscarCliente">
+                Buscar cliente
+            </label>
+
+            <input type="text"
+                   id="buscarCliente"
+                   name="buscarCliente"
+                   class="kro-form-control"
+                   value="@buscarCliente"
+                   placeholder="Nombre, cédula o badge..." />
+        </div>
+
+        <div class="kro-attendance-filter-field">
+            <label class="kro-form-label" for="fechaInicio">
+                Fecha inicial
+            </label>
+
+            <input type="date"
+                   id="fechaInicio"
+                   name="fechaInicio"
+                   class="kro-form-control"
+                   value="@fechaInicioTexto" />
+        </div>
+
+        <div class="kro-attendance-filter-field">
+            <label class="kro-form-label" for="fechaFin">
+                Fecha final
+            </label>
+
+            <input type="date"
+                   id="fechaFin"
+                   name="fechaFin"
+                   class="kro-form-control"
+                   value="@fechaFinTexto" />
+        </div>
+
+        <div class="kro-attendance-filter-actions">
+            <button type="submit" class="kro-attendance-btn-primary">
+                <i class="bi bi-search" aria-hidden="true"></i>
+                Consultar
+            </button>
+
+            <a asp-controller="ControlAsistencia"
+               asp-action="HistorialAsistencia"
+               class="kro-attendance-btn-secondary">
+                Limpiar
+            </a>
         </div>
 
     </form>
-
 </div>
 
-<div class="kro-card">
+<!-- REGISTROS -->
+<div class="kro-card kro-attendance-records-card">
 
-    <div class="kro-card-title">
-        Registros de asistencia
+    <div class="kro-attendance-records-heading">
+        <div>
+            <div class="kro-card-title">Registros de asistencia</div>
+            <p>Detalle de ingresos y actividades registradas.</p>
+        </div>
+
+        @if (Model != null && Model.Any())
+        {
+            <span class="kro-attendance-records-count">
+                Página @paginaActual de @totalPaginas
+            </span>
+        }
     </div>
 
-    @if (ViewBag.SinResultados)
+    @if (Model != null && Model.Any())
     {
-        <p>No hay registros de asistencia para el rango seleccionado.</p>
-    }
-    else
-    {
-        <div class="kro-table-container">
-            <table class="kro-table">
+        <div class="kro-table-container kro-attendance-table-container">
+            <table class="kro-table kro-attendance-table">
                 <thead>
                     <tr>
+                        <th>N.º Badge</th>
                         <th>Cliente</th>
+                        <th>Cédula</th>
+                        <th>Actividad / Clase</th>
                         <th>Fecha</th>
                         <th>Hora de ingreso</th>
+                        <th class="kro-attendance-status-column">Estado</th>
                     </tr>
                 </thead>
+
                 <tbody>
                     @foreach (var a in Model)
                     {
                         <tr>
-                            <td>@a.Cliente.Usuario.Nombre</td>
-                            <td>@a.Fecha.ToString("dd/MM/yyyy")</td>
-                            <td>@a.Hora.ToString("hh\\:mm tt")</td>
+                            <td>
+                                <span class="kro-attendance-badge-number">
+                                    @(a.Cliente?.BadgeNumero ?? "-")
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="kro-attendance-client-name">
+                                    @(a.Cliente?.Usuario?.Nombre ?? "Cliente")
+                                </span>
+                            </td>
+
+                            <td>
+                                @(a.Cliente?.Usuario?.Cedula ?? "-")
+                            </td>
+
+                            <td>
+                                <span class="kro-attendance-activity">
+                                    <i class="bi bi-activity" aria-hidden="true"></i>
+                                    @(string.IsNullOrWhiteSpace(a.TipoActividad)
+                                        ? "Musculación General"
+                                        : a.TipoActividad)
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="kro-attendance-date">
+                                    <i class="bi bi-calendar3" aria-hidden="true"></i>
+                                    @a.Fecha.ToString("dd/MM/yyyy")
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="kro-attendance-time">
+                                    <i class="bi bi-clock" aria-hidden="true"></i>
+                                    @a.Hora.ToString("hh\\:mm tt")
+                                </span>
+                            </td>
+
+                            <td class="kro-attendance-status-column">
+                                <span class="kro-attendance-status">
+                                    <span class="kro-attendance-status-dot"></span>
+                                    Registrado
+                                </span>
+                            </td>
                         </tr>
                     }
                 </tbody>
             </table>
         </div>
+
+        <!-- PAGINACIÓN -->
+        @if (totalPaginas > 1)
+        {
+            <nav class="kro-attendance-pagination"
+                 aria-label="Paginación del historial de asistencia">
+
+                @if (paginaActual > 1)
+                {
+                    <a asp-controller="ControlAsistencia"
+                       asp-action="HistorialAsistencia"
+                       asp-route-pagina="@(paginaActual - 1)"
+                       asp-route-clienteId="@clienteIdSel"
+                       asp-route-actividad="@actividadSel"
+                       asp-route-buscarCliente="@buscarCliente"
+                       asp-route-fechaInicio="@fechaInicioTexto"
+                       asp-route-fechaFin="@fechaFinTexto"
+                       class="kro-attendance-page-link">
+                        <i class="bi bi-chevron-left" aria-hidden="true"></i>
+                        Anterior
+                    </a>
+                }
+
+                @for (int i = 1; i <= totalPaginas; i++)
+                {
+                    <a asp-controller="ControlAsistencia"
+                       asp-action="HistorialAsistencia"
+                       asp-route-pagina="@i"
+                       asp-route-clienteId="@clienteIdSel"
+                       asp-route-actividad="@actividadSel"
+                       asp-route-buscarCliente="@buscarCliente"
+                       asp-route-fechaInicio="@fechaInicioTexto"
+                       asp-route-fechaFin="@fechaFinTexto"
+                       class="kro-attendance-page-link @(i == paginaActual ? "kro-attendance-page-active" : "")"
+                       aria-current="@(i == paginaActual ? "page" : null)">
+                        @i
+                    </a>
+                }
+
+                @if (paginaActual < totalPaginas)
+                {
+                    <a asp-controller="ControlAsistencia"
+                       asp-action="HistorialAsistencia"
+                       asp-route-pagina="@(paginaActual + 1)"
+                       asp-route-clienteId="@clienteIdSel"
+                       asp-route-actividad="@actividadSel"
+                       asp-route-buscarCliente="@buscarCliente"
+                       asp-route-fechaInicio="@fechaInicioTexto"
+                       asp-route-fechaFin="@fechaFinTexto"
+                       class="kro-attendance-page-link">
+                        Siguiente
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </a>
+                }
+
+            </nav>
+        }
+    }
+    else
+    {
+        <div class="kro-attendance-empty">
+            <div class="kro-attendance-empty-icon">
+                <i class="bi bi-calendar2-x" aria-hidden="true"></i>
+            </div>
+
+            <h3>No hay registros de asistencia</h3>
+
+            <p>
+                No se encontraron registros para los filtros seleccionados.
+                Prueba con otros criterios de búsqueda.
+            </p>
+
+            <a asp-controller="ControlAsistencia"
+               asp-action="HistorialAsistencia"
+               class="kro-attendance-btn-secondary">
+                Limpiar filtros
+            </a>
+        </div>
+    }
+</div>
+
+<style>
+    .kro-attendance-navigation {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 22px;
     }
 
-</div>
+    .kro-attendance-nav-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 40px;
+        padding: 9px 14px;
+        border: 1px solid #D1D5DB;
+        border-radius: 7px;
+        background: #FFFFFF;
+        color: #374151;
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 500;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+
+        .kro-attendance-nav-link:hover {
+            background: #F3F4F6;
+            border-color: #9CA3AF;
+            color: #1C1C1C;
+        }
+
+    .kro-attendance-nav-active,
+    .kro-attendance-nav-active:hover {
+        background: #EFF6FF;
+        border-color: #BFDBFE;
+        color: #1D4ED8;
+    }
+
+    .kro-attendance-logout-form {
+        display: inline-flex;
+        margin: 0;
+    }
+
+    .kro-attendance-filter-card {
+        margin-bottom: 22px;
+    }
+
+    .kro-attendance-section-heading {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        margin-bottom: 22px;
+    }
+
+    .kro-attendance-section-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        flex-shrink: 0;
+        border-radius: 9px;
+        background: #EFF6FF;
+        color: #2563EB;
+        font-size: 19px;
+    }
+
+    .kro-attendance-section-heading .kro-card-title {
+        margin: 0 0 5px;
+    }
+
+    .kro-attendance-section-heading p,
+    .kro-attendance-records-heading p {
+        margin: 0;
+        color: #6B7280;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .kro-attendance-filters {
+        display: flex;
+        align-items: flex-end;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .kro-attendance-filter-field {
+        display: flex;
+        flex: 1 1 145px;
+        flex-direction: column;
+        min-width: 0;
+        gap: 7px;
+    }
+
+    .kro-attendance-client-field {
+        flex: 2 1 220px;
+    }
+
+    .kro-attendance-activity-field {
+        flex: 1.5 1 180px;
+    }
+
+    .kro-attendance-search-field {
+        flex: 1.5 1 200px;
+    }
+
+    .kro-attendance-filter-field .kro-form-control {
+        width: 100%;
+        min-height: 41px;
+        padding: 9px 11px;
+        border: 1px solid #D1D5DB;
+        border-radius: 7px;
+        background: #FFFFFF;
+        color: #1C1C1C;
+        font-size: 13px;
+    }
+
+        .kro-attendance-filter-field .kro-form-control:focus {
+            border-color: #60A5FA;
+            outline: 3px solid #DBEAFE;
+            outline-offset: 0;
+        }
+
+    .kro-attendance-filter-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .kro-attendance-btn-primary,
+    .kro-attendance-btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        min-height: 41px;
+        padding: 9px 15px;
+        border: 1px solid transparent;
+        border-radius: 7px;
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .kro-attendance-btn-primary {
+        background: #2563EB;
+        border-color: #2563EB;
+        color: #FFFFFF;
+    }
+
+        .kro-attendance-btn-primary:hover {
+            background: #1D4ED8;
+            border-color: #1D4ED8;
+            color: #FFFFFF;
+        }
+
+    .kro-attendance-btn-secondary {
+        background: #FFFFFF;
+        border-color: #D1D5DB;
+        color: #374151;
+    }
+
+        .kro-attendance-btn-secondary:hover {
+            background: #F3F4F6;
+            border-color: #9CA3AF;
+            color: #1C1C1C;
+        }
+
+    .kro-attendance-records-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 18px;
+    }
+
+        .kro-attendance-records-heading .kro-card-title {
+            margin: 0 0 6px;
+        }
+
+    .kro-attendance-records-count {
+        padding: 7px 10px;
+        border: 1px solid #E5E7EB;
+        border-radius: 7px;
+        background: #F9FAFB;
+        color: #4B5563;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .kro-attendance-table-container {
+        overflow-x: auto;
+        border: 1px solid #E5E7EB;
+        border-radius: 9px;
+    }
+
+    .kro-attendance-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+        .kro-attendance-table thead th {
+            padding: 14px 13px;
+            background: #F3F4F6;
+            color: #374151;
+            border-bottom: 1px solid #D1D5DB;
+            font-size: 12px;
+            font-weight: 700;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .kro-attendance-table tbody td {
+            padding: 14px 13px;
+            border-bottom: 1px solid #E5E7EB;
+            color: #374151;
+            font-size: 13px;
+            vertical-align: middle;
+        }
+
+        .kro-attendance-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .kro-attendance-table tbody tr:hover {
+            background: #F9FAFB;
+        }
+
+    .kro-attendance-client-name {
+        color: #1C1C1C;
+        font-weight: 600;
+    }
+
+    .kro-attendance-badge-number {
+        display: inline-block;
+        padding: 5px 8px;
+        border: 1px solid #E5E7EB;
+        border-radius: 5px;
+        background: #F9FAFB;
+        color: #374151;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .kro-attendance-activity {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        color: #374151;
+        font-weight: 500;
+        white-space: nowrap;
+    }
+
+        .kro-attendance-activity i {
+            color: #2563EB;
+            font-size: 15px;
+        }
+
+    .kro-attendance-date,
+    .kro-attendance-time {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        white-space: nowrap;
+    }
+
+        .kro-attendance-date i,
+        .kro-attendance-time i {
+            color: #6B7280;
+        }
+
+    .kro-attendance-status-column {
+        text-align: center !important;
+    }
+
+    .kro-attendance-status {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        padding: 6px 10px;
+        border: 1px solid #BBF7D0;
+        border-radius: 6px;
+        background: #F0FDF4;
+        color: #166534;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .kro-attendance-status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #16A34A;
+    }
+
+    .kro-attendance-pagination {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 7px;
+        margin-top: 24px;
+    }
+
+    .kro-attendance-page-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-width: 37px;
+        min-height: 37px;
+        padding: 8px 12px;
+        border: 1px solid #D1D5DB;
+        border-radius: 7px;
+        background: #FFFFFF;
+        color: #374151;
+        font-size: 13px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+
+        .kro-attendance-page-link:hover {
+            background: #EFF6FF;
+            border-color: #93C5FD;
+            color: #1D4ED8;
+        }
+
+    .kro-attendance-page-active,
+    .kro-attendance-page-active:hover {
+        background: #2563EB;
+        border-color: #2563EB;
+        color: #FFFFFF;
+        font-weight: 700;
+    }
+
+    .kro-attendance-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 42px 20px;
+        text-align: center;
+    }
+
+    .kro-attendance-empty-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 58px;
+        height: 58px;
+        margin-bottom: 16px;
+        border-radius: 14px;
+        background: #F3F4F6;
+        color: #6B7280;
+        font-size: 25px;
+    }
+
+    .kro-attendance-empty h3 {
+        margin: 0 0 8px;
+        color: #1C1C1C;
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .kro-attendance-empty p {
+        max-width: 420px;
+        margin: 0 0 20px;
+        color: #6B7280;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .kro-attendance-navigation a:focus-visible,
+    .kro-attendance-navigation button:focus-visible,
+    .kro-attendance-btn-primary:focus-visible,
+    .kro-attendance-btn-secondary:focus-visible,
+    .kro-attendance-page-link:focus-visible {
+        outline: 3px solid #93C5FD;
+        outline-offset: 2px;
+    }
+
+    @@media (max-width: 900px) {
+        .kro-attendance-filters {
+            align-items: stretch;
+        }
+
+        .kro-attendance-filter-field,
+        .kro-attendance-client-field,
+        .kro-attendance-activity-field,
+        .kro-attendance-search-field {
+            flex: 1 1 calc(50% - 16px);
+        }
+
+        .kro-attendance-filter-actions {
+            width: 100%;
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .kro-attendance-navigation {
+            align-items: stretch;
+        }
+
+        .kro-attendance-nav-link {
+            flex: 1 1 auto;
+        }
+
+        .kro-attendance-logout-form {
+            flex: 1 1 auto;
+        }
+
+            .kro-attendance-logout-form button {
+                width: 100%;
+            }
+
+        .kro-attendance-filter-field,
+        .kro-attendance-client-field,
+        .kro-attendance-activity-field,
+        .kro-attendance-search-field {
+            flex-basis: 100%;
+        }
+
+        .kro-attendance-filter-actions > * {
+            flex: 1;
+        }
+
+        .kro-attendance-table {
+            min-width: 900px;
+        }
+
+        .kro-attendance-records-heading {
+            align-items: flex-start;
+        }
+    }
+</style>

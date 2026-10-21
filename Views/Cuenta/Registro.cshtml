@@ -8,65 +8,156 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>Crear cuenta - KRÒ Training</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+
+    <meta name="theme-color" content="#111827" />
+    <meta name="description" content="Cree su cuenta en KRÒ Training y comience a gestionar su experiencia en el gimnasio." />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Roboto:wght@400;500&display=swap"
+          rel="stylesheet" />
+
     <link rel="stylesheet" href="~/css/kro-training.css" />
 </head>
+
 <body>
+    <main class="kro-login-page">
+        <section class="kro-login-card"
+                 style="max-width: 450px; width: 100%; box-sizing: border-box;"
+                 aria-labelledby="registro-title">
 
-    <div class="kro-login-page">
-        <div class="kro-login-card" style="max-width: 450px;">
-
+            <!-- LOGOTIPO -->
             <div class="kro-login-logo">
                 <h1>KR<span>Ò</span></h1>
                 <strong>TRAINING</strong>
             </div>
 
-            <div class="kro-card-title" style="text-align:center;">
+            <!-- TÍTULO -->
+            <div class="kro-card-title"
+                 id="registro-title"
+                 style="text-align: center;">
                 Crear cuenta nueva
             </div>
 
-            <form asp-controller="Cuenta" asp-action="Registro" method="post">
+            <p style="text-align: center; color: #9ca3af; font-size: 14px; margin: 8px 0 24px;">
+                Complete sus datos para registrarse en KRÒ Training.
+            </p>
 
-                <div asp-validation-summary="ModelOnly" class="text-danger" style="text-align:center; margin-bottom:15px; font-size:13px;"></div>
+            <!-- FORMULARIO -->
+            <form asp-controller="Cuenta"
+                  asp-action="Registro"
+                  method="post">
 
-                <div class="kro-form-group">
-                    <label class="kro-form-label">Nombre completo</label>
-                    <input type="text" name="nombre" class="kro-form-control" placeholder="Ingrese su nombre" required />
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger"
+                     role="alert"
+                     style="text-align: center; margin-bottom: 15px; font-size: 13px;">
                 </div>
 
+                <!-- NOMBRE -->
                 <div class="kro-form-group">
-                    <label class="kro-form-label">Correo electrónico</label>
-                    <input type="email" name="correo" class="kro-form-control" placeholder="Ingrese su correo" required />
+                    <label for="nombre" class="kro-form-label">
+                        Nombre completo
+                    </label>
+
+                    <input type="text"
+                           id="nombre"
+                           name="nombre"
+                           class="kro-form-control"
+                           placeholder="Ingrese su nombre completo"
+                           autocomplete="name"
+                           maxlength="150"
+                           required />
                 </div>
 
+                <!-- CORREO -->
                 <div class="kro-form-group">
-                    <label class="kro-form-label">Teléfono (Opcional)</label>
-                    <input type="text" name="telefono" class="kro-form-control" placeholder="Ingrese su teléfono" />
+                    <label for="correo" class="kro-form-label">
+                        Correo electrónico
+                    </label>
+
+                    <input type="email"
+                           id="correo"
+                           name="correo"
+                           class="kro-form-control"
+                           placeholder="ejemplo@correo.com"
+                           autocomplete="email"
+                           maxlength="254"
+                           required />
                 </div>
 
+                <!-- TELÉFONO -->
                 <div class="kro-form-group">
-                    <label class="kro-form-label">Contraseña</label>
-                    <input type="password" name="contrasena" class="kro-form-control" placeholder="Cree una contraseña" required />
+                    <label for="telefono" class="kro-form-label">
+                        Teléfono <span style="color: #9ca3af; font-weight: 400;">(Opcional)</span>
+                    </label>
+
+                    <input type="tel"
+                           id="telefono"
+                           name="telefono"
+                           class="kro-form-control"
+                           placeholder="Ingrese su teléfono"
+                           autocomplete="tel"
+                           maxlength="20" />
                 </div>
 
-                <button type="submit" class="kro-btn kro-btn-primary" style="width:100%; margin-top: 10px;">
-                    Registrarse
-                </button>
+                <!-- CONTRASEÑA -->
+                <div class="kro-form-group">
+                    <label for="contrasena" class="kro-form-label">
+                        Contraseña
+                    </label>
 
+                    <input type="password"
+                           id="contrasena"
+                           name="contrasena"
+                           class="kro-form-control"
+                           placeholder="Cree una contraseña"
+                           autocomplete="new-password"
+                           required />
+                </div>
+
+                <!-- BOTÓN PRINCIPAL -->
+                <div style="margin-top: 24px;">
+                    <button type="submit"
+                            class="kro-btn kro-btn-primary"
+                            style="width: 100%; min-height: 44px; box-sizing: border-box;">
+                        Crear cuenta
+                    </button>
+                </div>
             </form>
 
-            <div style="text-align:center; margin-top:20px; font-size:14px; font-family:'Roboto', sans-serif;">
-                <span style="color:#666;">¿Ya tienes una cuenta?</span>
-                <a href="/Cuenta/Login" class="kro-login-link" style="display:inline-block; margin-top:5px; font-weight:600;">
-                    Iniciar sesión
-                </a>
+            <!-- SEPARADOR -->
+            <div style="height: 1px; background: rgba(156, 163, 175, 0.2); margin: 24px 0 20px;"></div>
+
+            <!-- ACCESO EXISTENTE -->
+            <div style="text-align: center; font-size: 14px; font-family: 'Roboto', sans-serif;">
+                <span style="color: #9ca3af;">
+                    ¿Ya tiene una cuenta?
+                </span>
+
+                <div style="margin-top: 8px;">
+                    <a asp-controller="Cuenta"
+                       asp-action="Login"
+                       class="kro-login-link"
+                       style="font-weight: 600;">
+                        Iniciar sesión
+                    </a>
+                </div>
             </div>
 
-        </div>
-    </div>
+            <!-- PIE DE PÁGINA -->
+            <footer style="text-align: center; margin-top: 24px; color: #9ca3af; font-size: 12px;">
+                Sistema de gestión
+                <br />
+                <strong>KRÒ Training</strong>
+            </footer>
 
+        </section>
+    </main>
 </body>
 </html>

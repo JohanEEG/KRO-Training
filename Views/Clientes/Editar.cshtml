@@ -5,45 +5,258 @@
 }
 
 <div class="kro-page-title">Modificar información del cliente</div>
-<p class="kro-page-subtitle">Actualice los datos personales del cliente seleccionado.</p>
+
+<p class="kro-page-subtitle">
+    Actualice los datos personales, de contacto y el perfil de salud del cliente.
+</p>
 
 <div class="kro-card">
     <div class="kro-card-title">Información del cliente</div>
 
     <form asp-action="Editar" method="post">
         @Html.AntiForgeryToken()
+
         <input type="hidden" name="UsuarioId" value="@Model.UsuarioId" />
 
         <div class="kro-form-grid">
             <div class="kro-form-group">
-                <label class="kro-form-label">Cédula</label>
-                <input type="text" name="Cedula" class="kro-form-control" value="@Model.Usuario?.Cedula" placeholder="Ej. 1-1111-1111" required />
+                <label class="kro-form-label" for="Cedula">Cédula</label>
+                <input type="text"
+                       id="Cedula"
+                       name="Cedula"
+                       class="kro-form-control"
+                       value="@Model.Usuario?.Cedula"
+                       placeholder="Ej. 1-1111-1111"
+                       required />
             </div>
 
             <div class="kro-form-group">
-                <label class="kro-form-label">Número de Badge / Carné</label>
-                <input type="text" name="BadgeNumero" class="kro-form-control" value="@Model.BadgeNumero" placeholder="Ej. BDG-00123" />
+                <label class="kro-form-label" for="BadgeNumero">
+                    Número de badge / carné
+                </label>
+                <input type="text"
+                       id="BadgeNumero"
+                       name="BadgeNumero"
+                       class="kro-form-control"
+                       value="@Model.BadgeNumero"
+                       placeholder="Ej. BDG-00123" />
             </div>
 
             <div class="kro-form-group">
-                <label class="kro-form-label">Nombre Completo</label>
-                <input type="text" name="Nombre" class="kro-form-control" value="@Model.Usuario?.Nombre" required />
+                <label class="kro-form-label" for="Nombre">Nombre completo</label>
+                <input type="text"
+                       id="Nombre"
+                       name="Nombre"
+                       class="kro-form-control"
+                       value="@Model.Usuario?.Nombre"
+                       autocomplete="name"
+                       required />
             </div>
 
             <div class="kro-form-group">
-                <label class="kro-form-label">Teléfono</label>
-                <input type="tel" name="Telefono" class="kro-form-control" value="@Model.Usuario?.Telefono" />
+                <label class="kro-form-label" for="Telefono">Teléfono</label>
+                <input type="tel"
+                       id="Telefono"
+                       name="Telefono"
+                       class="kro-form-control"
+                       value="@Model.Usuario?.Telefono"
+                       autocomplete="tel" />
             </div>
 
             <div class="kro-form-group">
-                <label class="kro-form-label">Correo electrónico</label>
-                <input type="email" name="Correo" class="kro-form-control" value="@Model.Usuario?.Correo" required />
+                <label class="kro-form-label" for="Correo">
+                    Correo electrónico
+                </label>
+                <input type="email"
+                       id="Correo"
+                       name="Correo"
+                       class="kro-form-control"
+                       value="@Model.Usuario?.Correo"
+                       autocomplete="email"
+                       required />
             </div>
         </div>
 
-        <div class="kro-actions">
-            <a asp-action="Index" class="kro-btn kro-btn-secondary">Cancelar</a>
-            <button type="submit" class="kro-btn kro-btn-primary">Guardar cambios</button>
+        <div class="kro-edit-health">
+            <div class="kro-edit-health-heading">
+                <div class="kro-edit-health-icon" aria-hidden="true">
+                    <i class="bi bi-heart-pulse"></i>
+                </div>
+
+                <div>
+                    <h3>Perfil de salud y emergencia</h3>
+                    <p>
+                        Mantenga actualizada la información relevante para la
+                        atención y seguridad del cliente.
+                    </p>
+                </div>
+            </div>
+
+            <div class="kro-form-grid">
+                <div class="kro-form-group">
+                    <label class="kro-form-label" for="ContactoEmergencia">
+                        Contacto de emergencia
+                    </label>
+                    <input type="text"
+                           id="ContactoEmergencia"
+                           name="ContactoEmergencia"
+                           class="kro-form-control"
+                           value="@Model.ContactoEmergencia"
+                           placeholder="Nombre y teléfono" />
+                    <small class="kro-edit-help">
+                        Persona a contactar en caso de emergencia.
+                    </small>
+                </div>
+
+                <div class="kro-form-group">
+                    <label class="kro-form-label" for="Padecimientos">
+                        Padecimientos o enfermedades
+                    </label>
+                    <input type="text"
+                           id="Padecimientos"
+                           name="Padecimientos"
+                           class="kro-form-control"
+                           value="@Model.Padecimientos"
+                           placeholder="Ej. Asma, hipertensión..." />
+                </div>
+
+                <div class="kro-form-group">
+                    <label class="kro-form-label" for="Alergias">Alergias</label>
+                    <input type="text"
+                           id="Alergias"
+                           name="Alergias"
+                           class="kro-form-control"
+                           value="@Model.Alergias"
+                           placeholder="Indique las alergias conocidas" />
+                </div>
+
+                <div class="kro-form-group">
+                    <label class="kro-form-label" for="Medicamentos">
+                        Medicamentos actuales
+                    </label>
+                    <input type="text"
+                           id="Medicamentos"
+                           name="Medicamentos"
+                           class="kro-form-control"
+                           value="@Model.Medicamentos"
+                           placeholder="Indique los medicamentos actuales" />
+                </div>
+            </div>
+        </div>
+
+        <div class="kro-actions kro-edit-actions">
+            <a asp-action="Index" class="kro-btn kro-btn-outline">
+                <i class="bi bi-arrow-left" aria-hidden="true"></i>
+                Cancelar
+            </a>
+
+            <button type="submit" class="kro-btn kro-btn-primary">
+                <i class="bi bi-check2-circle" aria-hidden="true"></i>
+                Guardar cambios
+            </button>
         </div>
     </form>
 </div>
+
+<style>
+    .kro-edit-health {
+        margin-top: 30px;
+        padding-top: 24px;
+        border-top: 1px solid #E5E7EB;
+    }
+
+    .kro-edit-health-heading {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 22px;
+    }
+
+    .kro-edit-health-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        background-color: #EFF6FF;
+        color: #2563EB;
+        font-size: 22px;
+    }
+
+    .kro-edit-health-heading h3 {
+        margin: 0 0 5px;
+        color: #1C1C1C;
+        font-size: 17px;
+        font-weight: 600;
+    }
+
+    .kro-edit-health-heading p {
+        margin: 0;
+        color: #6B7280;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .kro-edit-help {
+        display: block;
+        margin-top: 6px;
+        color: #6B7280;
+        font-size: 12px;
+    }
+
+    .kro-edit-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #E5E7EB;
+    }
+
+        .kro-edit-actions .kro-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 42px;
+            padding: 10px 18px;
+            border-radius: 7px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .kro-edit-actions .kro-btn-primary {
+            color: #FFFFFF;
+            background-color: #2563EB;
+            border: 1px solid #2563EB;
+        }
+
+            .kro-edit-actions .kro-btn-primary:hover {
+                color: #FFFFFF;
+                background-color: #1D4ED8;
+                border-color: #1D4ED8;
+                box-shadow: 0 3px 8px rgba(37, 99, 235, 0.18);
+            }
+
+        .kro-edit-actions .kro-btn-outline {
+            color: #3A3A3A;
+            background-color: #FFFFFF;
+            border: 1px solid #D1D5DB;
+        }
+
+            .kro-edit-actions .kro-btn-outline:hover {
+                color: #1C1C1C;
+                background-color: #F3F4F6;
+                border-color: #9CA3AF;
+            }
+
+        .kro-edit-actions .kro-btn:focus-visible {
+            outline: 3px solid #93C5FD;
+            outline-offset: 2px;
+        }
+</style>

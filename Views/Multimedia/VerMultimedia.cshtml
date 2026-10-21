@@ -1,5 +1,12 @@
-﻿@{
+﻿@model KROTraining.Models.Ejercicio
+
+@{
     ViewData["Title"] = "Multimedia del Ejercicio";
+
+    var recursos = Model.MultimediaEjercicios?.ToList()
+        ?? new List<KROTraining.Models.MultimediaEjercicio>();
+
+    int totalRecursos = recursos.Count;
 }
 
 <div class="kro-page-title">
@@ -7,185 +14,494 @@
 </div>
 
 <p class="kro-page-subtitle">
-    Consulte las imágenes y videos asociados a los ejercicios de KRÒ Training.
+    Consulte y gestione las imágenes y videos técnicos asociados a los ejercicios de KRÒ Training.
 </p>
 
+<!-- NAVEGACIÓN Y ACCIONES -->
+<div class="kro-actions kro-media-actions">
 
-<div class="kro-card">
+    <a asp-action="AdjuntarMultimedia"
+       asp-route-id="@Model.EjercicioId"
+       class="kro-btn kro-btn-primary kro-media-action-button">
+        <span>➕</span>
+        Adjuntar multimedia
+    </a>
+
+    <a asp-controller="Multimedia"
+       asp-action="Index"
+       class="kro-btn kro-btn-outline kro-media-action-button">
+        <span>📋</span>
+        Biblioteca multimedia
+    </a>
+</div>
+
+<!-- INFORMACIÓN DEL EJERCICIO -->
+<section class="kro-card kro-media-info">
 
     <div class="kro-card-title">
         Información del ejercicio
     </div>
 
-
     <div class="kro-form-grid">
 
         <div class="kro-form-group">
-
-            <label class="kro-form-label">
+            <label for="nombreEjercicio" class="kro-form-label">
                 Nombre del ejercicio
             </label>
 
-            <input type="text"
+            <input id="nombreEjercicio"
+                   type="text"
                    class="kro-form-control"
-                   value="Press de banca"
+                   value="@Model.Nombre"
                    readonly />
-
         </div>
 
-
         <div class="kro-form-group">
-
-            <label class="kro-form-label">
+            <label for="grupoMuscular" class="kro-form-label">
                 Grupo muscular
             </label>
 
-            <input type="text"
+            <input id="grupoMuscular"
+                   type="text"
                    class="kro-form-control"
-                   value="Pecho"
+                   value="@(Model.GrupoMuscular ?? "No especificado")"
                    readonly />
-
         </div>
 
-
         <div class="kro-form-group">
-
-            <label class="kro-form-label">
+            <label for="tipoEjercicio" class="kro-form-label">
                 Tipo de ejercicio
             </label>
 
-            <input type="text"
+            <input id="tipoEjercicio"
+                   type="text"
                    class="kro-form-control"
-                   value="Fuerza"
+                   value="@(Model.Tipo ?? "No especificado")"
                    readonly />
-
         </div>
 
-
         <div class="kro-form-group">
-
-            <label class="kro-form-label">
+            <label for="nivelEjercicio" class="kro-form-label">
                 Nivel de dificultad
             </label>
 
-            <input type="text"
+            <input id="nivelEjercicio"
+                   type="text"
                    class="kro-form-control"
-                   value="Intermedio"
+                   value="@(Model.Nivel ?? "No especificado")"
                    readonly />
-
         </div>
 
     </div>
 
-</div>
+    @if (!string.IsNullOrWhiteSpace(Model.Descripcion))
+    {
+        <div class="kro-form-group kro-media-description">
+            <label class="kro-form-label">
+                Descripción técnica
+            </label>
 
+            <div class="kro-media-description-content">
+                @Model.Descripcion
+            </div>
+        </div>
+    }
+</section>
 
-<div class="kro-card">
+<!-- GALERÍA MULTIMEDIA -->
+<section class="kro-card">
 
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <div class="kro-media-gallery-header">
 
-        <div class="kro-card-title" style="margin:0;">
-            Contenido multimedia
+        <div>
+            <div class="kro-card-title kro-media-gallery-title">
+                Galería multimedia
+            </div>
+
+            <p class="kro-media-muted">
+                Recursos audiovisuales asociados a este ejercicio.
+            </p>
         </div>
 
-        <a href="/Multimedia/AdjuntarMultimedia"
-           class="kro-btn kro-btn-primary">
-            + Adjuntar multimedia
-        </a>
-
+        <span class="kro-badge @(totalRecursos > 0 ? "kro-badge-green" : "kro-badge-gray") kro-media-count">
+            🎬 @totalRecursos archivo(s)
+        </span>
     </div>
 
+    @if (totalRecursos > 0)
+    {
+        <div class="kro-media-grid">
 
-    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:20px;">
+            @foreach (var item in recursos)
+            {
+                bool esVideo =
+                    string.Equals(item.Tipo, "Video", StringComparison.OrdinalIgnoreCase)
+                    || (!string.IsNullOrWhiteSpace(item.Url)
+                        && (item.Url.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase)
+                            || item.Url.EndsWith(".mov", StringComparison.OrdinalIgnoreCase)));
 
+                string nombreArchivo = !string.IsNullOrWhiteSpace(item.Url)
+                    ? System.IO.Path.GetFileName(item.Url)
+                    : "Archivo multimedia";
 
-        <div style="border:1px solid #ddd; border-radius:8px; overflow:hidden; background:#fff;">
+                <article class="kro-media-card">
 
-            <div style="height:200px; display:flex; align-items:center; justify-content:center; background:#f5f5f5;">
+                    <!-- VISOR -->
+                    <div class="kro-media-viewer">
 
-                <div style="text-align:center; color:#777;">
+                        @if (!string.IsNullOrWhiteSpace(item.Url))
+                        {
+                            @if (esVideo)
+                            {
+                                <video controls
+                                       preload="metadata"
+                                       aria-label="Video demostrativo de @Model.Nombre"
+                                       class="kro-media-video">
+                                    <source src="@item.Url" />
+                                    Tu navegador no soporta la reproducción de video.
+                                </video>
+                            }
+                            else
+                            {
+                                <a href="@item.Url"
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   aria-label="Abrir imagen @nombreArchivo en tamaño completo"
+                                   class="kro-media-image-link">
 
-                    <div style="font-size:55px;">
-                        🏋️
+                                    <img src="@item.Url"
+                                         alt="Imagen de referencia para @Model.Nombre"
+                                         loading="lazy"
+                                         class="kro-media-image" />
+                                </a>
+                            }
+                        }
+                        else
+                        {
+                            <div class="kro-media-missing">
+                                <span>📂</span>
+                                <p>Archivo sin dirección disponible</p>
+                            </div>
+                        }
                     </div>
 
-                    <p style="margin:10px 0 0;">
-                        Imagen del ejercicio
-                    </p>
+                    <!-- INFORMACIÓN DEL ARCHIVO -->
+                    <div class="kro-media-card-content">
 
-                </div>
+                        <span class="kro-badge @(esVideo ? "kro-badge-gray" : "kro-badge-green") kro-media-type">
+                            @(esVideo ? "🎥 Video" : "🖼️ Imagen")
+                        </span>
 
-            </div>
+                        <div>
+                            <strong class="kro-media-filename"
+                                    title="@nombreArchivo">
+                                @nombreArchivo
+                            </strong>
 
+                            <p class="kro-media-file-description">
+                                Recurso técnico del ejercicio: @Model.Nombre.
+                            </p>
+                        </div>
 
-            <div style="padding:15px;">
-
-                <strong>
-                    press-banca.jpg
-                </strong>
-
-                <p style="margin:8px 0; color:#777;">
-                    Imagen demostrativa del ejercicio.
-                </p>
-
-                <span class="kro-badge kro-badge-green">
-                    Imagen
-                </span>
-
-            </div>
-
-        </div>
-
-
-
-        <div style="border:1px solid #ddd; border-radius:8px; overflow:hidden; background:#fff;">
-
-            <div style="height:200px; display:flex; align-items:center; justify-content:center; background:#f5f5f5;">
-
-                <div style="text-align:center; color:#777;">
-
-                    <div style="font-size:55px;">
-                        ▶️
+                        <div class="kro-media-card-footer">
+                            @if (!string.IsNullOrWhiteSpace(item.Url))
+                            {
+                                <a href="@item.Url"
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   class="kro-btn kro-btn-small kro-btn-outline kro-media-open-button">
+                                    ↗ Abrir archivo
+                                </a>
+                            }
+                        </div>
                     </div>
-
-                    <p style="margin:10px 0 0;">
-                        Video demostrativo
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <div style="padding:15px;">
-
-                <strong>
-                    press-banca.mp4
-                </strong>
-
-                <p style="margin:8px 0; color:#777;">
-                    Video demostrativo de la ejecución.
-                </p>
-
-                <span class="kro-badge kro-badge-gray">
-                    Video
-                </span>
-
-            </div>
-
+                </article>
+            }
         </div>
+    }
+    else
+    {
+        <!-- ESTADO VACÍO -->
+        <div class="kro-media-empty">
 
-    </div>
+            <div class="kro-media-empty-icon">
+                🎬
+            </div>
 
-</div>
+            <h3>
+                No hay archivos multimedia
+            </h3>
 
+            <p>
+                Este ejercicio todavía no tiene imágenes ni videos explicativos.
+                Puede adjuntar recursos para facilitar la consulta de su técnica.
+            </p>
 
-<div class="kro-actions">
+            <a asp-action="AdjuntarMultimedia"
+               asp-route-id="@Model.EjercicioId"
+               class="kro-btn kro-btn-primary kro-media-action-button">
+                <span>➕</span>
+                Subir primer archivo
+            </a>
+        </div>
+    }
+</section>
 
-    <a href="/Multimedia/CrearEjercicio"
-       class="kro-btn kro-btn-secondary">
-        Volver
+<!-- NAVEGACIÓN INFERIOR -->
+<div class="kro-actions kro-media-bottom-actions">
+
+    <a asp-controller="Multimedia"
+       asp-action="Index"
+       class="kro-btn kro-btn-outline kro-media-action-button">
+        ← Regresar a la biblioteca
     </a>
-
 </div>
-```
+
+<style>
+    .kro-media-actions {
+        display: flex;
+        align-items: stretch;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 24px;
+    }
+
+    .kro-media-action-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 42px;
+        box-sizing: border-box;
+    }
+
+    .kro-media-info {
+        margin-bottom: 24px;
+    }
+
+    .kro-media-description {
+        margin-top: 16px;
+        margin-bottom: 0;
+    }
+
+    .kro-media-description-content {
+        padding: 14px;
+        border: 1px solid #333;
+        border-radius: 8px;
+        background: #181818;
+        color: #ccc;
+        font-size: 14px;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+
+    .kro-media-gallery-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 14px;
+        margin-bottom: 22px;
+    }
+
+    .kro-media-gallery-title {
+        margin-bottom: 5px;
+    }
+
+    .kro-media-muted {
+        margin: 0;
+        color: #999;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .kro-media-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 110px;
+        padding: 8px 12px;
+        box-sizing: border-box;
+        white-space: nowrap;
+    }
+
+    .kro-media-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+        gap: 20px;
+    }
+
+    .kro-media-card {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        overflow: hidden;
+        border: 1px solid #333;
+        border-radius: 10px;
+        background: #181818;
+    }
+
+    .kro-media-viewer {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 210px;
+        overflow: hidden;
+        background: #101010;
+    }
+
+    .kro-media-video {
+        display: block;
+        width: 100%;
+        height: 210px;
+        object-fit: contain;
+        background: #101010;
+    }
+
+    .kro-media-image-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+    }
+
+    .kro-media-image {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    .kro-media-missing {
+        padding: 20px;
+        text-align: center;
+        color: #999;
+    }
+
+        .kro-media-missing span {
+            font-size: 36px;
+        }
+
+        .kro-media-missing p {
+            margin-bottom: 0;
+            font-size: 13px;
+        }
+
+    .kro-media-card-content {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        gap: 12px;
+        padding: 16px;
+    }
+
+    .kro-media-type {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        align-self: flex-start;
+        flex-shrink: 0;
+    }
+
+    .kro-media-filename {
+        display: block;
+        color: #fff;
+        font-size: 13px;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+    }
+
+    .kro-media-file-description {
+        margin: 8px 0 0;
+        color: #999;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    .kro-media-card-footer {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: auto;
+        padding-top: 12px;
+        border-top: 1px solid #303030;
+    }
+
+    .kro-media-open-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 36px;
+        box-sizing: border-box;
+    }
+
+    .kro-media-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 42px 20px;
+        border: 1px dashed #444;
+        border-radius: 10px;
+        background: #181818;
+        text-align: center;
+    }
+
+    .kro-media-empty-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 72px;
+        height: 72px;
+        margin-bottom: 16px;
+        border-radius: 50%;
+        background: #242424;
+        font-size: 34px;
+    }
+
+    .kro-media-empty h3 {
+        margin: 0 0 8px;
+        color: #eee;
+        font-size: 18px;
+    }
+
+    .kro-media-empty p {
+        max-width: 420px;
+        margin: 0;
+        color: #999;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .kro-media-empty .kro-media-action-button {
+        margin-top: 20px;
+    }
+
+    .kro-media-bottom-actions {
+        display: flex;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 24px;
+    }
+
+    @@media (max-width: 600px) {
+        .kro-media-actions {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+            .kro-media-actions .kro-media-action-button {
+                width: 100%;
+            }
+
+        .kro-media-gallery-header {
+            align-items: flex-start;
+        }
+
+        .kro-media-bottom-actions .kro-media-action-button {
+            width: 100%;
+        }
+    }
+</style>

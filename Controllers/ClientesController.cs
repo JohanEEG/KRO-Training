@@ -16,13 +16,16 @@ namespace KROTraining.Controllers
             _context = context;
         }
 
-        // GET: Clientes (Búsqueda por nombre, cédula o número de badge)
-        public async Task<IActionResult> Index(string buscar)
+        // GET: Clientes (Búsqueda por nombre, cédula o badge + Filtro Estado + Paginación)
+        public async Task<IActionResult> Index(string buscar, string filtroEstado = "TODOS", int pagina = 1)
         {
+            int registrosPorPagina = 10;
+
             var query = _context.Clientes
                 .Include(c => c.Usuario)
                 .AsQueryable();
 
+            // 1. Filtro por Búsqueda (Nombre, Cédula o Badge)
             if (!string.IsNullOrEmpty(buscar))
             {
                 query = query.Where(c => (c.Usuario != null && c.Usuario.Nombre.Contains(buscar))
@@ -30,8 +33,50 @@ namespace KROTraining.Controllers
                                       || (c.BadgeNumero != null && c.BadgeNumero.Contains(buscar)));
             }
 
-            var clientes = await query.ToListAsync();
+            // 2. Filtro por Estado (Activo / Inactivo) con tolerancia a NULLs
+            if (!string.IsNullOrEmpty(filtroEstado) && filtroEstado != "TODOS")
+            {
+                if (filtroEstado == "Activo")
+                {
+                    query = query.Where(c => c.Usuario != null &&
+                        (c.Usuario.Estado == "Activo" || string.IsNullOrEmpty(c.Usuario.Estado) || c.Usuario.Estado == "1"));
+                }
+                else if (filtroEstado == "Inactivo")
+                {
+                    query = query.Where(c => c.Usuario != null && c.Usuario.Estado == "Inactivo");
+                }
+            }
+
+            // 3. Paginación
+            int totalRegistros = await query.CountAsync();
+            int totalPaginas = (int)Math.Ceiling((double)totalRegistros / registrosPorPagina);
+
+            var clientes = await query
+                .OrderByDescending(c => c.UsuarioId)
+                .Skip((pagina - 1) * registrosPorPagina)
+                .Take(registrosPorPagina)
+                .ToListAsync();
+
+            ViewBag.TotalPaginas = totalPaginas > 0 ? totalPaginas : 1;
+            ViewBag.PaginaActual = pagina;
+            ViewBag.FiltroEstado = filtroEstado;
+            ViewBag.Buscar = buscar;
+
             return View(clientes);
+        }
+
+        // GET: Clientes/Perfil/5 (Expediente y Ficha Médica del Cliente)
+        public async Task<IActionResult> Perfil(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var cliente = await _context.Clientes
+                .Include(c => c.Usuario)
+                .FirstOrDefaultAsync(m => m.UsuarioId == id);
+
+            if (cliente == null) return NotFound();
+
+            return View(cliente);
         }
 
         // GET: Clientes/Crear

@@ -2,49 +2,131 @@
 
 @{
     ViewData["Title"] = "Gestión de Clientes";
+
+    int paginaActual = ViewBag.PaginaActual ?? 1;
+    int totalPaginas = ViewBag.TotalPaginas ?? 1;
+
+    string filtroEstado = Context.Request.Query["filtroEstado"].ToString();
+    string buscar = Context.Request.Query["buscar"].ToString();
+
+    if (string.IsNullOrWhiteSpace(filtroEstado))
+    {
+        filtroEstado = "TODOS";
+    }
 }
 
 <div class="kro-page-title">Gestión de Clientes</div>
-<p class="kro-page-subtitle">Consulta y administra la información de los clientes registrados en KRÒ Training.</p>
+
+<p class="kro-page-subtitle">
+    Consulta y administra la información de los clientes registrados en KRÒ Training.
+</p>
 
 <div class="kro-card">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <div class="kro-card-title" style="margin:0;">Clientes registrados</div>
-        <a asp-action="Crear" class="kro-btn kro-btn-primary">+ Nuevo cliente</a>
+
+    <div class="kro-clients-header">
+        <div>
+            <div class="kro-card-title">Clientes registrados</div>
+            <p class="kro-clients-description">
+                Administra los datos, consulta las fichas médicas y controla el estado de cada cliente.
+            </p>
+        </div>
+
+        <a asp-action="Crear" class="kro-btn kro-clients-primary">
+            <i class="bi bi-person-plus" aria-hidden="true"></i>
+            Nuevo cliente
+        </a>
     </div>
 
-    <!-- BARRA DE BÚSQUEDA -->
-    <form method="get" asp-action="Index" class="kro-search" style="display: flex; gap: 10px; margin-bottom: 20px;">
-        <input type="text" 
-               name="buscar" 
-               value="@Context.Request.Query["buscar"]" 
-               class="kro-form-control" 
-               placeholder="Buscar por nombre, cédula o N° de badge..." />
+    <form method="get" asp-action="Index" class="kro-clients-filters">
 
-        <button type="submit" class="kro-btn kro-btn-secondary">🔍 Buscar</button>
-        <a asp-action="Index" class="kro-btn kro-btn-outline">Limpiar</a>
+        <div class="kro-clients-search">
+            <label for="buscar" class="kro-filter-label">Buscar cliente</label>
+            <input type="text"
+                   id="buscar"
+                   name="buscar"
+                   value="@buscar"
+                   class="kro-form-control"
+                   placeholder="Nombre, cédula o número de badge..." />
+        </div>
+
+        <div class="kro-clients-state-filter">
+            <label for="filtroEstado" class="kro-filter-label">Estado del cliente</label>
+            <select id="filtroEstado"
+                    name="filtroEstado"
+                    class="kro-form-control">
+                @if (filtroEstado == "TODOS")
+                {
+                    <option value="TODOS" selected>Todos los estados</option>
+                }
+                else
+                {
+                    <option value="TODOS">Todos los estados</option>
+                }
+
+                @if (filtroEstado == "Activo")
+                {
+                    <option value="Activo" selected>Activos</option>
+                }
+                else
+                {
+                    <option value="Activo">Activos</option>
+                }
+
+                @if (filtroEstado == "Inactivo")
+                {
+                    <option value="Inactivo" selected>Inactivos</option>
+                }
+                else
+                {
+                    <option value="Inactivo">Inactivos</option>
+                }
+            </select>
+        </div>
+
+        <div class="kro-clients-filter-actions">
+            <button type="submit" class="kro-btn kro-clients-primary">
+                <i class="bi bi-search" aria-hidden="true"></i>
+                Filtrar
+            </button>
+
+            <a asp-action="Index" class="kro-btn kro-clients-secondary">
+                Limpiar
+            </a>
+        </div>
+
     </form>
 
-    <!-- TABLA DE CLIENTES -->
-    <div class="kro-table-container">
-        <table class="kro-table">
+    <div class="kro-clients-table-heading">
+        <span>Listado de clientes</span>
+        <span class="kro-clients-count">
+            Página @paginaActual de @totalPaginas
+        </span>
+    </div>
+
+    <div class="kro-table-container kro-clients-table-container">
+        <table class="kro-table kro-clients-table">
             <thead>
                 <tr>
                     <th>Cédula</th>
-                    <th>N° Badge</th>
-                    <th>Nombre Completo</th>
-                    <th>Teléfono</th>
-                    <th>Correo Electrónico</th>
+                    <th>N.º Badge</th>
+                    <th>Nombre completo</th>
+                    <th>Contacto</th>
+                    <th>Ficha médica</th>
                     <th>Estado</th>
-                    <th style="text-align: center;">Acciones</th>
+                    <th class="kro-clients-actions-heading">Acciones</th>
                 </tr>
             </thead>
+
             <tbody>
-                @if (!Model.Any())
+                @if (Model == null || !Model.Any())
                 {
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 20px; color: #666;">
-                            No se encontraron clientes registrados o que coincidan con la búsqueda.
+                        <td colspan="7" class="kro-clients-empty">
+                            <i class="bi bi-people" aria-hidden="true"></i>
+                            <strong>No se encontraron clientes</strong>
+                            <span>
+                                Prueba con otros términos de búsqueda o cambia el filtro de estado.
+                            </span>
                         </td>
                     </tr>
                 }
@@ -52,51 +134,136 @@
                 {
                     @foreach (var item in Model)
                     {
+                        bool tieneAlertaMedica =
+                            !string.IsNullOrWhiteSpace(item.Padecimientos) ||
+                            !string.IsNullOrWhiteSpace(item.Alergias);
+
+                        bool estaActivo =
+                            item.Usuario != null &&
+                            item.Usuario.Estado == "Activo";
+
                         <tr>
-                            <td>@(item.Usuario != null && !string.IsNullOrEmpty(item.Usuario.Cedula) ? item.Usuario.Cedula : "-")</td>
-                            <td>@(string.IsNullOrEmpty(item.BadgeNumero) ? "-" : item.BadgeNumero)</td>
-                            <td>@(item.Usuario != null ? item.Usuario.Nombre : "Sin usuario")</td>
-                            <td>@(item.Usuario != null ? item.Usuario.Telefono : "-")</td>
-                            <td>@(item.Usuario != null ? item.Usuario.Correo : "-")</td>
                             <td>
-                                @if (item.Usuario != null && item.Usuario.Estado == "Activo")
+                                @(item.Usuario != null &&
+                                  !string.IsNullOrWhiteSpace(item.Usuario.Cedula)
+                                    ? item.Usuario.Cedula
+                                    : "-")
+                            </td>
+
+                            <td>
+                                @(string.IsNullOrWhiteSpace(item.BadgeNumero)
+                                    ? "-"
+                                    : item.BadgeNumero)
+                            </td>
+
+                            <td>
+                                <span class="kro-clients-name">
+                                    @(item.Usuario != null
+                                        ? item.Usuario.Nombre
+                                        : "Sin usuario")
+                                </span>
+                            </td>
+
+                            <td>
+                                <div class="kro-clients-contact">
+                                    <span>
+                                        @(item.Usuario != null &&
+                                          !string.IsNullOrWhiteSpace(item.Usuario.Telefono)
+                                            ? item.Usuario.Telefono
+                                            : "Sin teléfono")
+                                    </span>
+
+                                    <small>
+                                        @(item.Usuario != null &&
+                                          !string.IsNullOrWhiteSpace(item.Usuario.Correo)
+                                            ? item.Usuario.Correo
+                                            : "Sin correo")
+                                    </small>
+                                </div>
+                            </td>
+
+                            <td>
+                                @if (tieneAlertaMedica)
                                 {
-                                    <span class="kro-badge kro-badge-green">Activo</span>
+                                    <span class="kro-medical-alert"
+                                          title="Tiene alergias o padecimientos registrados">
+                                        <i class="bi bi-exclamation-triangle-fill"
+                                           aria-hidden="true"></i>
+                                        Alerta médica
+                                    </span>
                                 }
                                 else
                                 {
-                                    <span class="kro-badge kro-badge-gray">Inactivo</span>
+                                    <span class="kro-neutral-badge">
+                                        Sin alertas registradas
+                                    </span>
                                 }
                             </td>
-                            <td style="text-align: center;">
-                                <div class="kro-table-actions" style="display: flex; gap: 5px; justify-content: center;">
-                                    <!-- Botón Editar -->
-                                    <a asp-action="Editar" asp-route-id="@item.UsuarioId" class="kro-btn kro-btn-small kro-btn-outline">
-                                        Editar
+
+                            <td>
+                                @if (estaActivo)
+                                {
+                                    <span class="kro-status-badge kro-status-active">
+                                        <span class="kro-status-dot"></span>
+                                        Activo
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="kro-status-badge kro-status-inactive">
+                                        <span class="kro-status-dot"></span>
+                                        Inactivo
+                                    </span>
+                                }
+                            </td>
+
+                            <td>
+                                <div class="kro-clients-row-actions">
+                                    <a asp-action="Perfil"
+                                       asp-route-id="@item.UsuarioId"
+                                       class="kro-btn kro-action-btn kro-clients-secondary"
+                                       title="Ver ficha médica">
+                                        <i class="bi bi-clipboard2-pulse" aria-hidden="true"></i>
+                                        <span>Ficha</span>
                                     </a>
 
-                                    <!-- Botón Activar / Desactivar -->
-                                    @if (item.Usuario != null && item.Usuario.Estado == "Activo")
+                                    <a asp-action="Editar"
+                                       asp-route-id="@item.UsuarioId"
+                                       class="kro-btn kro-action-btn kro-clients-primary"
+                                       title="Editar cliente">
+                                        <i class="bi bi-pencil" aria-hidden="true"></i>
+                                        <span>Editar</span>
+                                    </a>
+
+                                    @if (estaActivo)
                                     {
-                                        <form asp-action="Desactivar" method="post" style="display:inline;">
+                                        <form asp-action="Desactivar"
+                                              method="post"
+                                              class="kro-clients-inline-form kro-clients-action-wide">
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="id" value="@item.UsuarioId" />
-                                            <button type="submit" 
-                                                    class="kro-btn kro-btn-small kro-btn-danger" 
+
+                                            <button type="submit"
+                                                    class="kro-btn kro-action-btn kro-clients-danger"
                                                     onclick="return confirm('¿Está seguro de desactivar a este cliente?');">
-                                                Desactivar
+                                                <i class="bi bi-person-dash" aria-hidden="true"></i>
+                                                <span>Desactivar</span>
                                             </button>
                                         </form>
                                     }
                                     else
                                     {
-                                        <form asp-action="Reactivar" method="post" style="display:inline;">
+                                        <form asp-action="Reactivar"
+                                              method="post"
+                                              class="kro-clients-inline-form kro-clients-action-wide">
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="id" value="@item.UsuarioId" />
-                                            <button type="submit" 
-                                                    class="kro-btn kro-btn-small kro-btn-success" 
+
+                                            <button type="submit"
+                                                    class="kro-btn kro-action-btn kro-clients-success"
                                                     onclick="return confirm('¿Desea reactivar a este cliente?');">
-                                                Activar
+                                                <i class="bi bi-person-check" aria-hidden="true"></i>
+                                                <span>Activar</span>
                                             </button>
                                         </form>
                                     }
@@ -108,4 +275,526 @@
             </tbody>
         </table>
     </div>
+
+    @if (totalPaginas > 1)
+    {
+        <nav class="kro-clients-pagination" aria-label="Paginación de clientes">
+
+            @if (paginaActual > 1)
+            {
+                <a asp-action="Index"
+                   asp-route-pagina="@(paginaActual - 1)"
+                   asp-route-buscar="@buscar"
+                   asp-route-filtroEstado="@filtroEstado"
+                   class="kro-page-btn"
+                   aria-label="Página anterior">
+                    <i class="bi bi-chevron-left" aria-hidden="true"></i>
+                    Anterior
+                </a>
+            }
+
+            @for (int i = 1; i <= totalPaginas; i++)
+            {
+                <a asp-action="Index"
+                   asp-route-pagina="@i"
+                   asp-route-buscar="@buscar"
+                   asp-route-filtroEstado="@filtroEstado"
+                   class="kro-page-btn @(i == paginaActual ? "kro-page-btn-active" : "")"
+                   aria-current="@(i == paginaActual ? "page" : null)">
+                    @i
+                </a>
+            }
+
+            @if (paginaActual < totalPaginas)
+            {
+                <a asp-action="Index"
+                   asp-route-pagina="@(paginaActual + 1)"
+                   asp-route-buscar="@buscar"
+                   asp-route-filtroEstado="@filtroEstado"
+                   class="kro-page-btn"
+                   aria-label="Página siguiente">
+                    Siguiente
+                    <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                </a>
+            }
+
+        </nav>
+    }
 </div>
+
+<style>
+    .kro-clients-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+        .kro-clients-header .kro-card-title {
+            margin: 0 0 7px;
+        }
+
+    .kro-clients-description {
+        margin: 0;
+        color: #6B7280;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .kro-clients-primary,
+    .kro-clients-secondary,
+    .kro-clients-danger,
+    .kro-clients-success {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        min-height: 38px;
+        padding: 9px 13px;
+        border: 1px solid transparent;
+        border-radius: 7px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .kro-clients-primary {
+        color: #FFFFFF;
+        background-color: #2563EB;
+        border-color: #2563EB;
+    }
+
+        .kro-clients-primary:hover {
+            color: #FFFFFF;
+            background-color: #1D4ED8;
+            border-color: #1D4ED8;
+        }
+
+    .kro-clients-secondary {
+        color: #374151;
+        background-color: #FFFFFF;
+        border-color: #D1D5DB;
+    }
+
+        .kro-clients-secondary:hover {
+            color: #1C1C1C;
+            background-color: #F3F4F6;
+            border-color: #9CA3AF;
+        }
+
+    .kro-clients-danger {
+        color: #D62828;
+        background-color: #FFFFFF;
+        border-color: #FECACA;
+    }
+
+        .kro-clients-danger:hover {
+            color: #FFFFFF;
+            background-color: #D62828;
+            border-color: #D62828;
+        }
+
+    .kro-clients-success {
+        color: #166534;
+        background-color: #F0FDF4;
+        border-color: #BBF7D0;
+    }
+
+        .kro-clients-success:hover {
+            color: #14532D;
+            background-color: #DCFCE7;
+            border-color: #86EFAC;
+        }
+
+    .kro-clients-filters {
+        display: flex;
+        align-items: flex-end;
+        flex-wrap: wrap;
+        gap: 14px;
+        margin-bottom: 25px;
+        padding: 18px;
+        background-color: #F9FAFB;
+        border: 1px solid #E5E7EB;
+        border-radius: 10px;
+    }
+
+    .kro-clients-search,
+    .kro-clients-state-filter {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+    }
+
+    .kro-clients-search {
+        flex: 2 1 260px;
+    }
+
+    .kro-clients-state-filter {
+        flex: 1 1 170px;
+    }
+
+    .kro-filter-label {
+        color: #374151;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .kro-clients-filters .kro-form-control {
+        width: 100%;
+        min-height: 40px;
+        border: 1px solid #D1D5DB;
+        border-radius: 7px;
+        background-color: #FFFFFF;
+        color: #1C1C1C;
+    }
+
+    .kro-clients-filter-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .kro-clients-table-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 12px;
+        color: #1C1C1C;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .kro-clients-count {
+        color: #6B7280;
+        font-size: 12px;
+        font-weight: 400;
+    }
+
+    .kro-clients-table-container {
+        overflow-x: auto;
+        border: 1px solid #E5E7EB;
+        border-radius: 9px;
+    }
+
+    .kro-clients-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+        .kro-clients-table thead th {
+            padding: 14px 12px;
+            background-color: #F3F4F6;
+            color: #374151;
+            border-bottom: 1px solid #D1D5DB;
+            font-size: 12px;
+            font-weight: 700;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .kro-clients-table tbody td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #E5E7EB;
+            color: #374151;
+            font-size: 13px;
+            vertical-align: middle;
+        }
+
+        .kro-clients-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .kro-clients-table tbody tr:hover {
+            background-color: #F9FAFB;
+        }
+
+    .kro-clients-name {
+        color: #1C1C1C;
+        font-weight: 600;
+    }
+
+    .kro-clients-contact {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        min-width: 150px;
+    }
+
+        .kro-clients-contact small {
+            color: #6B7280;
+            font-size: 12px;
+            overflow-wrap: anywhere;
+        }
+
+    .kro-medical-alert {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 9px;
+        border: 1px solid #FECACA;
+        border-radius: 6px;
+        background-color: #FEF2F2;
+        color: #B91C1C;
+        font-size: 11px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .kro-neutral-badge {
+        display: inline-flex;
+        padding: 6px 9px;
+        border: 1px solid #E5E7EB;
+        border-radius: 6px;
+        background-color: #F9FAFB;
+        color: #6B7280;
+        font-size: 11px;
+        white-space: nowrap;
+    }
+
+    .kro-status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 6px 9px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .kro-status-active {
+        color: #166534;
+        background-color: #F0FDF4;
+        border: 1px solid #BBF7D0;
+    }
+
+    .kro-status-inactive {
+        color: #4B5563;
+        background-color: #F3F4F6;
+        border: 1px solid #D1D5DB;
+    }
+
+    .kro-status-dot {
+        width: 7px;
+        height: 7px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background-color: currentColor;
+    }
+
+    .kro-clients-actions-heading {
+        text-align: center !important;
+    }
+
+    /* Acciones simétricas: dos botones iguales y acción de estado a todo el ancho */
+    .kro-clients-row-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(82px, 1fr));
+        align-items: stretch;
+        gap: 8px;
+        width: 100%;
+        min-width: 205px;
+        max-width: 250px;
+        margin: 0 auto;
+    }
+
+        .kro-clients-row-actions .kro-action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            box-sizing: border-box;
+            width: 100%;
+            min-width: 0;
+            min-height: 36px;
+            height: 36px;
+            padding: 0 9px;
+            margin: 0;
+            font-size: 12px;
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+            .kro-clients-row-actions .kro-action-btn i {
+                flex: 0 0 auto;
+                line-height: 1;
+            }
+
+    .kro-clients-inline-form {
+        display: flex;
+        width: 100%;
+        min-width: 0;
+        margin: 0;
+    }
+
+    .kro-clients-action-wide {
+        grid-column: 1 / -1;
+    }
+
+        .kro-clients-action-wide .kro-action-btn {
+            min-height: 36px;
+            height: 36px;
+        }
+
+    .kro-clients-filter-actions {
+        display: flex;
+        align-items: stretch;
+        gap: 8px;
+        flex: 0 0 auto;
+    }
+
+        .kro-clients-filter-actions .kro-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            box-sizing: border-box;
+            min-width: 100px;
+            min-height: 40px;
+            height: 40px;
+            padding: 0 14px;
+            margin: 0;
+            white-space: nowrap;
+        }
+
+    .kro-clients-header > .kro-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        box-sizing: border-box;
+    }
+
+    .kro-clients-empty {
+        padding: 38px 16px !important;
+        text-align: center;
+    }
+
+        .kro-clients-empty i,
+        .kro-clients-empty strong,
+        .kro-clients-empty span {
+            display: block;
+        }
+
+        .kro-clients-empty i {
+            margin-bottom: 10px;
+            color: #6B7280;
+            font-size: 28px;
+        }
+
+        .kro-clients-empty strong {
+            margin-bottom: 6px;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .kro-clients-empty span {
+            color: #6B7280;
+            font-size: 12px;
+        }
+
+    .kro-clients-pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 7px;
+        margin-top: 24px;
+    }
+
+    .kro-page-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-width: 36px;
+        min-height: 36px;
+        padding: 7px 11px;
+        border: 1px solid #D1D5DB;
+        border-radius: 7px;
+        background-color: #FFFFFF;
+        color: #374151;
+        font-size: 13px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+
+        .kro-page-btn:hover {
+            background-color: #EFF6FF;
+            border-color: #93C5FD;
+            color: #1D4ED8;
+        }
+
+    .kro-page-btn-active,
+    .kro-page-btn-active:hover {
+        color: #FFFFFF;
+        background-color: #2563EB;
+        border-color: #2563EB;
+        font-weight: 700;
+    }
+
+    .kro-clients-primary:focus-visible,
+    .kro-clients-secondary:focus-visible,
+    .kro-clients-danger:focus-visible,
+    .kro-clients-success:focus-visible,
+    .kro-page-btn:focus-visible {
+        outline: 3px solid #93C5FD;
+        outline-offset: 2px;
+    }
+
+    @@media (max-width: 768px) {
+        .kro-clients-header {
+            align-items: flex-start;
+        }
+
+        .kro-clients-filters {
+            align-items: stretch;
+        }
+
+        .kro-clients-filter-actions {
+            width: 100%;
+        }
+
+            .kro-clients-filter-actions > * {
+                flex: 1;
+            }
+
+        .kro-clients-table {
+            min-width: 1050px;
+        }
+
+        .kro-clients-row-actions {
+            min-width: 205px;
+        }
+
+        .kro-clients-filter-actions .kro-btn {
+            flex: 1 1 0;
+            min-width: 0;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .kro-clients-header > a {
+            width: 100%;
+        }
+
+        .kro-clients-pagination {
+            gap: 5px;
+        }
+
+        .kro-page-btn {
+            min-width: 32px;
+            padding: 6px 8px;
+        }
+    }
+</style>

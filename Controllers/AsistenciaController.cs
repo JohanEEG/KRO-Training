@@ -2,7 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using KROTraining.Models;
+using System;
+using System.Linq;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace KROTraining.Controllers
 {
@@ -74,24 +77,70 @@ namespace KROTraining.Controllers
             return RedirectToAction(nameof(RegistrarIngreso));
         }
 
-        // HU-56 — Como administrador quiero consultar el historial de asistencia
-        [Authorize(Roles = "ADMINISTRADOR")]
+        // HU-56 — Como administrador / entrenador quiero consultar el historial de asistencia con desplegable y filtros
+        [Authorize(Roles = "ADMINISTRADOR,ENTRENADOR")]
         [HttpGet]
-        public async Task<IActionResult> HistorialAsistencia(DateOnly? fechaInicio, DateOnly? fechaFin)
+        public async Task<IActionResult> HistorialAsistencia(int? clienteId, string? buscarCliente, DateOnly? fechaInicio, DateOnly? fechaFin, int pagina = 1)
         {
+            int registrosPorPagina = 10;
+
+            // 1. Cargar lista completa de clientes para el desplegable (<select>)
+            var listaClientes = await _context.Clientes
+                .Include(c => c.Usuario)
+                .Where(c => c.Usuario != null)
+                .OrderBy(c => c.Usuario!.Nombre)
+                .Select(c => new
+                {
+                    ClienteId = c.UsuarioId,
+                    NombreCompleto = $"{c.Usuario!.Nombre} (Badge: {c.BadgeNumero ?? "N/A"}) - Céd: {c.Usuario.Cedula ?? "N/A"}"
+                })
+                .ToListAsync();
+
+            ViewBag.ClientesList = listaClientes;
+
             var query = _context.Asistencia
-                .Include(a => a.Cliente).ThenInclude(c => c.Usuario)
+                .Include(a => a.Cliente)
+                    .ThenInclude(c => c.Usuario)
                 .AsQueryable();
 
+            // 2. Filtro por Cliente seleccionado en el desplegable (<select>)
+            if (clienteId.HasValue && clienteId.Value > 0)
+            {
+                query = query.Where(a => a.ClienteId == clienteId.Value);
+            }
+            // 3. Filtro por Búsqueda Manual (Nombre, Cédula o N° Badge)
+            else if (!string.IsNullOrEmpty(buscarCliente))
+            {
+                query = query.Where(a =>
+                    (a.Cliente != null && a.Cliente.Usuario != null &&
+                     (a.Cliente.Usuario.Nombre.Contains(buscarCliente) ||
+                      (a.Cliente.Usuario.Cedula != null && a.Cliente.Usuario.Cedula.Contains(buscarCliente)))) ||
+                    (a.Cliente != null && a.Cliente.BadgeNumero != null && a.Cliente.BadgeNumero.Contains(buscarCliente)));
+            }
+
+            // 4. Filtro por Rango de Fechas
             if (fechaInicio.HasValue)
                 query = query.Where(a => a.Fecha >= fechaInicio.Value);
 
             if (fechaFin.HasValue)
                 query = query.Where(a => a.Fecha <= fechaFin.Value);
 
-            var resultados = await query.OrderByDescending(a => a.Fecha).ToListAsync();
+            // 5. Paginación y Ordenamiento
+            int totalRegistros = await query.CountAsync();
+            int totalPaginas = (int)Math.Ceiling((double)totalRegistros / registrosPorPagina);
 
-            ViewBag.SinResultados = !resultados.Any(); // Criterio: sin registros de asistencia
+            var resultados = await query
+                .OrderByDescending(a => a.Fecha)
+                .ThenByDescending(a => a.Hora)
+                .Skip((pagina - 1) * registrosPorPagina)
+                .Take(registrosPorPagina)
+                .ToListAsync();
+
+            ViewBag.SinResultados = !resultados.Any();
+            ViewBag.TotalPaginas = totalPaginas > 0 ? totalPaginas : 1;
+            ViewBag.PaginaActual = pagina;
+            ViewBag.ClienteIdSeleccionado = clienteId;
+            ViewBag.BuscarCliente = buscarCliente;
             ViewBag.FechaInicio = fechaInicio;
             ViewBag.FechaFin = fechaFin;
 

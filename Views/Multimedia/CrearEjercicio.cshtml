@@ -1,4 +1,6 @@
-﻿@{
+﻿@model KROTraining.Models.Ejercicio
+
+@{
     ViewData["Title"] = "Crear Ejercicio";
 }
 
@@ -7,123 +9,474 @@
 </div>
 
 <p class="kro-page-subtitle">
-    Registre un nuevo ejercicio en la biblioteca de KRÒ Training.
+    Registre un nuevo ejercicio en la biblioteca de KRÒ Training y adjunte su material audiovisual.
 </p>
 
-<div class="kro-card">
+<!-- NAVEGACIÓN -->
+<div class="kro-actions"
+     style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:24px;">
+
+    <a asp-controller="Multimedia"
+       asp-action="Index"
+       class="kro-btn kro-btn-outline"
+       style="display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:42px; box-sizing:border-box;">
+        <span>📋</span>
+        Biblioteca multimedia
+    </a>
+</div>
+
+<!-- FORMULARIO PRINCIPAL -->
+<section class="kro-card">
 
     <div class="kro-card-title">
         Información del ejercicio
     </div>
 
-    <form>
+    <form asp-action="CrearEjercicio"
+          method="post"
+          enctype="multipart/form-data">
 
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly"
+             class="text-danger"
+             role="alert"
+             style="margin-bottom:20px;">
+        </div>
+
+        <!-- DATOS GENERALES -->
         <div class="kro-form-grid">
 
             <div class="kro-form-group">
-
-                <label class="kro-form-label">
+                <label asp-for="Nombre" class="kro-form-label">
                     Nombre del ejercicio
                 </label>
 
-                <input type="text"
+                <input asp-for="Nombre"
                        class="kro-form-control"
-                       placeholder="Ingrese el nombre del ejercicio" />
+                       placeholder="Ej. Press de banca, sentadilla..."
+                       maxlength="150"
+                       required />
 
+                <span asp-validation-for="Nombre"
+                      class="text-danger small">
+                </span>
             </div>
 
-
             <div class="kro-form-group">
-
-                <label class="kro-form-label">
+                <label asp-for="GrupoMuscular" class="kro-form-label">
                     Grupo muscular
                 </label>
 
-                <select class="kro-form-control">
-
-                    <option>Seleccione un grupo muscular</option>
-                    <option>Pecho</option>
-                    <option>Espalda</option>
-                    <option>Piernas</option>
-                    <option>Hombros</option>
-                    <option>Bíceps</option>
-                    <option>Tríceps</option>
-                    <option>Abdomen</option>
-                    <option>Glúteos</option>
-
+                <select asp-for="GrupoMuscular"
+                        class="kro-form-control"
+                        required>
+                    <option value="">Seleccione un grupo muscular</option>
+                    <option value="Pecho">Pecho</option>
+                    <option value="Espalda">Espalda</option>
+                    <option value="Piernas">Piernas</option>
+                    <option value="Hombros">Hombros</option>
+                    <option value="Bíceps">Bíceps</option>
+                    <option value="Tríceps">Tríceps</option>
+                    <option value="Abdomen">Abdomen</option>
+                    <option value="Glúteos">Glúteos</option>
                 </select>
 
+                <span asp-validation-for="GrupoMuscular"
+                      class="text-danger small">
+                </span>
             </div>
 
-
             <div class="kro-form-group">
-
-                <label class="kro-form-label">
+                <label asp-for="Tipo" class="kro-form-label">
                     Tipo de ejercicio
                 </label>
 
-                <select class="kro-form-control">
-
-                    <option>Seleccione un tipo</option>
-                    <option>Fuerza</option>
-                    <option>Cardio</option>
-                    <option>Movilidad</option>
-                    <option>Calentamiento</option>
-
+                <select asp-for="Tipo"
+                        class="kro-form-control"
+                        required>
+                    <option value="">Seleccione un tipo</option>
+                    <option value="Fuerza">Fuerza</option>
+                    <option value="Cardio">Cardio</option>
+                    <option value="Movilidad">Movilidad</option>
+                    <option value="Calentamiento">Calentamiento</option>
                 </select>
 
+                <span asp-validation-for="Tipo"
+                      class="text-danger small">
+                </span>
             </div>
 
-
             <div class="kro-form-group">
-
-                <label class="kro-form-label">
+                <label asp-for="Nivel" class="kro-form-label">
                     Nivel de dificultad
                 </label>
 
-                <select class="kro-form-control">
-
-                    <option>Seleccione un nivel</option>
-                    <option>Principiante</option>
-                    <option>Intermedio</option>
-                    <option>Avanzado</option>
-
+                <select asp-for="Nivel"
+                        class="kro-form-control"
+                        required>
+                    <option value="">Seleccione un nivel</option>
+                    <option value="Principiante">Principiante</option>
+                    <option value="Intermedio">Intermedio</option>
+                    <option value="Avanzado">Avanzado</option>
                 </select>
 
+                <span asp-validation-for="Nivel"
+                      class="text-danger small">
+                </span>
             </div>
 
         </div>
 
-
+        <!-- DESCRIPCIÓN TÉCNICA -->
         <div class="kro-form-group" style="margin-top:20px;">
 
-            <label class="kro-form-label">
-                Descripción
+            <label asp-for="Descripcion" class="kro-form-label">
+                Descripción técnica
             </label>
 
-            <textarea class="kro-form-control"
+            <textarea asp-for="Descripcion"
+                      class="kro-form-control"
                       rows="4"
-                      placeholder="Ingrese una descripción del ejercicio"></textarea>
+                      maxlength="2000"
+                      placeholder="Describa la ejecución correcta, la postura y las recomendaciones del ejercicio."></textarea>
 
+            <span asp-validation-for="Descripcion"
+                  class="text-danger small">
+            </span>
         </div>
 
+        <!-- MATERIAL MULTIMEDIA -->
+        <section class="kro-multimedia-section">
 
-        <div class="kro-actions">
+            <div class="kro-multimedia-heading">
+                <div>
+                    <h2 class="kro-multimedia-title">
+                        <span style="margin-right:8px;">📎</span>
+                        Material multimedia
+                    </h2>
 
-            <a href="/Multimedia/Index"
-               class="kro-btn kro-btn-secondary">
+                    <p class="kro-multimedia-description">
+                        Adjunte imágenes o videos que ayuden a explicar la técnica correcta del ejercicio.
+                    </p>
+                </div>
+
+                <span class="kro-badge kro-badge-gray">
+                    Opcional
+                </span>
+            </div>
+
+            <div class="kro-form-group">
+                <label for="archivosMultimedia" class="kro-form-label">
+                    Seleccionar imágenes o videos
+                </label>
+
+                <input type="file"
+                       id="archivosMultimedia"
+                       name="archivosMultimedia"
+                       class="kro-form-control"
+                       multiple
+                       accept="image/jpeg,image/png,image/gif,video/mp4,video/quicktime"
+                       onchange="previewMultimediaFiles(this)" />
+
+                <small class="kro-file-help">
+                    Formatos admitidos: JPG, PNG, GIF, MP4 y MOV.
+                    El tamaño máximo permitido depende de la configuración del servidor.
+                </small>
+            </div>
+
+            <!-- VISTA PREVIA -->
+            <div id="multimediaPreviewContainer"
+                 style="display:none; margin-top:22px;">
+
+                <div class="kro-preview-heading">
+                    <h3 class="kro-preview-title">
+                        Archivos seleccionados
+                    </h3>
+
+                    <span id="multimediaPreviewCount"
+                          aria-live="polite"
+                          style="font-size:12px; color:#9ca3af;">
+                    </span>
+                </div>
+
+                <div id="multimediaPreviewList"
+                     class="kro-preview-grid">
+                </div>
+            </div>
+        </section>
+
+        <!-- ACCIONES -->
+        <div class="kro-form-actions">
+
+            <a asp-controller="Multimedia"
+               asp-action="Index"
+               class="kro-btn kro-btn-outline kro-action-button">
                 Cancelar
             </a>
 
-            <button type="button"
-                    class="kro-btn kro-btn-primary"
-                    onclick="alert('Ejercicio registrado correctamente.');">
+            <button type="submit"
+                    class="kro-btn kro-btn-primary kro-action-button">
+                <span>💾</span>
                 Guardar ejercicio
             </button>
 
         </div>
 
     </form>
+</section>
 
-</div>
-```
+<style>
+    .kro-multimedia-section {
+        margin-top: 28px;
+        padding-top: 24px;
+        border-top: 1px solid var(--kro-border, #374151);
+    }
+
+    .kro-multimedia-heading {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 14px;
+        margin-bottom: 18px;
+    }
+
+    .kro-multimedia-title {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .kro-multimedia-description {
+        margin: 8px 0 0;
+        color: #9ca3af;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .kro-file-help {
+        display: block;
+        margin-top: 8px;
+        color: #9ca3af;
+        font-size: 12px;
+        line-height: 1.6;
+    }
+
+    .kro-preview-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 14px;
+    }
+
+    .kro-preview-title {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .kro-preview-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
+        gap: 14px;
+    }
+
+    .kro-form-actions {
+        display: flex;
+        justify-content: flex-end;
+        align-items: stretch;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 30px;
+        padding-top: 22px;
+        border-top: 1px solid var(--kro-border, #374151);
+    }
+
+    .kro-action-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-width: 150px;
+        min-height: 44px;
+        box-sizing: border-box;
+    }
+
+    @@media (max-width: 600px) {
+        .kro-form-actions {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .kro-action-button {
+            width: 100%;
+            min-width: 0;
+        }
+    }
+
+    @@media (max-width: 400px) {
+        .kro-form-actions {
+            grid-template-columns: minmax(0, 1fr);
+        }
+    }
+</style>
+
+@section Scripts {
+    <script>
+        const formatosPermitidos = [
+            "image/jpeg",
+            "image/png",
+            "image/gif",
+            "video/mp4",
+            "video/quicktime"
+        ];
+
+        let multimediaObjectUrls = [];
+
+        function liberarVistasPrevias() {
+            multimediaObjectUrls.forEach(url => URL.revokeObjectURL(url));
+            multimediaObjectUrls = [];
+        }
+
+        function previewMultimediaFiles(input) {
+            const previewContainer =
+                document.getElementById("multimediaPreviewContainer");
+
+            const previewList =
+                document.getElementById("multimediaPreviewList");
+
+            const previewCount =
+                document.getElementById("multimediaPreviewCount");
+
+            liberarVistasPrevias();
+            previewList.replaceChildren();
+            previewCount.textContent = "";
+
+            if (!input.files || input.files.length === 0) {
+                previewContainer.style.display = "none";
+                return;
+            }
+
+            const archivos = Array.from(input.files);
+
+            const archivoInvalido = archivos.find(file =>
+                !formatosPermitidos.includes(file.type)
+            );
+
+            if (archivoInvalido) {
+                alert("Seleccione únicamente archivos JPG, PNG, GIF, MP4 o MOV.");
+                input.value = "";
+                previewContainer.style.display = "none";
+                return;
+            }
+
+            previewContainer.style.display = "block";
+
+            archivos.forEach(file => {
+                const url = URL.createObjectURL(file);
+                multimediaObjectUrls.push(url);
+
+                const tarjeta = document.createElement("div");
+
+                tarjeta.style.cssText = [
+                    "min-width:0",
+                    "padding:12px",
+                    "border:1px solid var(--kro-border, #374151)",
+                    "border-radius:8px",
+                    "display:flex",
+                    "flex-direction:column",
+                    "gap:10px",
+                    "box-sizing:border-box"
+                ].join(";");
+
+                const mediaContainer = document.createElement("div");
+
+                mediaContainer.style.cssText = [
+                    "height:120px",
+                    "width:100%",
+                    "display:flex",
+                    "align-items:center",
+                    "justify-content:center",
+                    "overflow:hidden",
+                    "border-radius:6px",
+                    "background:#111827"
+                ].join(";");
+
+                if (file.type.startsWith("image/")) {
+                    const imagen = document.createElement("img");
+
+                    imagen.src = url;
+                    imagen.alt = "Vista previa de " + file.name;
+
+                    imagen.style.cssText = [
+                        "width:100%",
+                        "height:100%",
+                        "object-fit:contain"
+                    ].join(";");
+
+                    mediaContainer.appendChild(imagen);
+                } else {
+                    const video = document.createElement("video");
+
+                    video.src = url;
+                    video.controls = true;
+                    video.preload = "metadata";
+                    video.setAttribute("aria-label", "Vista previa de " + file.name);
+
+                    video.style.cssText = [
+                        "width:100%",
+                        "height:100%",
+                        "object-fit:contain"
+                    ].join(";");
+
+                    mediaContainer.appendChild(video);
+                }
+
+                const nombre = document.createElement("div");
+                nombre.textContent = file.name;
+                nombre.title = file.name;
+
+                nombre.style.cssText = [
+                    "font-size:12px",
+                    "font-weight:500",
+                    "line-height:1.4",
+                    "overflow-wrap:anywhere"
+                ].join(";");
+
+                const detalles = document.createElement("div");
+
+                detalles.textContent =
+                    (file.type.startsWith("image/") ? "Imagen" : "Video")
+                    + " · "
+                    + formatearTamano(file.size);
+
+                detalles.style.cssText =
+                    "font-size:11px; color:#9ca3af;";
+
+                tarjeta.appendChild(mediaContainer);
+                tarjeta.appendChild(nombre);
+                tarjeta.appendChild(detalles);
+
+                previewList.appendChild(tarjeta);
+            });
+
+            previewCount.textContent =
+                archivos.length === 1
+                    ? "1 archivo seleccionado"
+                    : archivos.length + " archivos seleccionados";
+        }
+
+        function formatearTamano(bytes) {
+            if (bytes < 1024 * 1024) {
+                return (bytes / 1024).toFixed(1) + " KB";
+            }
+
+            return (bytes / (1024 * 1024)).toFixed(2) + " MB";
+        }
+
+        window.addEventListener("pagehide", liberarVistasPrevias);
+    </script>
+}

@@ -1,5 +1,7 @@
-﻿@{
+﻿
+@{
     ViewData["Title"] = "Adjuntar Multimedia";
+    var ejercicioSeleccionado = ViewBag.Ejercicio as KROTraining.Models.Ejercicio;
 }
 
 <div class="kro-page-title">
@@ -7,117 +9,682 @@
 </div>
 
 <p class="kro-page-subtitle">
-    Agregue imágenes o videos para complementar la información de los ejercicios.
+    Agregue imágenes o videos para complementar la información de los ejercicios de KRÒ Training.
 </p>
 
-<div class="kro-card">
+<!-- NAVEGACIÓN RÁPIDA -->
+<div class="kro-actions kro-upload-navigation">
 
-    <div class="kro-card-title">
-        Información del ejercicio
-    </div>
+    @if (ejercicioSeleccionado != null)
+    {
+        <a asp-controller="Multimedia"
+           asp-action="VerMultimedia"
+           asp-route-id="@ejercicioSeleccionado.EjercicioId"
+           class="kro-btn kro-btn-outline kro-upload-button">
+            <span>👁️</span>
+            Ver multimedia del ejercicio
+        </a>
+    }
 
-    <div class="kro-form-grid">
-
-        <div class="kro-form-group">
-
-            <label class="kro-form-label">
-                Ejercicio
-            </label>
-
-            <select class="kro-form-control">
-
-                <option>Seleccione un ejercicio</option>
-                <option>Press de banca</option>
-                <option>Sentadilla</option>
-                <option>Remo con barra</option>
-                <option>Curl de bíceps</option>
-
-            </select>
-
-        </div>
-
-
-        <div class="kro-form-group">
-
-            <label class="kro-form-label">
-                Tipo de multimedia
-            </label>
-
-            <select class="kro-form-control">
-
-                <option>Seleccione un tipo</option>
-                <option>Imagen</option>
-                <option>Video</option>
-
-            </select>
-
-        </div>
-
-    </div>
-
+    <a asp-controller="Multimedia"
+       asp-action="Index"
+       class="kro-btn kro-btn-outline kro-upload-button">
+        <span>📋</span>
+        Biblioteca de ejercicios
+    </a>
 </div>
 
+<form asp-controller="Multimedia"
+      asp-action="AdjuntarMultimedia"
+      method="post"
+      enctype="multipart/form-data"
+      id="formAdjuntarMultimedia">
 
-<div class="kro-card">
+    @Html.AntiForgeryToken()
 
-    <div class="kro-card-title">
-        Archivo multimedia
-    </div>
-
-    <div class="kro-form-group">
-
-        <label class="kro-form-label">
-            Seleccionar archivo
-        </label>
-
-        <input type="file"
-               class="kro-form-control"
-               accept="image/*,video/*" />
-
-        <p class="kro-page-subtitle"
-           style="margin-top:10px; margin-bottom:0;">
-            Formatos permitidos: JPG, PNG, MP4 y MOV. Tamaño máximo: 50 MB.
-        </p>
-
-    </div>
-
-
-    <div class="kro-card"
-         style="margin-top:20px; text-align:center; background:#f8f9fa;">
+    <!-- INFORMACIÓN DEL EJERCICIO -->
+    <section class="kro-card kro-upload-section">
 
         <div class="kro-card-title">
-            Vista previa
+            Información del ejercicio
         </div>
 
-        <div style="padding:35px 20px; color:#777;">
+        <div class="kro-form-grid">
 
-            <div style="font-size:48px; margin-bottom:10px;">
-                🖼️
+            <div class="kro-form-group">
+                <label for="ejercicioId" class="kro-form-label">
+                    Ejercicio
+                </label>
+
+                @if (ejercicioSeleccionado != null)
+                {
+                    <input type="hidden"
+                           id="ejercicioId"
+                           name="ejercicioId"
+                           value="@ejercicioSeleccionado.EjercicioId" />
+
+                    <input type="text"
+                           class="kro-form-control"
+                           value="@ejercicioSeleccionado.Nombre (@ejercicioSeleccionado.GrupoMuscular)"
+                           readonly
+                           aria-label="Ejercicio seleccionado" />
+                }
+                else
+                {
+                    <select id="ejercicioId"
+                            name="ejercicioId"
+                            class="kro-form-control"
+                            required>
+
+                        <option value="">Seleccione un ejercicio</option>
+
+                        @if (ViewBag.Ejercicios != null)
+                        {
+                            foreach (var ej in (IEnumerable<KROTraining.Models.Ejercicio>)ViewBag.Ejercicios)
+                            {
+                                <option value="@ej.EjercicioId">
+                                    @ej.Nombre (@ej.GrupoMuscular)
+                                </option>
+                            }
+                        }
+                    </select>
+                }
             </div>
 
-            <p style="margin:0;">
-                La vista previa del archivo aparecerá aquí.
-            </p>
+            <div class="kro-form-group">
+                <label for="tipoFilter" class="kro-form-label">
+                    Tipo de archivo
+                </label>
+
+                <select id="tipoFilter"
+                        class="kro-form-control"
+                        onchange="filtrarTipo()">
+
+                    <option value="todos">Todos los formatos</option>
+                    <option value="imagen">Solo imágenes (JPG, PNG, GIF)</option>
+                    <option value="video">Solo videos (MP4, MOV)</option>
+                </select>
+
+                <p class="kro-upload-help">
+                    Este filtro limita los formatos disponibles en el selector de archivos.
+                </p>
+            </div>
 
         </div>
+    </section>
 
-    </div>
+    <!-- SELECCIÓN DE ARCHIVOS -->
+    <section class="kro-card kro-upload-section">
 
+        <div class="kro-card-title">
+            Archivos multimedia
+        </div>
 
-    <div class="kro-actions">
+        <div class="kro-form-group">
+            <label for="archivoInput" class="kro-form-label">
+                Seleccionar archivos
+            </label>
 
-        <a href="/Multimedia/Index"
-           class="kro-btn kro-btn-secondary">
-            Cancelar
-        </a>
+            <input type="file"
+                   id="archivoInput"
+                   name="archivosMultimedia"
+                   class="kro-form-control"
+                   accept="image/jpeg,image/png,image/gif,video/mp4,video/quicktime"
+                   multiple
+                   required
+                   onchange="mostrarVistaPrevia(this)" />
 
-        <button type="button"
-                class="kro-btn kro-btn-primary"
-                onclick="alert('Archivo multimedia adjuntado correctamente.');">
-            Adjuntar archivo
+            <p class="kro-upload-help">
+                Formatos admitidos: JPG, PNG, GIF, MP4 y MOV. Puede seleccionar varios archivos.
+                Tamaño máximo recomendado: 50 MB por archivo.
+            </p>
+
+            <p id="uploadError"
+               class="kro-upload-error"
+               role="alert"
+               hidden>
+            </p>
+        </div>
+
+        <!-- VISTA PREVIA -->
+        <div class="kro-upload-preview">
+
+            <div class="kro-upload-preview-header">
+                <div>
+                    <h3>Vista previa de los archivos</h3>
+                    <p>
+                        Revise los recursos seleccionados antes de adjuntarlos al ejercicio.
+                    </p>
+                </div>
+
+                <span id="previewBadge" class="kro-badge kro-badge-gray">
+                    0 archivos
+                </span>
+            </div>
+
+            <div id="previewPlaceholder" class="kro-upload-placeholder">
+
+                <div class="kro-upload-placeholder-icon">
+                    📁
+                </div>
+
+                <h4>Ningún archivo seleccionado</h4>
+
+                <p>
+                    Las vistas previas aparecerán aquí cuando seleccione sus archivos.
+                </p>
+            </div>
+
+            <div id="previewGrid" class="kro-upload-preview-grid"></div>
+
+            <p id="previewCount"
+               class="kro-upload-count"
+               aria-live="polite">
+            </p>
+        </div>
+    </section>
+
+    <!-- ACCIONES -->
+    <div class="kro-actions kro-upload-footer">
+
+        @if (ejercicioSeleccionado != null)
+        {
+            <a asp-controller="Multimedia"
+               asp-action="VerMultimedia"
+               asp-route-id="@ejercicioSeleccionado.EjercicioId"
+               class="kro-btn kro-btn-outline kro-upload-button kro-upload-cancel">
+                Cancelar
+            </a>
+        }
+        else
+        {
+            <a asp-controller="Multimedia"
+               asp-action="Index"
+               class="kro-btn kro-btn-outline kro-upload-button kro-upload-cancel">
+                Cancelar
+            </a>
+        }
+
+        <button type="submit"
+                id="btnAdjuntar"
+                class="kro-btn kro-btn-primary kro-upload-button kro-upload-submit">
+            💾 Adjuntar archivos
         </button>
-
     </div>
+</form>
 
-</div>
-```
+<style>
+    .kro-upload-navigation {
+        display: flex;
+        align-items: stretch;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 24px;
+    }
+
+    .kro-upload-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 44px;
+        padding: 10px 16px;
+        box-sizing: border-box;
+        text-align: center;
+    }
+
+    .kro-upload-section {
+        margin-bottom: 20px;
+    }
+
+    .kro-upload-section:last-of-type {
+        margin-bottom: 0;
+    }
+
+    .kro-upload-help {
+        margin: 9px 0 0;
+        color: #9ca3af;
+        font-size: 12px;
+        line-height: 1.6;
+    }
+
+    .kro-upload-preview {
+        margin-top: 24px;
+        padding: 20px;
+        border: 1px solid var(--kro-border, #374151);
+        border-radius: 10px;
+        box-sizing: border-box;
+    }
+
+    .kro-upload-preview-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 14px;
+        margin-bottom: 20px;
+    }
+
+    .kro-upload-preview-header h3 {
+        margin: 0 0 6px;
+        color: #eee;
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .kro-upload-preview-header p {
+        margin: 0;
+        color: #9ca3af;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .kro-upload-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 30px 16px;
+        border: 1px dashed #444;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .kro-upload-placeholder-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 64px;
+        height: 64px;
+        margin-bottom: 14px;
+        border-radius: 50%;
+        background: #242424;
+        font-size: 30px;
+    }
+
+    .kro-upload-placeholder h4 {
+        margin: 0 0 7px;
+        color: #eee;
+        font-size: 15px;
+    }
+
+    .kro-upload-placeholder p {
+        max-width: 380px;
+        margin: 0;
+        color: #9ca3af;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .kro-upload-preview-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+        gap: 16px;
+    }
+
+    .kro-upload-file-card {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        overflow: hidden;
+        padding: 12px;
+        border: 1px solid #374151;
+        border-radius: 9px;
+        background: #181818;
+        box-sizing: border-box;
+    }
+
+    .kro-upload-file-preview {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 130px;
+        margin-bottom: 12px;
+        overflow: hidden;
+        border-radius: 6px;
+        background: #101010;
+    }
+
+    .kro-upload-file-preview img,
+    .kro-upload-file-preview video {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    .kro-upload-file-name {
+        margin-bottom: 8px;
+        color: #eee;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+    }
+
+    .kro-upload-file-meta {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 6px;
+        margin-top: auto;
+        color: #9ca3af;
+        font-size: 11px;
+    }
+
+    .kro-upload-count {
+        margin: 16px 0 0;
+        color: #9ca3af;
+        font-size: 13px;
+        text-align: center;
+    }
+
+    .kro-upload-error {
+        margin: 10px 0 0;
+        padding: 10px 12px;
+        border: 1px solid #7f1d1d;
+        border-radius: 6px;
+        background: #2b1515;
+        color: #fecaca;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .kro-upload-footer {
+        display: flex;
+        align-items: stretch;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 24px;
+    }
+
+    .kro-upload-cancel {
+        min-width: 140px;
+    }
+
+    .kro-upload-submit {
+        min-width: 190px;
+    }
+
+    .kro-upload-submit:disabled {
+        cursor: not-allowed;
+        opacity: 0.65;
+    }
+
+    @@media (max-width: 600px) {
+        .kro-upload-navigation {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .kro-upload-navigation .kro-upload-button {
+            width: 100%;
+        }
+
+        .kro-upload-preview {
+            padding: 14px;
+        }
+
+        .kro-upload-preview-header {
+            align-items: flex-start;
+        }
+
+        .kro-upload-preview-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .kro-upload-file-card {
+            padding: 9px;
+        }
+
+        .kro-upload-file-preview {
+            height: 105px;
+        }
+
+        .kro-upload-footer {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .kro-upload-footer .kro-upload-button {
+            width: 100%;
+            min-width: 0;
+        }
+    }
+
+    @@media (max-width: 360px) {
+        .kro-upload-preview-grid {
+            grid-template-columns: minmax(0, 1fr);
+        }
+    }
+</style>
+
+@section Scripts {
+    <script>
+        (() => {
+            const formatosImagen = [
+                "image/jpeg",
+                "image/png",
+                "image/gif"
+            ];
+
+            const formatosVideo = [
+                "video/mp4",
+                "video/quicktime"
+            ];
+
+            const formatosPermitidos = [
+                ...formatosImagen,
+                ...formatosVideo
+            ];
+
+            const input = document.getElementById("archivoInput");
+            const filtro = document.getElementById("tipoFilter");
+            const grid = document.getElementById("previewGrid");
+            const placeholder = document.getElementById("previewPlaceholder");
+            const contador = document.getElementById("previewCount");
+            const badge = document.getElementById("previewBadge");
+            const error = document.getElementById("uploadError");
+            const formulario = document.getElementById("formAdjuntarMultimedia");
+            const botonAdjuntar = document.getElementById("btnAdjuntar");
+
+            let urlsVistaPrevia = [];
+
+            function liberarUrls() {
+                urlsVistaPrevia.forEach(url => URL.revokeObjectURL(url));
+                urlsVistaPrevia = [];
+            }
+
+            function mostrarError(mensaje) {
+                error.textContent = mensaje;
+                error.hidden = !mensaje;
+            }
+
+            function formatoPermitido(file) {
+                return formatosPermitidos.includes(file.type);
+            }
+
+            function formatearTamano(bytes) {
+                if (bytes < 1024 * 1024) {
+                    return (bytes / 1024).toFixed(1) + " KB";
+                }
+
+                return (bytes / (1024 * 1024)).toFixed(2) + " MB";
+            }
+
+            function actualizarContador(total) {
+                const texto = total === 1
+                    ? "1 archivo seleccionado"
+                    : `${total} archivos seleccionados`;
+
+                contador.textContent = total > 0 ? texto : "";
+                badge.textContent = `${total} ${total === 1 ? "archivo" : "archivos"}`;
+                badge.className = total > 0
+                    ? "kro-badge kro-badge-green"
+                    : "kro-badge kro-badge-gray";
+            }
+
+            function crearVistaPrevia(file) {
+                const url = URL.createObjectURL(file);
+                urlsVistaPrevia.push(url);
+
+                const tarjeta = document.createElement("article");
+                tarjeta.className = "kro-upload-file-card";
+
+                const visor = document.createElement("div");
+                visor.className = "kro-upload-file-preview";
+
+                let media;
+
+                if (file.type.startsWith("image/")) {
+                    media = document.createElement("img");
+                    media.alt = `Vista previa de ${file.name}`;
+                    media.loading = "lazy";
+                } else {
+                    media = document.createElement("video");
+                    media.controls = true;
+                    media.preload = "metadata";
+                    media.setAttribute("aria-label", `Vista previa de ${file.name}`);
+                }
+
+                media.src = url;
+                visor.appendChild(media);
+
+                const nombre = document.createElement("div");
+                nombre.className = "kro-upload-file-name";
+                nombre.textContent = file.name;
+                nombre.title = file.name;
+
+                const meta = document.createElement("div");
+                meta.className = "kro-upload-file-meta";
+
+                const tipo = document.createElement("span");
+                tipo.textContent = file.type.startsWith("image/") ? "Imagen" : "Video";
+
+                const tamano = document.createElement("span");
+                tamano.textContent = formatearTamano(file.size);
+
+                meta.append(tipo, tamano);
+                tarjeta.append(visor, nombre, meta);
+
+                return tarjeta;
+            }
+
+            function renderizarVistaPrevia() {
+                liberarUrls();
+                grid.replaceChildren();
+                mostrarError("");
+
+                const archivos = Array.from(input.files || []);
+
+                placeholder.hidden = archivos.length > 0;
+                placeholder.style.display = archivos.length > 0 ? "none" : "flex";
+
+                archivos.forEach(file => {
+                    grid.appendChild(crearVistaPrevia(file));
+                });
+
+                actualizarContador(archivos.length);
+            }
+
+            function aplicarFiltro() {
+                const tipo = filtro.value;
+
+                if (tipo === "imagen") {
+                    input.accept = formatosImagen.join(",");
+                } else if (tipo === "video") {
+                    input.accept = formatosVideo.join(",");
+                } else {
+                    input.accept = formatosPermitidos.join(",");
+                }
+
+                const archivos = Array.from(input.files || []);
+
+                if (archivos.length === 0) {
+                    return;
+                }
+
+                const permitidos = archivos.filter(file => {
+                    if (tipo === "imagen") {
+                        return formatosImagen.includes(file.type);
+                    }
+
+                    if (tipo === "video") {
+                        return formatosVideo.includes(file.type);
+                    }
+
+                    return formatoPermitido(file);
+                });
+
+                if (permitidos.length !== archivos.length) {
+                    const transferencia = new DataTransfer();
+
+                    permitidos.forEach(file => transferencia.items.add(file));
+
+                    input.files = transferencia.files;
+
+                    mostrarError(
+                        "Se retiraron de la selección los archivos que no corresponden al filtro elegido."
+                    );
+
+                    renderizarVistaPrevia();
+                }
+            }
+
+            window.filtrarTipo = aplicarFiltro;
+
+            window.mostrarVistaPrevia = function () {
+                const archivos = Array.from(input.files || []);
+
+                const invalidos = archivos.filter(file => !formatoPermitido(file));
+
+                if (invalidos.length > 0) {
+                    input.value = "";
+                    renderizarVistaPrevia();
+
+                    mostrarError(
+                        "Seleccione únicamente imágenes JPG, PNG, GIF o videos MP4 y MOV."
+                    );
+
+                    return;
+                }
+
+                renderizarVistaPrevia();
+            };
+
+            formulario.addEventListener("submit", event => {
+                const archivos = Array.from(input.files || []);
+                const ejercicioId = document.getElementById("ejercicioId");
+
+                if (ejercicioId && !ejercicioId.value) {
+                    event.preventDefault();
+                    mostrarError("Seleccione el ejercicio al que desea adjuntar los archivos.");
+                    ejercicioId.focus();
+                    return;
+                }
+
+                if (archivos.length === 0) {
+                    event.preventDefault();
+                    mostrarError("Seleccione al menos un archivo multimedia.");
+                    input.focus();
+                    return;
+                }
+
+                if (archivos.some(file => !formatoPermitido(file))) {
+                    event.preventDefault();
+                    mostrarError("Uno o más archivos tienen un formato no admitido.");
+                    return;
+                }
+
+                botonAdjuntar.disabled = true;
+                botonAdjuntar.textContent = "Procesando archivos...";
+            });
+
+            window.addEventListener("pagehide", liberarUrls);
+
+            actualizarContador(0);
+        })();
+    </script>
+}

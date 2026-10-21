@@ -1,0 +1,279 @@
+﻿@model IEnumerable<KROTraining.Models.Ejercicio>
+
+@{
+    ViewData["Title"] = "Biblioteca Multimedia";
+    string buscar = ViewBag.Buscar ?? "";
+    string grupoMuscular = ViewBag.GrupoMuscular ?? "";
+}
+
+<div class="kro-page-title">
+    Biblioteca multimedia
+</div>
+
+<p class="kro-page-subtitle">
+    Consulte y gestione el material audiovisual asociado a los ejercicios del gimnasio.
+</p>
+
+<!-- ACCIÓN PRINCIPAL -->
+<div class="kro-actions"
+     style="display:flex; flex-wrap:wrap; align-items:stretch; gap:10px; margin-bottom:24px;">
+
+    <a asp-action="CrearEjercicio"
+       class="kro-btn kro-btn-primary"
+       style="display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:44px; box-sizing:border-box;">
+        <span>➕</span>
+        Crear nuevo ejercicio
+    </a>
+</div>
+
+<!-- FILTROS -->
+<section class="kro-card" style="margin-bottom:24px;">
+
+    <div class="kro-card-title">
+        Filtros de búsqueda
+    </div>
+
+    <form method="get"
+          asp-action="Index"
+          class="kro-filter-form">
+
+        <div class="kro-form-group" style="margin-bottom:0;">
+            <label for="buscar" class="kro-form-label">
+                Buscar ejercicio
+            </label>
+
+            <input type="search"
+                   id="buscar"
+                   name="buscar"
+                   class="kro-form-control"
+                   value="@buscar"
+                   placeholder="Nombre o descripción..."
+                   maxlength="150" />
+        </div>
+
+        <div class="kro-form-group" style="margin-bottom:0;">
+            <label for="grupoMuscular" class="kro-form-label">
+                Grupo muscular
+            </label>
+
+            <select id="grupoMuscular"
+                    name="grupoMuscular"
+                    class="kro-form-control">
+
+                <option value="" selected="@(string.IsNullOrEmpty(grupoMuscular))">
+                    Todos los grupos
+                </option>
+                <option value="Pecho" selected="@(grupoMuscular == "Pecho")">Pecho</option>
+                <option value="Espalda" selected="@(grupoMuscular == "Espalda")">Espalda</option>
+                <option value="Piernas" selected="@(grupoMuscular == "Piernas")">Piernas</option>
+                <option value="Hombros" selected="@(grupoMuscular == "Hombros")">Hombros</option>
+                <option value="Bíceps" selected="@(grupoMuscular == "Bíceps")">Bíceps</option>
+                <option value="Tríceps" selected="@(grupoMuscular == "Tríceps")">Tríceps</option>
+                <option value="Abdomen" selected="@(grupoMuscular == "Abdomen")">Abdomen</option>
+                <option value="Glúteos" selected="@(grupoMuscular == "Glúteos")">Glúteos</option>
+            </select>
+        </div>
+
+        <!-- ACCIONES DE FILTRADO -->
+        <div class="kro-filter-actions">
+
+            <a asp-action="Index"
+               class="kro-btn kro-btn-outline"
+               style="display:inline-flex; align-items:center; justify-content:center; min-width:110px; min-height:42px; box-sizing:border-box;">
+                Limpiar filtros
+            </a>
+
+            <button type="submit"
+                    class="kro-btn kro-btn-secondary"
+                    style="display:inline-flex; align-items:center; justify-content:center; gap:8px; min-width:130px; min-height:42px; box-sizing:border-box;">
+                <span>🔍</span>
+                Filtrar
+            </button>
+
+        </div>
+    </form>
+</section>
+
+<!-- TABLA DE EJERCICIOS -->
+<section class="kro-card">
+
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:18px;">
+        <div class="kro-card-title" style="margin:0;">
+            Ejercicios registrados
+        </div>
+
+        <span class="kro-badge kro-badge-gray">
+            @(Model?.Count() ?? 0) ejercicio(s)
+        </span>
+    </div>
+
+    <div class="kro-table-container">
+        <table class="kro-table">
+
+            <thead>
+                <tr>
+                    <th>Ejercicio</th>
+                    <th>Grupo muscular</th>
+                    <th>Tipo</th>
+                    <th>Nivel</th>
+                    <th style="text-align:center; white-space:nowrap;">
+                        Multimedia adjunta
+                    </th>
+                    <th style="text-align:center; min-width:190px;">
+                        Acciones
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @if (Model == null || !Model.Any())
+                {
+                    <tr>
+                        <td colspan="6"
+                            style="text-align:center; padding:40px 16px; color:#9ca3af;">
+
+                            <div style="font-size:36px; margin-bottom:12px;">
+                                📂
+                            </div>
+
+                            <strong style="display:block; margin-bottom:8px; color:#ddd;">
+                                No hay ejercicios para mostrar
+                            </strong>
+
+                            <p style="margin:0; font-size:13px; line-height:1.6;">
+                                No se encontraron ejercicios que coincidan con los filtros seleccionados.
+                                Puede cambiar los criterios de búsqueda o limpiar los filtros.
+                            </p>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var ej in Model)
+                    {
+                        int totalMedia = ej.MultimediaEjercicios?.Count ?? 0;
+
+                        <tr>
+                            <td>
+                                <strong>@ej.Nombre</strong>
+                            </td>
+
+                            <td>
+                                @(string.IsNullOrWhiteSpace(ej.GrupoMuscular) ? "-" : ej.GrupoMuscular)
+                            </td>
+
+                            <td>
+                                @(string.IsNullOrWhiteSpace(ej.Tipo) ? "-" : ej.Tipo)
+                            </td>
+
+                            <td>
+                                @(string.IsNullOrWhiteSpace(ej.Nivel) ? "-" : ej.Nivel)
+                            </td>
+
+                            <td style="text-align:center;">
+                                <span class="kro-badge @(totalMedia > 0 ? "kro-badge-green" : "kro-badge-gray")"
+                                      style="display:inline-flex; align-items:center; justify-content:center; min-width:112px; padding:7px 10px; box-sizing:border-box; white-space:nowrap;">
+                                    🎬 @totalMedia archivo(s)
+                                </span>
+                            </td>
+
+                            <td>
+                                <div class="kro-row-actions">
+
+                                    <a asp-action="VerMultimedia"
+                                       asp-route-id="@ej.EjercicioId"
+                                       class="kro-btn kro-btn-small kro-btn-outline"
+                                       title="Ver galería multimedia"
+                                       style="display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:36px; box-sizing:border-box; white-space:nowrap;">
+                                        <span>👁️</span>
+                                        Ver
+                                    </a>
+
+                                    <a asp-action="AdjuntarMultimedia"
+                                       asp-route-id="@ej.EjercicioId"
+                                       class="kro-btn kro-btn-small kro-btn-primary"
+                                       title="Adjuntar archivos multimedia"
+                                       style="display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:36px; box-sizing:border-box; white-space:nowrap;">
+                                        <span>➕</span>
+                                        Adjuntar
+                                    </a>
+
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<style>
+    .kro-filter-form {
+        display: grid;
+        grid-template-columns: minmax(220px, 2fr) minmax(180px, 1fr);
+        gap: 18px;
+        align-items: end;
+    }
+
+    .kro-filter-actions {
+        grid-column: 1 / -1;
+        display: flex;
+        justify-content: flex-end;
+        align-items: stretch;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 2px;
+    }
+
+    .kro-row-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(75px, 1fr));
+        gap: 8px;
+        align-items: stretch;
+    }
+
+    .kro-filter-form input,
+    .kro-filter-form select {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    @@media (max-width: 900px) {
+        .kro-table-container {
+            overflow-x: auto;
+        }
+
+        .kro-table {
+            min-width: 760px;
+        }
+    }
+
+    @@media (max-width: 700px) {
+        .kro-filter-form {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .kro-filter-actions {
+            grid-column: 1;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+            .kro-filter-actions a,
+            .kro-filter-actions button {
+                min-width: 0 !important;
+                width: 100%;
+            }
+    }
+
+    @@media (max-width: 420px) {
+        .kro-filter-actions {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .kro-row-actions {
+            grid-template-columns: repeat(2, minmax(75px, 1fr));
+        }
+    }
+</style>

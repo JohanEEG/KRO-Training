@@ -9,53 +9,129 @@
 </div>
 
 <p class="kro-page-subtitle">
-    Consulte la constancia de entrenamiento de sus clientes asignados.
+    Consulte el registro de entrenamiento y la asistencia de sus clientes asignados en KRÒ Training.
 </p>
 
-<div class="kro-actions" style="margin-bottom:20px; flex-wrap:wrap;">
-    <a href="/ControlAsistencia/VisualizarAsistencia" class="kro-btn kro-btn-outline">Mis clientes</a>
-    <a href="/Cuenta/Perfil" class="kro-btn kro-btn-outline">Mi perfil</a>
-    <form asp-controller="Cuenta" asp-action="Logout" method="post" style="display:inline;">
+<!-- NAVEGACIÓN RÁPIDA -->
+<div class="kro-actions kro-attendance-nav">
+    <a href="/ControlAsistencia/VisualizarAsistencia"
+       class="kro-btn kro-btn-primary">
+        Mis clientes
+    </a>
+
+    <a href="/Cuenta/Perfil" class="kro-btn kro-btn-outline">
+        Mi perfil
+    </a>
+
+    <form asp-controller="Cuenta"
+          asp-action="Logout"
+          method="post"
+          class="kro-logout-form">
         @Html.AntiForgeryToken()
-        <button type="submit" class="kro-btn kro-btn-secondary">Cerrar sesión</button>
+
+        <button type="submit" class="kro-btn kro-btn-outline">
+            Cerrar sesión
+        </button>
     </form>
 </div>
 
-<div class="kro-card">
+<div class="kro-card kro-attendance-card">
 
-    <div class="kro-card-title">
-        Resumen por cliente
+    <div class="kro-attendance-header">
+        <div>
+            <div class="kro-card-title">
+                Resumen por cliente
+            </div>
+
+            <p class="kro-attendance-description">
+                Consulte la cantidad de asistencias y la fecha del último registro de cada cliente.
+            </p>
+        </div>
+
+        <div class="kro-total-clients">
+            <span class="kro-total-label">Clientes asignados</span>
+            <span class="kro-total-number">@Model.Count</span>
+        </div>
     </div>
 
-    @if (!Model.Any())
+    @if (Model == null || !Model.Any())
     {
-        <p>Aún no tiene clientes asignados.</p>
+        <div class="kro-empty-state">
+            <div class="kro-empty-icon" aria-hidden="true">
+                <span>◎</span>
+            </div>
+
+            <h3>No hay clientes asignados</h3>
+
+            <p>
+                Cuando tenga clientes asignados, podrá consultar aquí
+                sus registros de asistencia.
+            </p>
+        </div>
     }
     else
     {
         <div class="kro-table-container">
-            <table class="kro-table">
+            <table class="kro-table kro-attendance-table">
                 <thead>
                     <tr>
                         <th>Cliente</th>
-                        <th>Total de asistencias</th>
-                        <th>Última asistencia</th>
+                        <th class="kro-text-center">Total de asistencias</th>
+                        <th class="kro-text-center">Última asistencia</th>
                     </tr>
                 </thead>
+
                 <tbody>
                     @foreach (var c in Model)
                     {
+                        var totalAsistencias = c.Asistencia?.Count ?? 0;
+
                         <tr>
-                            <td>@c.Usuario.Nombre</td>
-                            <td>@c.Asistencia.Count</td>
                             <td>
-                                @if (c.Asistencia.Any())
+                                <div class="kro-client-cell">
+                                    <div class="kro-client-avatar" aria-hidden="true">
+                                        @((c.Usuario?.Nombre ?? "C").Substring(0, 1).ToUpper())
+                                    </div>
+
+                                    <div class="kro-client-info">
+                                        <span class="kro-client-name">
+                                            @(c.Usuario?.Nombre ?? "Cliente sin nombre")
+                                        </span>
+
+                                        <span class="kro-client-caption">
+                                            Resumen de entrenamiento
+                                        </span>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td class="kro-text-center">
+                                @if (totalAsistencias > 0)
                                 {
-                                    @c.Asistencia.Max(a => a.Fecha).ToString("dd/MM/yyyy")
+                                    <span class="kro-badge kro-badge-blue">
+                                        @totalAsistencias @(totalAsistencias == 1 ? "asistencia" : "asistencias")
+                                    </span>
                                 }
                                 else
                                 {
-                                    <span>Sin registros de asistencia</span>
+                                    <span class="kro-badge kro-badge-gray">
+                                        Sin asistencias
+                                    </span>
+                                }
+                            </td>
+
+                            <td class="kro-text-center">
+                                @if (c.Asistencia != null && c.Asistencia.Any())
+                                {
+                                    <span class="kro-last-attendance">
+                                        @c.Asistencia.Max(a => a.Fecha).ToString("dd/MM/yyyy")
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="kro-no-attendance">
+                                        Sin registros
+                                    </span>
                                 }
                             </td>
                         </tr>
@@ -63,6 +139,253 @@
                 </tbody>
             </table>
         </div>
+
+        <div class="kro-table-footer">
+            Se muestran @Model.Count @(Model.Count == 1 ? "cliente asignado" : "clientes asignados").
+        </div>
+    }
+</div>
+
+<style>
+    .kro-attendance-nav {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 24px;
     }
 
-</div>
+    .kro-logout-form {
+        display: inline;
+        margin: 0;
+    }
+
+    .kro-btn-primary {
+        background: #2563eb;
+        border: 1px solid #2563eb;
+        color: #fff;
+    }
+
+        .kro-btn-primary:hover {
+            background: #1d4ed8;
+            border-color: #1d4ed8;
+        }
+
+    .kro-attendance-card {
+        padding: 24px;
+    }
+
+    .kro-attendance-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-bottom: 24px;
+    }
+
+    .kro-attendance-description {
+        margin: 7px 0 0;
+        color: #6b7280;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .kro-total-clients {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-width: 115px;
+        padding: 12px 18px;
+        background: #eff6ff;
+        border: 1px solid #dbeafe;
+        border-radius: 10px;
+    }
+
+    .kro-total-label {
+        color: #4b5563;
+        font-size: 12px;
+        text-align: center;
+    }
+
+    .kro-total-number {
+        margin-top: 4px;
+        color: #1d4ed8;
+        font-size: 25px;
+        font-weight: 700;
+    }
+
+    .kro-table-container {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+    }
+
+    .kro-attendance-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 560px;
+    }
+
+        .kro-attendance-table thead {
+            background: #f8fafc;
+        }
+
+        .kro-attendance-table th {
+            padding: 15px 16px;
+            color: #4b5563;
+            font-size: 12px;
+            font-weight: 700;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .kro-attendance-table td {
+            padding: 16px;
+            border-bottom: 1px solid #e5e7eb;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .kro-attendance-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .kro-attendance-table tbody tr:hover {
+            background: #f9fafb;
+        }
+
+    .kro-text-center {
+        text-align: center !important;
+    }
+
+    .kro-client-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .kro-client-avatar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #dbeafe;
+        color: #1d4ed8;
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    .kro-client-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .kro-client-name {
+        color: #111827;
+        font-weight: 600;
+    }
+
+    .kro-client-caption {
+        color: #9ca3af;
+        font-size: 12px;
+    }
+
+    .kro-badge-blue {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 20px;
+        background: #dbeafe;
+        color: #1d4ed8;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .kro-last-attendance {
+        color: #374151;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .kro-no-attendance {
+        color: #9ca3af;
+        font-size: 13px;
+    }
+
+    .kro-empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 44px 20px;
+        border: 1px dashed #d1d5db;
+        border-radius: 10px;
+        background: #fafafa;
+    }
+
+    .kro-empty-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 56px;
+        height: 56px;
+        margin-bottom: 16px;
+        border-radius: 50%;
+        background: #eff6ff;
+        color: #2563eb;
+        font-size: 30px;
+    }
+
+    .kro-empty-state h3 {
+        margin: 0 0 8px;
+        color: #1f2937;
+        font-size: 17px;
+    }
+
+    .kro-empty-state p {
+        max-width: 420px;
+        margin: 0;
+        color: #6b7280;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .kro-table-footer {
+        margin-top: 16px;
+        color: #9ca3af;
+        font-size: 12px;
+    }
+
+    @@media (max-width: 600px) {
+        .kro-attendance-card {
+            padding: 16px;
+        }
+
+        .kro-attendance-header {
+            align-items: stretch;
+        }
+
+        .kro-total-clients {
+            flex-direction: row;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .kro-logout-form {
+            flex: 1 1 auto;
+        }
+
+            .kro-logout-form button {
+                width: 100%;
+            }
+    }
+</style>

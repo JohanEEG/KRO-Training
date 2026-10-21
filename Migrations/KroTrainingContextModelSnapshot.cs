@@ -100,6 +100,9 @@ namespace KROTraining.Migrations
                         .HasColumnType("time")
                         .HasColumnName("hora");
 
+                    b.Property<string>("TipoActividad")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("AsistenciaId");
 
                     b.HasIndex(new[] { "ClienteId", "Fecha" }, "IX_ASISTENCIA_CLIENTE_FECHA");
@@ -194,14 +197,23 @@ namespace KROTraining.Migrations
                         .HasColumnType("int")
                         .HasColumnName("usuario_id");
 
+                    b.Property<string>("Alergias")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("BadgeNumero")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)")
                         .HasColumnName("badge_numero");
 
+                    b.Property<string>("ContactoEmergencia")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int?>("EntrenadorId")
                         .HasColumnType("int")
                         .HasColumnName("entrenador_id");
+
+                    b.Property<string>("Medicamentos")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Nivel")
                         .HasMaxLength(30)
@@ -212,6 +224,9 @@ namespace KROTraining.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)")
                         .HasColumnName("objetivo");
+
+                    b.Property<string>("Padecimientos")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("UsuarioId");
 
@@ -244,11 +259,17 @@ namespace KROTraining.Migrations
                         .HasColumnType("nvarchar(100)")
                         .HasColumnName("grupo_muscular");
 
+                    b.Property<string>("Nivel")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)")
                         .HasColumnName("nombre");
+
+                    b.Property<string>("Tipo")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("EjercicioId");
 
@@ -1100,6 +1121,9 @@ namespace KROTraining.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UsuarioId"));
 
+                    b.Property<string>("Cedula")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ContrasenaHash")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -1193,6 +1217,56 @@ namespace KROTraining.Migrations
                         .IsUnique();
 
                     b.ToTable("VALIDACION_PREDICCION", (string)null);
+                });
+
+            modelBuilder.Entity("KROTraining.Models.Visitante", b =>
+                {
+                    b.Property<int>("VisitanteId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("visitante_id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("VisitanteId"));
+
+                    b.Property<bool>("ConvertidoCliente")
+                        .HasColumnType("bit")
+                        .HasColumnName("convertido_cliente");
+
+                    b.Property<string>("Correo")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)")
+                        .HasColumnName("correo");
+
+                    b.Property<DateTime>("FechaRegistro")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasColumnName("fecha_registro")
+                        .HasDefaultValueSql("(sysdatetime())");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)")
+                        .HasColumnName("nombre");
+
+                    b.Property<string>("Telefono")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("telefono");
+
+                    b.Property<int?>("UsuarioId")
+                        .HasColumnType("int")
+                        .HasColumnName("usuario_id");
+
+                    b.HasKey("VisitanteId");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.HasIndex(new[] { "Correo" }, "UQ_VISITANTE_CORREO")
+                        .IsUnique();
+
+                    b.ToTable("VISITANTE", (string)null);
                 });
 
             modelBuilder.Entity("RolPermiso", b =>
@@ -1617,6 +1691,16 @@ namespace KROTraining.Migrations
                     b.Navigation("Administrador");
 
                     b.Navigation("Prediccion");
+                });
+
+            modelBuilder.Entity("KROTraining.Models.Visitante", b =>
+                {
+                    b.HasOne("KROTraining.Models.Usuario", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .HasConstraintName("FK_VISITANTE_USUARIO");
+
+                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("RolPermiso", b =>

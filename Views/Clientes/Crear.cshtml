@@ -3,53 +3,282 @@
 }
 
 <div class="kro-page-title">Registrar nuevo cliente</div>
-<p class="kro-page-subtitle">Complete la información del nuevo cliente.</p>
+<p class="kro-page-subtitle">
+    Complete la información personal y el perfil de salud del nuevo cliente.
+</p>
 
 <div class="kro-card">
-    <div class="kro-card-title">Información personal</div>
+    <div class="kro-card-title">
+        Información personal y de contacto
+    </div>
 
     <form asp-action="Crear" method="post">
         @Html.AntiForgeryToken()
+
         <div class="kro-form-grid">
             <div class="kro-form-group">
-                <label class="kro-form-label">Nombre</label>
-                <input type="text" name="Nombre" class="kro-form-control" placeholder="Ingrese el nombre" required />
+                <label class="kro-form-label" for="Nombre">Nombre</label>
+                <input type="text"
+                       id="Nombre"
+                       name="Nombre"
+                       class="kro-form-control"
+                       placeholder="Ingrese el nombre"
+                       autocomplete="given-name"
+                       required />
             </div>
 
             <div class="kro-form-group">
-                <label class="kro-form-label">Primer apellido</label>
-                <input type="text" name="PrimerApellido" class="kro-form-control" placeholder="Ingrese el primer apellido" required />
+                <label class="kro-form-label" for="PrimerApellido">Primer apellido</label>
+                <input type="text"
+                       id="PrimerApellido"
+                       name="PrimerApellido"
+                       class="kro-form-control"
+                       placeholder="Ingrese el primer apellido"
+                       autocomplete="family-name"
+                       required />
             </div>
 
             <div class="kro-form-group">
-                <label class="kro-form-label">Segundo apellido</label>
-                <input type="text" name="SegundoApellido" class="kro-form-control" placeholder="Ingrese el segundo apellido" />
+                <label class="kro-form-label" for="SegundoApellido">Segundo apellido</label>
+                <input type="text"
+                       id="SegundoApellido"
+                       name="SegundoApellido"
+                       class="kro-form-control"
+                       placeholder="Ingrese el segundo apellido"
+                       autocomplete="additional-name" />
             </div>
 
             <div class="kro-form-group">
-                <label class="kro-form-label">Cédula</label>
-                <input type="text" name="Cedula" class="kro-form-control" placeholder="Ej. 1-1111-1111" required />
+                <label class="kro-form-label" for="Cedula">Cédula</label>
+                <input type="text"
+                       id="Cedula"
+                       name="Cedula"
+                       class="kro-form-control"
+                       placeholder="Ej. 1-1111-1111"
+                       autocomplete="off"
+                       required />
             </div>
 
             <div class="kro-form-group">
-                <label class="kro-form-label">Número de Badge / Carné</label>
-                <input type="text" name="BadgeNumero" class="kro-form-control" placeholder="Ej. BDG-00123" />
+                <label class="kro-form-label" for="BadgeNumero">Número de badge / carné</label>
+                <input type="text"
+                       id="BadgeNumero"
+                       name="BadgeNumero"
+                       class="kro-form-control"
+                       placeholder="Ej. BDG-00123" />
             </div>
 
             <div class="kro-form-group">
-                <label class="kro-form-label">Teléfono</label>
-                <input type="tel" name="Telefono" class="kro-form-control" placeholder="Ej. 8888-8888" />
+                <label class="kro-form-label" for="Telefono">Teléfono</label>
+                <input type="tel"
+                       id="Telefono"
+                       name="Telefono"
+                       class="kro-form-control"
+                       placeholder="Ej. 8888-8888"
+                       autocomplete="tel" />
             </div>
 
             <div class="kro-form-group">
-                <label class="kro-form-label">Correo electrónico</label>
-                <input type="email" name="Correo" class="kro-form-control" placeholder="correo@ejemplo.com" required />
+                <label class="kro-form-label" for="Correo">Correo electrónico</label>
+                <input type="email"
+                       id="Correo"
+                       name="Correo"
+                       class="kro-form-control"
+                       placeholder="correo@ejemplo.com"
+                       autocomplete="email"
+                       required />
+            </div>
+        </div>
+
+        <div class="kro-section-divider">
+            <div class="kro-section-heading">
+                <div class="kro-section-icon" aria-hidden="true">
+                    <i class="bi bi-heart-pulse"></i>
+                </div>
+                <div>
+                    <h3>Perfil de salud y emergencia</h3>
+                    <p>
+                        Información importante para brindar una atención segura al cliente.
+                    </p>
+                </div>
+            </div>
+
+            <div class="kro-form-grid">
+                <div class="kro-form-group">
+                    <label class="kro-form-label" for="ContactoEmergencia">
+                        Contacto de emergencia
+                    </label>
+                    <input type="text"
+                           id="ContactoEmergencia"
+                           name="ContactoEmergencia"
+                           class="kro-form-control"
+                           placeholder="Nombre y teléfono" />
+                    <small class="kro-field-help">
+                        Persona a contactar en caso de emergencia.
+                    </small>
+                </div>
+
+                <div class="kro-form-group">
+                    <label class="kro-form-label" for="Padecimientos">
+                        Padecimientos o enfermedades
+                    </label>
+                    <input type="text"
+                           id="Padecimientos"
+                           name="Padecimientos"
+                           class="kro-form-control"
+                           placeholder="Ej. Asma, hipertensión..." />
+                </div>
+
+                <div class="kro-form-group">
+                    <label class="kro-form-label" for="Alergias">Alergias</label>
+                    <input type="text"
+                           id="Alergias"
+                           name="Alergias"
+                           class="kro-form-control"
+                           placeholder="Indique las alergias conocidas" />
+                </div>
+
+                <div class="kro-form-group">
+                    <label class="kro-form-label" for="Medicamentos">
+                        Medicamentos actuales
+                    </label>
+                    <input type="text"
+                           id="Medicamentos"
+                           name="Medicamentos"
+                           class="kro-form-control"
+                           placeholder="Indique los medicamentos, si corresponde" />
+                </div>
             </div>
         </div>
 
         <div class="kro-actions">
-            <a asp-action="Index" class="kro-btn kro-btn-secondary">Cancelar</a>
-            <button type="submit" class="kro-btn kro-btn-primary">Registrar cliente</button>
+            <a asp-action="Index" class="kro-btn kro-btn-outline">
+                <i class="bi bi-arrow-left" aria-hidden="true"></i>
+                Cancelar
+            </a>
+
+            <button type="submit" class="kro-btn kro-btn-primary">
+                <i class="bi bi-person-plus" aria-hidden="true"></i>
+                Registrar cliente
+            </button>
         </div>
     </form>
 </div>
+
+<style>
+    .kro-section-divider {
+        margin-top: 30px;
+        padding-top: 24px;
+        border-top: 1px solid #3A3A3A;
+    }
+
+    .kro-section-heading {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 22px;
+    }
+
+    .kro-section-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        flex-shrink: 0;
+        border-radius: 10px;
+        background-color: #EFF6FF;
+        color: #2563EB;
+        font-size: 22px;
+    }
+
+    .kro-section-heading h3 {
+        margin: 0 0 5px;
+        color: #1C1C1C;
+        font-size: 17px;
+        font-weight: 600;
+    }
+
+    .kro-section-heading p {
+        margin: 0;
+        color: #6B7280;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .kro-field-help {
+        display: block;
+        margin-top: 6px;
+        color: #6B7280;
+        font-size: 12px;
+    }
+
+    .kro-actions {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #E5E7EB;
+    }
+
+        .kro-actions .kro-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 42px;
+            padding: 10px 18px;
+            border-radius: 7px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .kro-actions .kro-btn-primary {
+            color: #FFFFFF;
+            background-color: #2563EB;
+            border: 1px solid #2563EB;
+        }
+
+            .kro-actions .kro-btn-primary:hover {
+                color: #FFFFFF;
+                background-color: #1D4ED8;
+                border-color: #1D4ED8;
+                box-shadow: 0 3px 8px rgba(37, 99, 235, 0.18);
+            }
+
+        .kro-actions .kro-btn-outline {
+            color: #3A3A3A;
+            background-color: #FFFFFF;
+            border: 1px solid #D1D5DB;
+        }
+
+            .kro-actions .kro-btn-outline:hover {
+                color: #1C1C1C;
+                background-color: #F3F4F6;
+                border-color: #9CA3AF;
+            }
+
+        .kro-actions .kro-btn:focus-visible {
+            outline: 3px solid #93C5FD;
+            outline-offset: 2px;
+        }
+
+    @@media (max-width: 576px) {
+        .kro-actions {
+            flex-direction: column-reverse;
+            align-items: stretch;
+        }
+
+            .kro-actions .kro-btn {
+                width: 100%;
+            }
+
+        .kro-section-heading {
+            align-items: flex-start;
+        }
+    }
+</style>

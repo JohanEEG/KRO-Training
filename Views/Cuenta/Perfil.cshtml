@@ -2,80 +2,628 @@
 
 @{
     ViewData["Title"] = "Mi Perfil";
+
+    bool esPersonalEntrenamiento =
+        User.IsInRole("ADMINISTRADOR") ||
+        User.IsInRole("ENTRENADOR") ||
+        (Model.Rol != null &&
+         (Model.Rol.Nombre == "ADMINISTRADOR" ||
+          Model.Rol.Nombre == "ENTRENADOR"));
 }
 
-<div class="container mt-4 mb-5" style="max-width: 800px;">
+<div class="kro-profile-container">
 
-    <h2 class="mb-4" style="font-family: 'Montserrat', sans-serif; font-weight: 700; color: #333;">Mi Perfil</h2>
+    <div class="kro-page-title">Mi perfil</div>
 
-    <!-- Alertas de éxito o error -->
+    <p class="kro-page-subtitle">
+        Gestione sus datos personales, credenciales y ficha médica.
+    </p>
+
+    <!-- MENSAJES -->
     @if (TempData["Mensaje"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @TempData["Mensaje"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div class="kro-profile-alert kro-profile-success"
+             role="status">
+            <span class="kro-alert-icon" aria-hidden="true">✓</span>
+            <span>@TempData["Mensaje"]</span>
         </div>
     }
+
     @if (TempData["Error"] != null)
     {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            @TempData["Error"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div class="kro-profile-alert kro-profile-error"
+             role="alert">
+            <span class="kro-alert-icon" aria-hidden="true">!</span>
+            <span>@TempData["Error"]</span>
         </div>
     }
 
-    <div class="card shadow-sm p-4 mb-4" style="border-radius: 10px;">
-        <h4 class="mb-3" style="font-family: 'Montserrat', sans-serif; font-weight: 600;">Datos Personales</h4>
+    <!-- 1. DATOS PERSONALES -->
+    <section class="kro-card kro-profile-section">
+
+        <div class="kro-section-heading">
+            <div class="kro-section-icon" aria-hidden="true">01</div>
+            <div>
+                <h2 class="kro-section-title">Datos personales</h2>
+                <p class="kro-section-description">
+                    Mantenga actualizada su información de perfil.
+                </p>
+            </div>
+        </div>
 
         <form asp-action="ActualizarPerfil" method="post">
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="kro-form-label">Nombre completo</label>
-                    <input type="text" name="nombre" class="kro-form-control" value="@Model.Nombre" required />
+            @Html.AntiForgeryToken()
+
+            <input type="hidden"
+                   name="usuarioId"
+                   value="@Model.UsuarioId" />
+
+            <div class="kro-profile-grid">
+
+                <div class="kro-profile-field">
+                    <label for="nombre" class="kro-form-label">
+                        Nombre completo
+                    </label>
+                    <input type="text"
+                           id="nombre"
+                           name="nombre"
+                           class="kro-form-control"
+                           value="@Model.Nombre"
+                           autocomplete="name"
+                           required />
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label class="kro-form-label">Teléfono</label>
-                    <input type="text" name="telefono" class="kro-form-control" value="@Model.Telefono" placeholder="Ej. 88888888" />
+
+                <div class="kro-profile-field">
+                    <label for="cedula" class="kro-form-label">
+                        Cédula / Identificación
+                    </label>
+                    <input type="text"
+                           id="cedula"
+                           name="cedula"
+                           class="kro-form-control"
+                           value="@Model.Cedula"
+                           autocomplete="off"
+                           placeholder="Número de identificación" />
                 </div>
+
+                <div class="kro-profile-field">
+                    <label for="telefono" class="kro-form-label">
+                        Teléfono
+                    </label>
+                    <input type="tel"
+                           id="telefono"
+                           name="telefono"
+                           class="kro-form-control"
+                           value="@Model.Telefono"
+                           autocomplete="tel"
+                           placeholder="Ej. 8888-8888" />
+                </div>
+
+                <div class="kro-profile-field">
+                    <label for="fotoPerfil" class="kro-form-label">
+                        URL de fotografía de perfil
+                    </label>
+                    <input type="url"
+                           id="fotoPerfil"
+                           name="fotoPerfil"
+                           class="kro-form-control"
+                           value="@Model.FotoPerfil"
+                           placeholder="https://..." />
+                    <span class="kro-field-help">
+                        Ingrese un enlace válido a su imagen.
+                    </span>
+                </div>
+
             </div>
 
-            <div class="mb-3">
-                <label class="kro-form-label">URL de Fotografía de Perfil</label>
-                <input type="text" name="fotoPerfil" class="kro-form-control" value="@Model.FotoPerfil" placeholder="https://..." />
+            <div class="kro-form-actions">
+                <button type="submit" class="kro-profile-primary">
+                    Guardar cambios personales
+                </button>
             </div>
-
-            <button type="submit" class="kro-btn kro-btn-primary" style="padding: 10px 20px;">Guardar Cambios</button>
         </form>
-    </div>
+    </section>
 
-    <!-- Sección de Credenciales y Correo -->
-    <div class="card shadow-sm p-4 mb-4" style="border-radius: 10px;">
-        <h4 class="mb-3" style="font-family: 'Montserrat', sans-serif; font-weight: 600;">Correo de Acceso</h4>
+    <!-- 2. FICHA MÉDICA -->
+    @if (Model.Cliente != null)
+    {
+        <section class="kro-card kro-profile-section">
+
+            <div class="kro-section-heading">
+                <div class="kro-section-icon kro-health-icon"
+                     aria-hidden="true">
+                    <span>+</span>
+                </div>
+
+                <div>
+                    <h2 class="kro-section-title">
+                        Ficha médica y contacto de emergencia
+                    </h2>
+                    <p class="kro-section-description">
+                        Información relevante para su seguridad durante el entrenamiento.
+                    </p>
+                </div>
+            </div>
+
+            <div class="kro-health-notice">
+                <span class="kro-health-notice-icon"
+                      aria-hidden="true">i</span>
+                <p>
+                    Mantenga estos datos actualizados para facilitar
+                    la atención en caso de emergencia.
+                </p>
+            </div>
+
+            <form asp-action="ActualizarFichaMedica" method="post">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="usuarioId"
+                       value="@Model.UsuarioId" />
+
+                <div class="kro-profile-grid">
+
+                    <div class="kro-profile-field">
+                        <label for="contactoEmergencia"
+                               class="kro-form-label">
+                            Contacto de emergencia
+                        </label>
+                        <input type="text"
+                               id="contactoEmergencia"
+                               name="contactoEmergencia"
+                               class="kro-form-control"
+                               value="@Model.Cliente.ContactoEmergencia"
+                               placeholder="Nombre y teléfono" />
+                    </div>
+
+                    <div class="kro-profile-field">
+                        <label for="alergias" class="kro-form-label">
+                            Alergias conocidas
+                        </label>
+                        <input type="text"
+                               id="alergias"
+                               name="alergias"
+                               class="kro-form-control"
+                               value="@Model.Cliente.Alergias"
+                               placeholder="Indique las alergias conocidas" />
+                    </div>
+
+                    <div class="kro-profile-field kro-profile-field-full">
+                        <label for="padecimientos"
+                               class="kro-form-label">
+                            Padecimientos o lesiones previas
+                        </label>
+                        <textarea id="padecimientos"
+                                  name="padecimientos"
+                                  class="kro-form-control"
+                                  rows="3"
+                                  placeholder="Indique información relevante para su entrenamiento">@Model.Cliente.Padecimientos</textarea>
+                    </div>
+
+                    <div class="kro-profile-field kro-profile-field-full">
+                        <label for="medicamentos"
+                               class="kro-form-label">
+                            Medicamentos actuales
+                        </label>
+                        <textarea id="medicamentos"
+                                  name="medicamentos"
+                                  class="kro-form-control"
+                                  rows="3"
+                                  placeholder="Indique los medicamentos que utiliza actualmente">@Model.Cliente.Medicamentos</textarea>
+                    </div>
+
+                </div>
+
+                <div class="kro-form-actions">
+                    <button type="submit" class="kro-profile-primary">
+                        Actualizar ficha médica
+                    </button>
+                </div>
+            </form>
+        </section>
+    }
+    else if (esPersonalEntrenamiento)
+    {
+        <section class="kro-card kro-profile-section">
+
+            <div class="kro-section-heading">
+                <div class="kro-section-icon" aria-hidden="true">02</div>
+                <div>
+                    <h2 class="kro-section-title">
+                        Ficha médica y contacto de emergencia
+                    </h2>
+                    <p class="kro-section-description">
+                        Información de salud asociada a los perfiles de clientes.
+                    </p>
+                </div>
+            </div>
+
+            <div class="kro-information-notice">
+                <strong>Información del perfil</strong>
+                <p>
+                    Su cuenta tiene asignado el rol de
+                    <strong>@(Model.Rol?.Nombre ?? "Personal de entrenamiento")</strong>.
+                    La ficha médica disponible en esta pantalla corresponde
+                    a los perfiles de clientes. Puede consultar la información
+                    de los atletas desde el módulo de gestión de clientes,
+                    según los permisos de su cuenta.
+                </p>
+            </div>
+        </section>
+    }
+
+    <!-- 3. CORREO -->
+    <section class="kro-card kro-profile-section">
+
+        <div class="kro-section-heading">
+            <div class="kro-section-icon" aria-hidden="true">03</div>
+            <div>
+                <h2 class="kro-section-title">Correo de acceso</h2>
+                <p class="kro-section-description">
+                    Actualice la dirección de correo asociada a su cuenta.
+                </p>
+            </div>
+        </div>
+
         <form asp-action="ActualizarCredenciales" method="post">
-            <div class="mb-3">
-                <label class="kro-form-label">Correo electrónico</label>
-                <input type="email" name="nuevoCorreo" class="kro-form-control" value="@Model.Correo" required />
-            </div>
-            <button type="submit" class="btn btn-warning" style="padding: 10px 20px; font-weight: 500;">Actualizar Correo (Requiere reingresar)</button>
-        </form>
-    </div>
+            @Html.AntiForgeryToken()
 
-    <!-- Sección de Cambio de Contraseña -->
-    <div class="card shadow-sm p-4" style="border-radius: 10px;">
-        <h4 class="mb-3" style="font-family: 'Montserrat', sans-serif; font-weight: 600;">Cambiar Contraseña</h4>
-        <form asp-action="CambiarPassword" method="post">
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="kro-form-label">Contraseña actual</label>
-                    <input type="password" name="passwordActual" class="kro-form-control" required />
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label class="kro-form-label">Nueva contraseña</label>
-                    <input type="password" name="nuevoPassword" class="kro-form-control" required />
-                </div>
+            <div class="kro-profile-field">
+                <label for="nuevoCorreo" class="kro-form-label">
+                    Correo electrónico
+                </label>
+                <input type="email"
+                       id="nuevoCorreo"
+                       name="nuevoCorreo"
+                       class="kro-form-control"
+                       value="@Model.Correo"
+                       autocomplete="email"
+                       required />
             </div>
-            <button type="submit" class="btn btn-dark" style="padding: 10px 20px;">Cambiar Contraseña</button>
+
+            <div class="kro-form-actions kro-form-actions-stacked">
+                <p class="kro-field-help">
+                    Es posible que deba iniciar sesión nuevamente después
+                    de actualizar el correo.
+                </p>
+                <button type="submit" class="kro-profile-primary">
+                    Actualizar correo
+                </button>
+            </div>
         </form>
-    </div>
+    </section>
+
+    <!-- 4. CONTRASEÑA -->
+    <section class="kro-card kro-profile-section">
+
+        <div class="kro-section-heading">
+            <div class="kro-section-icon" aria-hidden="true">04</div>
+            <div>
+                <h2 class="kro-section-title">Cambiar contraseña</h2>
+                <p class="kro-section-description">
+                    Actualice su contraseña para proteger el acceso a su cuenta.
+                </p>
+            </div>
+        </div>
+
+        <form asp-action="CambiarPassword" method="post">
+            @Html.AntiForgeryToken()
+
+            <div class="kro-profile-grid">
+
+                <div class="kro-profile-field">
+                    <label for="passwordActual" class="kro-form-label">
+                        Contraseña actual
+                    </label>
+                    <input type="password"
+                           id="passwordActual"
+                           name="passwordActual"
+                           class="kro-form-control"
+                           autocomplete="current-password"
+                           required />
+                </div>
+
+                <div class="kro-profile-field">
+                    <label for="nuevoPassword" class="kro-form-label">
+                        Nueva contraseña
+                    </label>
+                    <input type="password"
+                           id="nuevoPassword"
+                           name="nuevoPassword"
+                           class="kro-form-control"
+                           autocomplete="new-password"
+                           required />
+                </div>
+
+            </div>
+
+            <div class="kro-form-actions">
+                <button type="submit" class="kro-profile-primary">
+                    Cambiar contraseña
+                </button>
+            </div>
+        </form>
+    </section>
 
 </div>
+
+<style>
+    .kro-profile-container {
+        width: 100%;
+        max-width: 850px;
+        margin: 28px auto 50px;
+        padding: 0 18px;
+    }
+
+    .kro-profile-section {
+        margin-bottom: 22px;
+        padding: 25px;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        box-shadow: 0 3px 12px rgba(15, 23, 42, 0.035);
+    }
+
+    .kro-section-heading {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 24px;
+    }
+
+    .kro-section-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 43px;
+        height: 43px;
+        border-radius: 10px;
+        background: #eff6ff;
+        color: #2563eb;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .kro-health-icon {
+        background: #eff6ff;
+        color: #2563eb;
+        font-size: 25px;
+    }
+
+    .kro-section-title {
+        margin: 0;
+        color: #111827;
+        font-size: 17px;
+        font-weight: 700;
+    }
+
+    .kro-section-description {
+        margin: 5px 0 0;
+        color: #6b7280;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .kro-profile-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px 18px;
+    }
+
+    .kro-profile-field {
+        min-width: 0;
+        margin-bottom: 0;
+    }
+
+    .kro-profile-field-full {
+        grid-column: 1 / -1;
+    }
+
+    .kro-profile-field .kro-form-label {
+        display: block;
+        margin-bottom: 8px;
+        color: #374151;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .kro-profile-field .kro-form-control {
+        display: block;
+        width: 100%;
+        min-height: 43px;
+        padding: 10px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 7px;
+        background: #fff;
+        color: #111827;
+        font-family: inherit;
+        font-size: 14px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .kro-profile-field textarea.kro-form-control {
+        min-height: 95px;
+        resize: vertical;
+        line-height: 1.6;
+    }
+
+    .kro-profile-field .kro-form-control:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .kro-profile-field .kro-form-control::placeholder {
+        color: #9ca3af;
+    }
+
+    .kro-field-help {
+        display: block;
+        margin: 7px 0 0;
+        color: #6b7280;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    .kro-form-actions {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin-top: 23px;
+        padding-top: 20px;
+        border-top: 1px solid #f3f4f6;
+    }
+
+    .kro-form-actions-stacked {
+        align-items: flex-end;
+    }
+
+        .kro-form-actions-stacked .kro-field-help {
+            flex: 1;
+            margin: 0;
+        }
+
+    .kro-profile-primary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        padding: 11px 18px;
+        border: 1px solid #2563eb;
+        border-radius: 7px;
+        background: #2563eb;
+        color: #fff;
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s, border-color 0.2s;
+    }
+
+        .kro-profile-primary:hover {
+            background: #1d4ed8;
+            border-color: #1d4ed8;
+        }
+
+    .kro-profile-alert {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 18px;
+        padding: 13px 15px;
+        border: 1px solid;
+        border-radius: 8px;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .kro-profile-success {
+        color: #166534;
+        background: #f0fdf4;
+        border-color: #bbf7d0;
+    }
+
+    .kro-profile-error {
+        color: #b91c1c;
+        background: #fef2f2;
+        border-color: #fecaca;
+    }
+
+    .kro-alert-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 20px;
+        height: 20px;
+        border: 1px solid currentColor;
+        border-radius: 50%;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .kro-health-notice,
+    .kro-information-notice {
+        display: flex;
+        align-items: flex-start;
+        gap: 11px;
+        margin-bottom: 23px;
+        padding: 14px;
+        border: 1px solid #dbeafe;
+        border-radius: 8px;
+        background: #f8fafc;
+        color: #475569;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .kro-health-notice-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 21px;
+        height: 21px;
+        border: 1px solid #93c5fd;
+        border-radius: 50%;
+        color: #2563eb;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .kro-health-notice p,
+    .kro-information-notice p {
+        margin: 0;
+    }
+
+    .kro-information-notice {
+        display: block;
+        margin-bottom: 0;
+    }
+
+        .kro-information-notice > strong {
+            display: block;
+            margin-bottom: 6px;
+            color: #1f2937;
+        }
+
+    @@media (max-width: 600px) {
+        .kro-profile-container {
+            margin-top: 18px;
+            padding: 0 12px;
+        }
+
+        .kro-profile-section {
+            padding: 18px;
+        }
+
+        .kro-profile-grid {
+            grid-template-columns: 1fr;
+            gap: 18px;
+        }
+
+        .kro-profile-field-full {
+            grid-column: auto;
+        }
+
+        .kro-section-heading {
+            align-items: flex-start;
+        }
+
+        .kro-form-actions {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+            .kro-form-actions .kro-profile-primary {
+                width: 100%;
+            }
+
+        .kro-form-actions-stacked .kro-field-help {
+            width: 100%;
+        }
+    }
+</style>

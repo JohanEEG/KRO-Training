@@ -2,6 +2,10 @@
 
 @{
     ViewData["Title"] = "Registrar Ingreso";
+
+    var membresiaActiva = Model?.Membresia?.Any(m =>
+        m.Estado == "ACTIVA" &&
+        m.FechaFin >= DateOnly.FromDateTime(DateTime.Today)) ?? false;
 }
 
 <div class="kro-page-title">
@@ -9,71 +13,300 @@
 </div>
 
 <p class="kro-page-subtitle">
-    Registre su ingreso al gimnasio KRÒ Training.
+    Registre su ingreso al gimnasio KRÒ Training de forma rápida y segura.
 </p>
 
 <partial name="_AvisoMembresia" />
 
-<div class="kro-actions" style="margin-bottom:20px; flex-wrap:wrap;">
-    <a href="/MiMembresia/Index" class="kro-btn kro-btn-outline">Mi membresía</a>
-    <a href="/Cuenta/Perfil" class="kro-btn kro-btn-outline">Mi perfil</a>
-    <form asp-controller="Cuenta" asp-action="Logout" method="post" style="display:inline;">
+<!-- NAVEGACIÓN RÁPIDA -->
+<div class="kro-actions kro-ingreso-nav">
+    <a href="/MiMembresia/Index" class="kro-btn kro-btn-outline">
+        Mi membresía
+    </a>
+
+    <a href="/Cuenta/Perfil" class="kro-btn kro-btn-outline">
+        Mi perfil
+    </a>
+
+    <form asp-controller="Cuenta"
+          asp-action="Logout"
+          method="post"
+          class="kro-logout-form">
         @Html.AntiForgeryToken()
-        <button type="submit" class="kro-btn kro-btn-secondary">Cerrar sesión</button>
+
+        <button type="submit" class="kro-btn kro-btn-outline">
+            Cerrar sesión
+        </button>
     </form>
 </div>
 
 @if (TempData["Mensaje"] != null)
 {
-    <div class="kro-badge kro-badge-green" style="display:inline-block; padding:10px 16px; margin-bottom:16px;">
-        @TempData["Mensaje"]
+    <div class="kro-alert kro-alert-success" role="status">
+        <strong>Listo:</strong> @TempData["Mensaje"]
     </div>
 }
+
 @if (TempData["Error"] != null)
 {
-    <div class="kro-badge" style="background:#f8d7da; color:#842029; display:inline-block; padding:10px 16px; margin-bottom:16px;">
-        @TempData["Error"]
+    <div class="kro-alert kro-alert-error" role="alert">
+        <strong>Atención:</strong> @TempData["Error"]
     </div>
 }
 
-<div class="kro-card">
+<div class="kro-card kro-ingreso-card">
 
     <div class="kro-card-title">
-        Bienvenido, @Model?.Usuario?.Nombre
+        Bienvenido, @(Model?.Usuario?.Nombre ?? "Usuario")
     </div>
 
-    <div class="kro-card" style="margin-top:20px; background:#f8f9fa;">
+    <p class="kro-ingreso-description">
+        Consulte el estado de su membresía antes de registrar su ingreso.
+    </p>
 
-        <div class="kro-card-title">
-            Estado de la membresía
+    <!-- ESTADO DE MEMBRESÍA -->
+    <section class="kro-membership-panel"
+             aria-labelledby="membership-title">
+
+        <div class="kro-membership-heading">
+            <div class="kro-membership-icon" aria-hidden="true">
+                <span>♧</span>
+            </div>
+
+            <div>
+                <h2 id="membership-title" class="kro-membership-title">
+                    Estado de la membresía
+                </h2>
+
+                <p class="kro-membership-subtitle">
+                    Información de su acceso al gimnasio
+                </p>
+            </div>
         </div>
 
-        @{
-            var membresiaActiva = Model?.Membresia?.Any(m => m.Estado == "ACTIVA" && m.FechaFin >= DateOnly.FromDateTime(DateTime.Today)) ?? false;
-        }
-
-        <div style="display:flex; align-items:center; gap:12px;">
+        <div class="kro-membership-status">
             @if (membresiaActiva)
             {
-                <span class="kro-badge kro-badge-green">Membresía activa</span>
-                <span>Puede registrar su ingreso.</span>
+                <span class="kro-badge kro-badge-green">
+                    Activa
+                </span>
+
+                <p>
+                    Su membresía está vigente. Puede registrar su ingreso.
+                </p>
             }
             else
             {
-                <span class="kro-badge" style="background:#f8d7da; color:#842029;">Membresía vencida</span>
-                <span>Renueve su membresía para registrar ingreso.</span>
+                <span class="kro-badge kro-badge-red">
+                    No vigente
+                </span>
+
+                <p>
+                    No se encontró una membresía activa y vigente.
+                    Revise su membresía antes de intentar ingresar.
+                </p>
             }
         </div>
+    </section>
 
-    </div>
+    <!-- REGISTRAR INGRESO -->
+    <div class="kro-ingreso-footer">
+        <div class="kro-ingreso-help">
+            <span class="kro-help-icon" aria-hidden="true">i</span>
 
-    <form asp-action="RegistrarIngreso" method="post" style="margin-top:20px;">
-        @Html.AntiForgeryToken()
-        <div class="kro-actions">
-            <button type="submit" class="kro-btn kro-btn-primary">
+            <span>
+                Presione el botón para registrar su visita.
+            </span>
+        </div>
+
+        <form asp-action="RegistrarIngreso"
+              method="post"
+              class="kro-ingreso-form">
+
+            @Html.AntiForgeryToken()
+
+            <button type="submit"
+                    class="kro-btn kro-btn-primary"
+                    disabled="@(!membresiaActiva)">
                 Registrar mi ingreso
             </button>
-        </div>
-    </form>
+        </form>
+    </div>
 
 </div>
+
+<style>
+    .kro-ingreso-nav {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 24px;
+    }
+
+    .kro-logout-form {
+        display: inline;
+        margin: 0;
+    }
+
+    .kro-ingreso-card {
+        padding: 26px;
+    }
+
+    .kro-ingreso-description {
+        color: #6b7280;
+        font-size: 14px;
+        margin: 8px 0 24px;
+    }
+
+    .kro-membership-panel {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 22px;
+    }
+
+    .kro-membership-heading {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 20px;
+    }
+
+    .kro-membership-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        flex-shrink: 0;
+        border-radius: 10px;
+        background: #dbeafe;
+        color: #1d4ed8;
+        font-size: 24px;
+    }
+
+    .kro-membership-title {
+        margin: 0;
+        color: #1f2937;
+        font-size: 17px;
+        font-weight: 700;
+    }
+
+    .kro-membership-subtitle {
+        margin: 5px 0 0;
+        color: #6b7280;
+        font-size: 13px;
+    }
+
+    .kro-membership-status {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
+        padding-top: 18px;
+        border-top: 1px solid #e2e8f0;
+    }
+
+        .kro-membership-status p {
+            flex: 1;
+            min-width: 220px;
+            margin: 0;
+            color: #4b5563;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+    .kro-ingreso-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 18px;
+        margin-top: 24px;
+    }
+
+    .kro-ingreso-help {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        color: #6b7280;
+        font-size: 13px;
+    }
+
+    .kro-help-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+        border: 1px solid #9ca3af;
+        border-radius: 50%;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .kro-btn-primary {
+        background-color: #2563eb;
+        border: 1px solid #2563eb;
+        color: #fff;
+    }
+
+        .kro-btn-primary:hover:not(:disabled) {
+            background-color: #1d4ed8;
+            border-color: #1d4ed8;
+        }
+
+        .kro-btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+    .kro-alert {
+        padding: 13px 16px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .kro-alert-success {
+        color: #166534;
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+    }
+
+    .kro-alert-error {
+        color: #b91c1c;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+    }
+
+    @@media (max-width: 600px) {
+        .kro-ingreso-card {
+            padding: 18px;
+        }
+
+        .kro-membership-panel {
+            padding: 16px;
+        }
+
+        .kro-ingreso-footer {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .kro-ingreso-form,
+        .kro-ingreso-form button {
+            width: 100%;
+        }
+
+        .kro-logout-form {
+            flex: 1 1 auto;
+        }
+
+            .kro-logout-form button {
+                width: 100%;
+            }
+    }
+</style>

@@ -22,10 +22,11 @@ namespace KROTraining.Controllers
             _context = context;
             _passwordHasher = passwordHasher;
         }
+
         private bool VerificarContrasena(
-    Usuario usuario,
-    string contrasena,
-    out bool actualizarHash)
+            Usuario usuario,
+            string contrasena,
+            out bool actualizarHash)
         {
             actualizarHash = false;
 
@@ -37,7 +38,6 @@ namespace KROTraining.Controllers
 
             var almacenada = usuario.ContrasenaHash;
 
-            // Reconocer el formato de PasswordHasher de ASP.NET Core Identity.
             bool formatoIdentity = false;
 
             try
@@ -72,8 +72,6 @@ namespace KROTraining.Controllers
                 }
             }
 
-            // Compatibilidad temporal con las cuentas antiguas.
-            // Si coincide, el login la convertirá a hash.
             if (!string.Equals(
                     almacenada,
                     contrasena,
@@ -194,7 +192,6 @@ namespace KROTraining.Controllers
         // REGISTRO DE NUEVA CUENTA
         // ==========================================
 
-        // GET: /Cuenta/Registro
         [HttpGet]
         public IActionResult Registro()
         {
@@ -205,7 +202,6 @@ namespace KROTraining.Controllers
             return View();
         }
 
-        // POST: /Cuenta/Registro
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Registro(string nombre, string correo, string contrasena, string? telefono)
@@ -213,19 +209,18 @@ namespace KROTraining.Controllers
             if (string.IsNullOrEmpty(nombre) || string.IsNullOrEmpty(correo) || string.IsNullOrEmpty(contrasena))
             {
                 ModelState.AddModelError(string.Empty, "Por favor, complete los campos obligatorios.");
-                return View(); // HU-14: información obligatoria incompleta
+                return View();
             }
 
             var existeCorreo = await _context.Usuarios.AnyAsync(u => u.Correo == correo);
             if (existeCorreo)
             {
                 ModelState.AddModelError(string.Empty, "El correo electrónico ya se encuentra registrado.");
-                return View(); // HU-14: correo ya registrado
+                return View();
             }
 
             try
             {
-                // Paso 1: crear el Usuario primero, para obtener su UsuarioId generado por la BD
                 var nuevoUsuario = new Usuario
                 {
                     Nombre = nombre,
@@ -239,7 +234,6 @@ namespace KROTraining.Controllers
                 _context.Usuarios.Add(nuevoUsuario);
                 await _context.SaveChangesAsync();
 
-                // Paso 2: crear Cliente con un badge único (evita el choque de UNIQUE en NULL)
                 var nuevoCliente = new Cliente
                 {
                     UsuarioId = nuevoUsuario.UsuarioId,
@@ -247,7 +241,6 @@ namespace KROTraining.Controllers
                 };
                 _context.Clientes.Add(nuevoCliente);
 
-                // Paso 3: registro de trazabilidad en VISITANTE
                 var visitante = new Visitante
                 {
                     Nombre = nombre,
@@ -273,7 +266,7 @@ namespace KROTraining.Controllers
         }
 
         // ==========================================
-        // PERFIL Y DATOS PERSONALES (HU-4, HU-5, HU-6)
+        // PERFIL Y DATOS PERSONALES
         // ==========================================
 
         [HttpGet]
@@ -301,7 +294,7 @@ namespace KROTraining.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ActualizarPerfil(string nombre, string? telefono, string? fotoPerfil)
+        public async Task<IActionResult> ActualizarPerfil(string nombre, string? cedula, string? telefono, string? fotoPerfil)
         {
             var usuarioIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(usuarioIdString) || !int.TryParse(usuarioIdString, out int usuarioId))
@@ -316,6 +309,7 @@ namespace KROTraining.Controllers
             }
 
             usuario.Nombre = nombre;
+            usuario.Cedula = cedula;
             usuario.Telefono = telefono;
 
             if (!string.IsNullOrEmpty(fotoPerfil))
@@ -326,12 +320,36 @@ namespace KROTraining.Controllers
             _context.Update(usuario);
             await _context.SaveChangesAsync();
 
-            TempData["Mensaje"] = "Perfil actualizado correctamente.";
+            TempData["Mensaje"] = "Datos personales actualizados correctamente.";
+            return RedirectToAction(nameof(Perfil));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ActualizarFichaMedica(int usuarioId, string? contactoEmergencia, string? alergias, string? padecimientos, string? medicamentos)
+        {
+            var cliente = await _context.Clientes.FirstOrDefaultAsync(c => c.UsuarioId == usuarioId);
+            if (cliente != null)
+            {
+                cliente.ContactoEmergencia = contactoEmergencia;
+                cliente.Alergias = alergias;
+                cliente.Padecimientos = padecimientos;
+                cliente.Medicamentos = medicamentos;
+
+                _context.Clientes.Update(cliente);
+                await _context.SaveChangesAsync();
+                TempData["Mensaje"] = "Ficha médica y de emergencia actualizada con éxito.";
+            }
+            else
+            {
+                TempData["Error"] = "No se encontró el registro de cliente asociado a este usuario.";
+            }
+
             return RedirectToAction(nameof(Perfil));
         }
 
         // ==========================================
-        // SEGURIDAD Y CONTRASEÑAS (HU-7, HU-8, HU-9)
+        // SEGURIDAD Y CONTRASEÑAS
         // ==========================================
 
         [HttpGet]
@@ -340,7 +358,6 @@ namespace KROTraining.Controllers
             return View();
         }
 
-        // POST: /Cuenta/RecuperarPassword (HU-7)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RecuperarPassword(string correo)
@@ -357,7 +374,6 @@ namespace KROTraining.Controllers
             {
                 try
                 {
-                    // Configuración del servidor SMTP de Gmail con la cuenta oficial
                     var smtpClient = new SmtpClient("smtp.gmail.com")
                     {
                         Port = 587,
@@ -366,10 +382,8 @@ namespace KROTraining.Controllers
                         UseDefaultCredentials = false
                     };
 
-                    // URL dinámica apuntando a la vista de restablecimiento con el correo como parámetro
                     string urlRestablecer = $"https://{HttpContext.Request.Host}/Cuenta/RestablecerPassword?correo={WebUtility.UrlEncode(correo)}";
 
-                    // Diseño HTML profesional para el correo corporativo con enlace al formulario de nueva contraseña
                     string cuerpoHtml = $@"
                     <!DOCTYPE html>
                     <html lang='es'>
@@ -438,7 +452,6 @@ namespace KROTraining.Controllers
             return RedirectToAction(nameof(Login));
         }
 
-        // GET: /Cuenta/RestablecerPassword (Recibe el correo desde el enlace y muestra el formulario)
         [HttpGet]
         public IActionResult RestablecerPassword(string correo)
         {
@@ -452,7 +465,6 @@ namespace KROTraining.Controllers
             return View(model);
         }
 
-        // POST: /Cuenta/RestablecerPassword (Procesa la nueva contraseña utilizando el ViewModel)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RestablecerPassword(RestablecerPasswordViewModel model)
@@ -476,7 +488,6 @@ namespace KROTraining.Controllers
                 return View(model);
             }
 
-            // Actualizamos la contraseña en la base de datos
             usuario.ContrasenaHash = _passwordHasher.HashPassword(
             usuario,
             model.NuevaContrasena);
@@ -487,7 +498,6 @@ namespace KROTraining.Controllers
             return RedirectToAction(nameof(Login));
         }
 
-        // POST: /Cuenta/CambiarPassword (HU-8)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CambiarPassword(string passwordActual, string nuevoPassword)
@@ -522,7 +532,6 @@ namespace KROTraining.Controllers
             return RedirectToAction(nameof(Perfil));
         }
 
-        // POST: /Cuenta/ActualizarCredenciales (HU-9)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ActualizarCredenciales(string nuevoCorreo)
