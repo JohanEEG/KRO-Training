@@ -551,6 +551,159 @@ namespace KROTraining.Controllers
                 return View(model);
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Eliminar(int id)
+        {
+            var entrenadorId = await ObtenerEntrenadorActivoAsync();
+
+            if (entrenadorId == null)
+            {
+                return Forbid();
+            }
+
+            var model = await ObtenerDatosEliminacionAsync(
+                id,
+                entrenadorId.Value);
+
+            if (model == null)
+            {
+                return NotFound(
+                    "La rutina no fue encontrada o no está disponible para su cuenta.");
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Eliminar(
+            int id,
+            EliminarRutinaViewModel model)
+        {
+            var entrenadorId = await ObtenerEntrenadorActivoAsync();
+
+            if (entrenadorId == null)
+            {
+                return Forbid();
+            }
+
+            if (id <= 0 || id != model.RutinaId)
+            {
+                return BadRequest(
+                    "El identificador de la rutina no es válido.");
+            }
+
+            try
+            {
+                await using var transaccion =
+                    await _context.Database.BeginTransactionAsync(
+                        IsolationLevel.Serializable);
+
+                // Consulta nuevamente las relaciones antes de eliminar.
+                var datos = await ObtenerDatosEliminacionAsync(
+                    id,
+                    entrenadorId.Value);
+
+                if (datos == null)
+                {
+                    return NotFound(
+                        "La rutina no fue encontrada o no está disponible para su cuenta.");
+                }
+
+                model.Nombre = datos.Nombre;
+                model.Objetivo = datos.Objetivo;
+                model.Nivel = datos.Nivel;
+                model.CantidadEjercicios = datos.CantidadEjercicios;
+                model.TieneAsignaciones = datos.TieneAsignaciones;
+                model.TieneRecomendaciones = datos.TieneRecomendaciones;
+
+                if (model.TieneAsignaciones)
+                {
+                    ModelState.AddModelError(
+                        string.Empty,
+                        "No se puede eliminar la rutina porque tiene asignaciones a clientes.");
+                }
+
+                if (model.TieneRecomendaciones)
+                {
+                    ModelState.AddModelError(
+                        string.Empty,
+                        "No se puede eliminar la rutina porque tiene recomendaciones asociadas.");
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    return View(model);
+                }
+
+                // Elimina únicamente las asociaciones de esta rutina.
+                // Los ejercicios del catálogo se conservan.
+                await _context.RutinaEjercicios
+                    .Where(re => re.RutinaId == id)
+                    .ExecuteDeleteAsync();
+
+                var eliminadas = await _context.Rutinas
+                    .Where(r =>
+                        r.RutinaId == id &&
+                        r.EntrenadorId == entrenadorId.Value)
+                    .ExecuteDeleteAsync();
+
+                if (eliminadas != 1)
+                {
+                    await transaccion.RollbackAsync();
+
+                    return NotFound(
+                        "La rutina no fue encontrada o ya no está disponible.");
+                }
+
+                await transaccion.CommitAsync();
+
+                TempData["MensajeExito"] =
+                    "La rutina se eliminó correctamente.";
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex) when (
+                ex is DbUpdateException ||
+                ex is Microsoft.Data.SqlClient.SqlException)
+            {
+                _logger.LogError(
+                    ex,
+                    "Error al eliminar la rutina {RutinaId}.",
+                    id);
+
+                ModelState.AddModelError(
+                    string.Empty,
+                    "No se pudo eliminar la rutina. " +
+                    "Vuelva al listado y abra nuevamente la confirmación.");
+
+                return View(model);
+            }
+        }
+
+        private async Task<EliminarRutinaViewModel?> ObtenerDatosEliminacionAsync(
+            int rutinaId,
+            int entrenadorId)
+        {
+            return await _context.Rutinas
+                .AsNoTracking()
+                .Where(r =>
+                    r.RutinaId == rutinaId &&
+                    r.EntrenadorId == entrenadorId)
+                .Select(r => new EliminarRutinaViewModel
+                {
+                    RutinaId = r.RutinaId,
+                    Nombre = r.Nombre,
+                    Objetivo = r.Objetivo,
+                    Nivel = r.Nivel,
+                    CantidadEjercicios = r.RutinaEjercicios.Count,
+                    TieneAsignaciones = r.AsignacionRutinas.Any(),
+                    TieneRecomendaciones = r.Recomendacions.Any()
+                })
+                .SingleOrDefaultAsync();
+        }
+
         private async Task<int?> ObtenerEntrenadorActivoAsync()
         {
             var identificador =

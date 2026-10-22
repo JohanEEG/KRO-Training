@@ -1,0 +1,119 @@
+﻿@model KROTraining.Models.EliminarRutinaViewModel
+
+@{
+    ViewData["Title"] = "Eliminar rutina";
+}
+
+<h1 class="kro-page-title">Eliminar rutina</h1>
+
+<p class="kro-page-subtitle">
+    Revise la información antes de confirmar la eliminación.
+</p>
+
+<div class="kro-card" style="max-width:800px; margin:0 auto;">
+
+    <h2 class="kro-card-title">Información de la rutina</h2>
+
+    <dl>
+        <dt style="font-weight:600;">Nombre</dt>
+        <dd style="margin:6px 0 20px;">@Model.Nombre</dd>
+
+        <dt style="font-weight:600;">Objetivo</dt>
+        <dd style="margin:6px 0 20px;">
+            @(string.IsNullOrWhiteSpace(Model.Objetivo)
+                ? "Sin especificar"
+                : Model.Objetivo)
+        </dd>
+
+        <dt style="font-weight:600;">Nivel</dt>
+        <dd style="margin:6px 0 20px;">
+            @(string.IsNullOrWhiteSpace(Model.Nivel)
+                ? "Sin especificar"
+                : Model.Nivel)
+        </dd>
+
+        <dt style="font-weight:600;">Ejercicios asociados</dt>
+        <dd style="margin:6px 0 20px;">
+            @Model.CantidadEjercicios
+        </dd>
+    </dl>
+
+    <div asp-validation-summary="All"
+         role="alert"
+         style="color:#B71C1C; margin-bottom:20px;">
+    </div>
+
+    @if (Model.TieneAsignaciones)
+    {
+        <div role="alert"
+             style="background:#FFF3CD; color:#664D03;
+            padding:16px; border-radius:8px; margin-bottom:16px;">
+            No se puede eliminar esta rutina porque tiene
+            asignaciones a clientes. Se conserva para mantener
+            el historial.
+        </div>
+    }
+
+    @if (Model.TieneRecomendaciones)
+    {
+        <div role="alert"
+             style="background:#FFF3CD; color:#664D03;
+            padding:16px; border-radius:8px; margin-bottom:16px;">
+            No se puede eliminar esta rutina porque tiene
+            recomendaciones asociadas.
+        </div>
+    }
+
+    @if (Model.PuedeEliminar)
+    {
+        <div style="background:#FFEBEE; color:#B71C1C;
+            border-left:4px solid #C62828;
+            padding:16px; border-radius:8px; margin-bottom:20px;">
+            Se eliminará permanentemente esta rutina y las
+            asociaciones con sus ejercicios.
+            Los ejercicios permanecerán en el catálogo.
+        </div>
+
+        <form asp-controller="Rutinas"
+              asp-action="Eliminar"
+              asp-route-id="@Model.RutinaId"
+              method="post">
+
+            <input type="hidden" asp-for="RutinaId" />
+
+            <div style="display:flex; align-items:flex-start;
+                gap:10px; margin-bottom:24px;">
+                <input asp-for="ConfirmarEliminacion"
+                       style="margin-top:5px;" />
+
+                <label asp-for="ConfirmarEliminacion"></label>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end;
+                gap:12px; flex-wrap:wrap;">
+
+                <a asp-controller="Rutinas"
+                   asp-action="Index"
+                   class="kro-btn kro-btn-outline">
+                    Cancelar
+                </a>
+
+                <button type="submit"
+                        class="kro-btn kro-btn-primary"
+                        style="background:#C62828; border-color:#C62828;">
+                    Eliminar definitivamente
+                </button>
+            </div>
+        </form>
+    }
+    else
+    {
+        <div style="display:flex; justify-content:flex-end;">
+            <a asp-controller="Rutinas"
+               asp-action="Index"
+               class="kro-btn kro-btn-outline">
+                Volver a rutinas
+            </a>
+        </div>
+    }
+</div>
