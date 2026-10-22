@@ -884,6 +884,300 @@ namespace KROTraining.Controllers
                 .ToList();
         }
 
+        // HU-46: Consultar asignaciones de mis clientes
+        [HttpGet]
+        public async Task<IActionResult> Asignaciones()
+        {
+            var entrenadorId = await ObtenerEntrenadorActivoAsync();
+
+            if (!entrenadorId.HasValue)
+                return Forbid();
+
+            var clientes = await _context.Clientes
+                .AsNoTracking()
+                .Where(c =>
+                    c.EntrenadorId == entrenadorId.Value &&
+                    c.Usuario.Estado == "ACTIVO" &&
+                    c.Usuario.Rol.Nombre == "CLIENTE")
+                .OrderBy(c => c.Usuario.Nombre)
+                .Select(c => new
+                {
+                    ClienteId = c.UsuarioId,
+                    Nombre = c.Usuario.Nombre,
+                    Correo = c.Usuario.Correo
+                })
+                .ToListAsync();
+
+            var asignaciones = await _context.AsignacionRutinas
+                .AsNoTracking()
+                .Where(a =>
+                    a.Estado == "ACTIVA" &&
+                    a.Cliente.EntrenadorId == entrenadorId.Value &&
+                    a.Cliente.Usuario.Estado == "ACTIVO" &&
+                    a.Cliente.Usuario.Rol.Nombre == "CLIENTE")
+                .OrderByDescending(a => a.FechaAsignacion)
+                .ThenByDescending(a => a.AsignacionId)
+                .Select(a => new
+                {
+                    a.ClienteId,
+                    a.AsignacionId,
+                    NombreRutina = a.Rutina.Nombre,
+                    a.FechaAsignacion
+                })
+                .ToListAsync();
+
+            var porCliente = asignaciones.ToLookup(a => a.ClienteId);
+            var model = new List<ClienteAsignacionItemViewModel>();
+
+            foreach (var cliente in clientes)
+            {
+                var asignacionesCliente = porCliente[cliente.ClienteId];
+
+                if (!asignacionesCliente.Any())
+                {
+                    model.Add(new ClienteAsignacionItemViewModel
+                    {
+                        ClienteId = cliente.ClienteId,
+                        NombreCliente = cliente.Nombre,
+                        CorreoCliente = cliente.Correo
+                    });
+
+                    continue;
+                }
+
+                foreach (var asignacion in asignacionesCliente)
+                {
+                    model.Add(new ClienteAsignacionItemViewModel
+                    {
+                        ClienteId = cliente.ClienteId,
+                        NombreCliente = cliente.Nombre,
+                        CorreoCliente = cliente.Correo,
+                        AsignacionId = asignacion.AsignacionId,
+                        NombreRutina = asignacion.NombreRutina,
+                        FechaAsignacion = asignacion.FechaAsignacion
+                    });
+                }
+            }
+
+            return View(model);
+        }
+
+        // HU-46: Abrir formulario de modificación
+        [HttpGet]
+        public async Task<IActionResult> ModificarAsignacion(int id)
+        {
+            var entrenadorId = await ObtenerEntrenadorActivoAsync();
+
+            if (!entrenadorId.HasValue)
+                return Forbid();
+
+            var model = await _context.AsignacionRutinas
+                .AsNoTracking()
+                .Where(a =>
+                    a.AsignacionId == id &&
+                    a.Estado == "ACTIVA" &&
+                    a.Cliente.EntrenadorId == entrenadorId.Value &&
+                    a.Cliente.Usuario.Estado == "ACTIVO" &&
+                    a.Cliente.Usuario.Rol.Nombre == "CLIENTE")
+                .Select(a => new ModificarAsignacionViewModel
+                {
+                    AsignacionId = a.AsignacionId,
+                    NombreCliente = a.Cliente.Usuario.Nombre,
+                    NombreRutinaActual = a.Rutina.Nombre
+                })
+                .SingleOrDefaultAsync();
+
+            if (model == null)
+                return NotFound("La asignación no existe o ya no está disponible.");
+
+            await CargarRutinasParaCambioAsync(model, entrenadorId.Value);
+
+            return View(model);
+        }
+
+        // HU-46: Guardar modificación
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ModificarAsignacion(
+            int id,
+            ModificarAsignacionViewModel model)
+        {
+            var entrenadorId = await ObtenerEntrenadorActivoAsync();
+
+            if (!entrenadorId.HasValue)
+                return Forbid();
+
+            if (id <= 0 || id != model.AsignacionId)
+                return BadRequest("El identificador de la asignación no es válido.");
+
+            try
+            {
+                await using var transaccion =
+                    await _context.Database.BeginTransactionAsync(
+                        IsolationLevel.Serializable);
+
+                var asignacion = await _context.AsignacionRutinas
+                    .SingleOrDefaultAsync(a =>
+                        a.AsignacionId == id &&
+                        a.Estado == "ACTIVA" &&
+                        a.Cliente.EntrenadorId == entrenadorId.Value &&
+                        a.Cliente.Usuario.Estado == "ACTIVO" &&
+                        a.Cliente.Usuario.Rol.Nombre == "CLIENTE");
+
+                if (asignacion == null)
+                    return NotFound("La asignación no existe o ya no está disponible.");
+
+                model.NombreCliente = await _context.Clientes
+                    .Where(c => c.UsuarioId == asignacion.ClienteId)
+                    .Select(c => c.Usuario.Nombre)
+                    .SingleAsync();
+
+                model.NombreRutinaActual = await _context.Rutinas
+                    .Where(r => r.RutinaId == asignacion.RutinaId)
+                    .Select(r => r.Nombre)
+                    .SingleAsync();
+
+                if (ModelState.IsValid)
+                {
+                    var nuevaRutinaId = model.NuevaRutinaId!.Value;
+
+                    if (nuevaRutinaId == asignacion.RutinaId)
+                    {
+                        ModelState.AddModelError(
+                            nameof(model.NuevaRutinaId),
+                            "Seleccione una rutina diferente de la actual.");
+                    }
+                    else
+                    {
+                        var rutinaDisponible = await _context.Rutinas
+                            .AnyAsync(r =>
+                                r.RutinaId == nuevaRutinaId &&
+                                r.EntrenadorId == entrenadorId.Value &&
+                                r.Estado == "ACTIVA");
+
+                        if (!rutinaDisponible)
+                        {
+                            ModelState.AddModelError(
+                                nameof(model.NuevaRutinaId),
+                                "La rutina seleccionada no está disponible.");
+                        }
+                        else
+                        {
+                            var yaAsignada = await _context.AsignacionRutinas
+                                .AnyAsync(a =>
+                                    a.ClienteId == asignacion.ClienteId &&
+                                    a.RutinaId == nuevaRutinaId &&
+                                    a.Estado == "ACTIVA");
+
+                            if (yaAsignada)
+                            {
+                                ModelState.AddModelError(
+                                    nameof(model.NuevaRutinaId),
+                                    "El cliente ya tiene esa rutina activa.");
+                            }
+                        }
+                    }
+                }
+
+                if (ModelState.IsValid)
+                {
+                    // Conserva la asignación anterior y sus sesiones.
+                    asignacion.Estado = "INACTIVA";
+
+                    _context.AsignacionRutinas.Add(new AsignacionRutina
+                    {
+                        ClienteId = asignacion.ClienteId,
+                        RutinaId = model.NuevaRutinaId!.Value,
+                        EntrenadorId = entrenadorId.Value,
+                        FechaAsignacion = DateTime.Now,
+                        Estado = "ACTIVA"
+                    });
+
+                    await _context.SaveChangesAsync();
+                    await transaccion.CommitAsync();
+
+                    TempData["MensajeExito"] =
+                        "La rutina asignada se modificó correctamente.";
+
+                    return RedirectToAction(nameof(Asignaciones));
+                }
+
+                await transaccion.RollbackAsync();
+            }
+            catch (Exception ex) when (
+                ex is DbUpdateException ||
+                ex is Microsoft.Data.SqlClient.SqlException)
+            {
+                _logger.LogError(
+                    ex,
+                    "Error al modificar la asignación {AsignacionId}.",
+                    id);
+
+                ModelState.AddModelError(
+                    string.Empty,
+                    "No se pudo modificar la asignación. " +
+                    "Vuelva al listado e intente nuevamente.");
+            }
+
+            await CargarRutinasParaCambioAsync(model, entrenadorId.Value);
+
+            return View(model);
+        }
+
+        private async Task CargarRutinasParaCambioAsync(
+            ModificarAsignacionViewModel model,
+            int entrenadorId)
+        {
+            var asignacion = await _context.AsignacionRutinas
+                .AsNoTracking()
+                .Where(a =>
+                    a.AsignacionId == model.AsignacionId &&
+                    a.Estado == "ACTIVA" &&
+                    a.Cliente.EntrenadorId == entrenadorId &&
+                    a.Cliente.Usuario.Estado == "ACTIVO" &&
+                    a.Cliente.Usuario.Rol.Nombre == "CLIENTE")
+                .Select(a => new
+                {
+                    a.ClienteId,
+                    NombreCliente = a.Cliente.Usuario.Nombre,
+                    NombreRutina = a.Rutina.Nombre
+                })
+                .SingleOrDefaultAsync();
+
+            model.RutinasDisponibles = new List<SelectListItem>();
+
+            if (asignacion == null)
+                return;
+
+            model.NombreCliente = asignacion.NombreCliente;
+            model.NombreRutinaActual = asignacion.NombreRutina;
+
+            var rutinas = await _context.Rutinas
+                .AsNoTracking()
+                .Where(r =>
+                    r.EntrenadorId == entrenadorId &&
+                    r.Estado == "ACTIVA" &&
+                    !_context.AsignacionRutinas.Any(a =>
+                        a.ClienteId == asignacion.ClienteId &&
+                        a.RutinaId == r.RutinaId &&
+                        a.Estado == "ACTIVA"))
+                .OrderBy(r => r.Nombre)
+                .Select(r => new
+                {
+                    r.RutinaId,
+                    r.Nombre
+                })
+                .ToListAsync();
+
+            model.RutinasDisponibles = rutinas
+                .Select(r => new SelectListItem
+                {
+                    Value = r.RutinaId.ToString(),
+                    Text = r.Nombre
+                })
+                .ToList();
+        }
+
         private async Task<int?> ObtenerEntrenadorActivoAsync()
         {
             var identificador =

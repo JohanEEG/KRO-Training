@@ -1,0 +1,100 @@
+﻿@model List<KROTraining.Models.ClienteAsignacionItemViewModel>
+
+@{
+    ViewData["Title"] = "Asignaciones de rutinas";
+}
+
+<h1 class="kro-page-title">Asignaciones de rutinas</h1>
+
+<p class="kro-page-subtitle">
+    Consulte las rutinas activas de sus clientes y cambie su asignación.
+</p>
+
+@if (TempData["MensajeExito"] is string mensaje)
+{
+    <div role="status"
+         style="background:#E8F5E9; color:#1B5E20;
+        border-left:4px solid #2E7D32;
+        padding:16px; border-radius:8px; margin-bottom:20px;">
+        @mensaje
+    </div>
+}
+
+<div class="kro-card">
+    @if (Model.Count == 0)
+    {
+        <p>No tiene clientes activos vinculados a su cuenta.</p>
+    }
+    else
+    {
+        <div style="overflow-x:auto;">
+            <table class="kro-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Cliente</th>
+                        <th scope="col">Rutina activa</th>
+                        <th scope="col">Fecha de asignación</th>
+                        <th scope="col">Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@item.NombreCliente</strong>
+                                <div style="color:#666;">
+                                    @item.CorreoCliente
+                                </div>
+                            </td>
+
+                            <td>
+                                @(item.TieneAsignacion
+                                    ? item.NombreRutina
+                                    : "Sin rutina asignada")
+                            </td>
+
+                            <td>
+                                @(item.FechaAsignacion?.ToString(
+                                    "dd/MM/yyyy HH:mm") ?? "—")
+                            </td>
+
+                            <td>
+                                @if (item.TieneAsignacion)
+                                {
+                                    <a asp-controller="Rutinas"
+                                       asp-action="ModificarAsignacion"
+                                       asp-route-id="@item.AsignacionId"
+                                       class="kro-btn kro-btn-small kro-btn-outline">
+                                        Cambiar rutina
+                                    </a>
+                                }
+                                else
+                                {
+                                    <p style="margin:0 0 8px;">
+                                        Seleccione una rutina del listado
+                                        para asignársela a este cliente.
+                                    </p>
+
+                                    <a asp-controller="Rutinas"
+                                       asp-action="Index"
+                                       class="kro-btn kro-btn-small kro-btn-outline">
+                                        Elegir rutina
+                                    </a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<div style="margin-top:20px;">
+    <a asp-controller="Rutinas"
+       asp-action="Index"
+       class="kro-btn kro-btn-outline">
+        Volver a rutinas
+    </a>
+</div>

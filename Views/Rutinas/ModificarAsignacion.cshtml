@@ -1,0 +1,97 @@
+﻿@model KROTraining.Models.ModificarAsignacionViewModel
+
+@{
+    ViewData["Title"] = "Modificar rutina asignada";
+}
+
+<h1 class="kro-page-title">Modificar rutina asignada</h1>
+
+<p class="kro-page-subtitle">
+    Seleccione la nueva rutina para el cliente.
+</p>
+
+<div class="kro-card" style="max-width:800px; margin:0 auto;">
+    <p>
+        <strong>Cliente:</strong>
+        @Model.NombreCliente
+    </p>
+
+    <p>
+        <strong>Rutina actual:</strong>
+        @Model.NombreRutinaActual
+    </p>
+
+    <form asp-controller="Rutinas"
+          asp-action="ModificarAsignacion"
+          asp-route-id="@Model.AsignacionId"
+          method="post">
+
+        <input asp-for="AsignacionId" type="hidden" />
+
+        <div asp-validation-summary="All"
+             role="alert"
+             style="color:#B42318; margin-bottom:16px;">
+        </div>
+
+        @if (Model.RutinasDisponibles.Count == 0)
+        {
+            <div role="status"
+                 style="background:#FFF3CD; color:#664D03;
+                padding:16px; border-radius:8px;">
+                No hay otras rutinas disponibles para este cambio.
+                Vuelva al listado para revisar la asignación o crear
+                una nueva rutina.
+            </div>
+        }
+        else
+        {
+            <div style="margin:24px 0;">
+                <label asp-for="NuevaRutinaId"
+                       style="display:block; margin-bottom:8px;">
+                    Nueva rutina *
+                </label>
+
+                <select asp-for="NuevaRutinaId"
+                        asp-items="Model.RutinasDisponibles"
+                        required
+                        style="width:100%; padding:12px;
+                    border:1px solid #D1D5DB;
+                    border-radius:6px;">
+                    <option value="">Seleccione una rutina</option>
+                </select>
+
+                <span asp-validation-for="NuevaRutinaId"
+                      style="color:#B42318;">
+                </span>
+            </div>
+
+            <p style="color:#666;">
+                La asignación actual quedará inactiva y se conservarán
+                sus sesiones de entrenamiento. La nueva rutina aparecerá
+                como la asignación más reciente del cliente.
+            </p>
+        }
+
+        <div style="display:flex; justify-content:flex-end;
+            gap:12px; flex-wrap:wrap; margin-top:24px;">
+
+            <a asp-controller="Rutinas"
+               asp-action="Asignaciones"
+               class="kro-btn kro-btn-outline">
+                Cancelar
+            </a>
+
+            @if (Model.RutinasDisponibles.Count > 0)
+            {
+                <button type="submit"
+                        class="kro-btn kro-btn-primary">
+                    Guardar cambio
+                </button>
+            }
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
