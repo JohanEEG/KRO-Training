@@ -1170,3 +1170,51 @@ BEGIN CATCH
     THROW;
 END CATCH;
 GO
+
+/* =========================Sprint 2===================================
+   ACTUALIZACION: Tipo y nivel de los ejercicios
+   Fecha: 2026-10-21
+   Equivalente a los campos de AgregarTipoYNivelEjercicio.
+
+   Ejecutar solamente este bloque.
+   Conserva los datos y agrega las columnas si faltan.
+   ============================================================ */
+
+USE [KRO_Training];
+GO
+
+SET XACT_ABORT ON;
+
+BEGIN TRY
+    BEGIN TRANSACTION;
+
+    IF OBJECT_ID(N'dbo.EJERCICIO', N'U') IS NULL
+    BEGIN
+        THROW 50001,
+            'No existe la tabla EJERCICIO. Revise la base seleccionada.',
+            1;
+    END;
+
+    IF COL_LENGTH(N'dbo.EJERCICIO', N'Nivel') IS NULL
+    BEGIN
+        ALTER TABLE dbo.EJERCICIO
+        ADD Nivel NVARCHAR(MAX) NULL;
+    END;
+
+    IF COL_LENGTH(N'dbo.EJERCICIO', N'Tipo') IS NULL
+    BEGIN
+        ALTER TABLE dbo.EJERCICIO
+        ADD Tipo NVARCHAR(MAX) NULL;
+    END;
+
+    COMMIT TRANSACTION;
+
+    PRINT 'Columnas Nivel y Tipo verificadas correctamente.';
+END TRY
+BEGIN CATCH
+    IF @@TRANCOUNT > 0
+        ROLLBACK TRANSACTION;
+
+    THROW;
+END CATCH;
+GO

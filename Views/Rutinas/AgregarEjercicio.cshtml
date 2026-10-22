@@ -1,0 +1,131 @@
+﻿@model KROTraining.Models.AgregarEjercicioRutinaViewModel
+
+@{
+    ViewData["Title"] = "Agregar ejercicio";
+}
+
+<h1 class="kro-page-title">Agregar ejercicio a la rutina</h1>
+
+<p class="kro-page-subtitle">
+    Rutina: <strong>@Model.NombreRutina</strong>
+</p>
+
+@if (TempData["MensajeExito"] is string mensaje)
+{
+    <div role="status"
+         style="background:#E8F5E9; color:#1B5E20;
+        border-left:4px solid #2E7D32;
+        padding:16px; border-radius:8px; margin-bottom:20px;">
+        @mensaje
+    </div>
+}
+
+<div class="kro-card" style="max-width:800px; margin:0 auto;">
+
+    <h2 class="kro-card-title">Datos del ejercicio</h2>
+
+    <form asp-controller="Rutinas"
+          asp-action="AgregarEjercicio"
+          asp-route-id="@Model.RutinaId"
+          method="post">
+
+        <input type="hidden" asp-for="RutinaId" />
+
+        <div asp-validation-summary="All"
+             role="alert"
+             style="color:#B71C1C; margin-bottom:16px;">
+        </div>
+
+        @if (Model.EjerciciosDisponibles.Count == 0)
+        {
+            <p role="status"
+               style="background:#FFF3CD; color:#664D03;
+                padding:16px; border-radius:8px;">
+                No hay ejercicios disponibles para agregar.
+                El catálogo está vacío o todos sus ejercicios
+                ya pertenecen a esta rutina.
+            </p>
+        }
+        else
+        {
+            <p style="color:#666;">
+                Todos los campos son obligatorios.
+                El descanso se expresa en segundos y puede ser cero.
+            </p>
+
+            <div style="margin-bottom:20px;">
+                <label asp-for="EjercicioId"
+                       class="kro-form-label"></label>
+
+                <select asp-for="EjercicioId"
+                        asp-items="Model.EjerciciosDisponibles"
+                        class="kro-form-control"
+                        required>
+                    <option value="">Seleccione un ejercicio</option>
+                </select>
+            </div>
+
+            <div style="display:grid;
+                grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+                gap:20px; margin-bottom:20px;">
+
+                <div>
+                    <label asp-for="Series"
+                           class="kro-form-label"></label>
+
+                    <input asp-for="Series"
+                           class="kro-form-control"
+                           type="number"
+                           min="1"
+                           max="2147483647"
+                           step="1"
+                           required />
+                </div>
+
+                <div>
+                    <label asp-for="Repeticiones"
+                           class="kro-form-label"></label>
+
+                    <input asp-for="Repeticiones"
+                           class="kro-form-control"
+                           type="number"
+                           min="1"
+                           max="2147483647"
+                           step="1"
+                           required />
+                </div>
+
+                <div>
+                    <label asp-for="DescansoSegundos"
+                           class="kro-form-label"></label>
+
+                    <input asp-for="DescansoSegundos"
+                           class="kro-form-control"
+                           type="number"
+                           min="0"
+                           max="2147483647"
+                           step="1"
+                           required />
+                </div>
+            </div>
+        }
+
+        <div style="display:flex; justify-content:flex-end;
+            gap:12px; flex-wrap:wrap; margin-top:28px;">
+
+            <a asp-controller="Rutinas"
+               asp-action="Index"
+               class="kro-btn kro-btn-outline">
+                Volver a rutinas
+            </a>
+
+            @if (Model.EjerciciosDisponibles.Count > 0)
+            {
+                <button type="submit"
+                        class="kro-btn kro-btn-primary">
+                    Agregar ejercicio
+                </button>
+            }
+        </div>
+    </form>
+</div>

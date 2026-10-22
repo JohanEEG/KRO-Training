@@ -4,6 +4,7 @@ using KROTraining.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace KROTraining.Controllers
 {
@@ -152,6 +153,182 @@ namespace KROTraining.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> AgregarEjercicio(int id)
+        {
+            var entrenadorId = await ObtenerEntrenadorActivoAsync();
+
+            if (entrenadorId == null)
+            {
+                return Forbid();
+            }
+
+            var rutina = await _context.Rutinas
+                .AsNoTracking()
+                .SingleOrDefaultAsync(r =>
+                    r.RutinaId == id &&
+                    r.EntrenadorId == entrenadorId.Value);
+
+            if (rutina == null)
+            {
+                return NotFound("La rutina no está disponible.");
+            }
+
+            var model = new AgregarEjercicioRutinaViewModel
+            {
+                RutinaId = rutina.RutinaId,
+                NombreRutina = rutina.Nombre
+            };
+
+            await CargarEjerciciosDisponiblesAsync(model);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AgregarEjercicio(
+            int id,
+            AgregarEjercicioRutinaViewModel model)
+        {
+            var entrenadorId = await ObtenerEntrenadorActivoAsync();
+
+            if (entrenadorId == null)
+            {
+                return Forbid();
+            }
+
+            if (id <= 0 || id != model.RutinaId)
+            {
+                return BadRequest("El identificador de la rutina no es válido.");
+            }
+
+            var rutina = await _context.Rutinas
+                .AsNoTracking()
+                .SingleOrDefaultAsync(r =>
+                    r.RutinaId == id &&
+                    r.EntrenadorId == entrenadorId.Value);
+
+            if (rutina == null)
+            {
+                return NotFound("La rutina no está disponible.");
+            }
+
+            model.NombreRutina = rutina.Nombre;
+
+            if (!ModelState.IsValid)
+            {
+                await CargarEjerciciosDisponiblesAsync(model);
+                return View(model);
+            }
+
+            try
+            {
+                await using var transaccion =
+                    await _context.Database.BeginTransactionAsync(
+                        IsolationLevel.Serializable);
+
+                var ejercicioId = model.EjercicioId!.Value;
+
+                var existeEjercicio = await _context.Ejercicios
+                    .AnyAsync(e => e.EjercicioId == ejercicioId);
+
+                var yaAgregado = await _context.RutinaEjercicios
+                    .AnyAsync(re =>
+                        re.RutinaId == id &&
+                        re.EjercicioId == ejercicioId);
+
+                if (!existeEjercicio || yaAgregado)
+                {
+                    ModelState.AddModelError(
+                        nameof(model.EjercicioId),
+                        "El ejercicio no está disponible o ya pertenece a esta rutina.");
+                }
+                else
+                {
+                    var ultimoOrden = await _context.RutinaEjercicios
+                        .Where(re => re.RutinaId == id)
+                        .Select(re => (int?)re.Orden)
+                        .MaxAsync() ?? 0;
+
+                    if (ultimoOrden == int.MaxValue)
+                    {
+                        ModelState.AddModelError(
+                            string.Empty,
+                            "No se pueden agregar más ejercicios a esta rutina.");
+                    }
+                    else
+                    {
+                        var detalle = new RutinaEjercicio
+                        {
+                            RutinaId = id,
+                            EjercicioId = ejercicioId,
+                            Orden = ultimoOrden + 1,
+                            Series = model.Series!.Value,
+                            Repeticiones = model.Repeticiones!.Value,
+                            DescansoSegundos = model.DescansoSegundos!.Value
+                        };
+
+                        _context.RutinaEjercicios.Add(detalle);
+
+                        await _context.SaveChangesAsync();
+                        await transaccion.CommitAsync();
+
+                        TempData["MensajeExito"] =
+                            "El ejercicio se agregó correctamente a la rutina.";
+
+                        return RedirectToAction(
+                            nameof(AgregarEjercicio),
+                            new { id });
+                    }
+                }
+
+                await transaccion.RollbackAsync();
+            }
+            catch (Exception ex) when (
+                ex is DbUpdateException ||
+                ex is Microsoft.Data.SqlClient.SqlException)
+            {
+                _logger.LogError(
+                    ex,
+                    "Error al agregar el ejercicio {EjercicioId} a la rutina {RutinaId}.",
+                    model.EjercicioId,
+                    id);
+
+                ModelState.AddModelError(
+                    string.Empty,
+                    "No se pudo agregar el ejercicio. Actualice la página y vuelva a intentarlo.");
+            }
+
+            await CargarEjerciciosDisponiblesAsync(model);
+
+            return View(model);
+        }
+
+        private async Task CargarEjerciciosDisponiblesAsync(
+            AgregarEjercicioRutinaViewModel model)
+        {
+            var ejercicios = await _context.Ejercicios
+                .AsNoTracking()
+                .Where(e => !_context.RutinaEjercicios.Any(re =>
+                    re.RutinaId == model.RutinaId &&
+                    re.EjercicioId == e.EjercicioId))
+                .OrderBy(e => e.Nombre)
+                .Select(e => new
+                {
+                    e.EjercicioId,
+                    e.Nombre
+                })
+                .ToListAsync();
+
+            model.EjerciciosDisponibles = ejercicios
+                .Select(e => new SelectListItem
+                {
+                    Value = e.EjercicioId.ToString(),
+                    Text = e.Nombre
+                })
+                .ToList();
+        }
         private async Task<int?> ObtenerEntrenadorActivoAsync()
         {
             var identificador =

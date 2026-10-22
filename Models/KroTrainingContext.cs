@@ -761,8 +761,9 @@ public partial class KroTrainingContext : DbContext
             entity.Property(e => e.RutinaId).HasColumnName("rutina_id");
             entity.Property(e => e.EjercicioId).HasColumnName("ejercicio_id");
             entity.Property(e => e.DescansoSegundos)
-                .HasDefaultValue(60)
-                .HasColumnName("descanso_segundos");
+    .HasDefaultValue(60)
+    .HasSentinel(-1)
+    .HasColumnName("descanso_segundos");
             entity.Property(e => e.Orden).HasColumnName("orden");
             entity.Property(e => e.Repeticiones).HasColumnName("repeticiones");
             entity.Property(e => e.Series).HasColumnName("series");
