@@ -1,104 +1,68 @@
 ﻿@{
-    ViewData["Title"] = "Dashboard";
+    ViewData["Title"] = "Inicio";
+    var nombre = User.Identity?.Name ?? "";
 }
 
 <div class="kro-page-title">
-    Dashboard
+    Bienvenido, @nombre
 </div>
 
-<p class="kro-page-subtitle">
-    Bienvenido al sistema de gestión de KRÒ Training.
-</p>
+@if (User.IsInRole("ADMINISTRADOR"))
+{
+    <p class="kro-page-subtitle">
+        Panel de administración de KRÒ Training.
+    </p>
+
+    <div class="kro-card">
+
+        <div class="kro-card-title">
+            Accesos rápidos
+        </div>
+
+        <div style="display:flex; gap:15px; flex-wrap:wrap;">
+
+            <a href="/Clientes/Crear"
+               class="kro-btn kro-btn-primary">
+
+                + Registrar cliente
+
+            </a>
 
 
-<div class="kro-stat-grid">
+            <a href="/Clientes/Index"
+               class="kro-btn kro-btn-secondary">
 
-    <div class="kro-stat-card">
+                👥 Consultar clientes
 
-        <h3>
-            CLIENTES REGISTRADOS
-        </h3>
-
-        <strong>
-            248
-        </strong>
-
-    </div>
+            </a>
 
 
-    <div class="kro-stat-card">
+            <a href="/Usuarios/Crear"
+               class="kro-btn kro-btn-outline">
 
-        <h3>
-            USUARIOS DEL SISTEMA
-        </h3>
+                + Registrar usuario
 
-        <strong>
-            18
-        </strong>
+            </a>
 
-    </div>
-
-
-    <div class="kro-stat-card">
-
-        <h3>
-            RUTINAS ACTIVAS
-        </h3>
-
-        <strong>
-            156
-        </strong>
+        </div>
 
     </div>
-
-
-    <div class="kro-stat-card">
-
-        <h3>
-            ASISTENCIAS HOY
-        </h3>
-
-        <strong>
-            42
-        </strong>
-
-    </div>
-
-</div>
-
-
-<div class="kro-card">
-
-    <div class="kro-card-title">
-        Accesos rápidos
-    </div>
-
-
-    <div style="display:flex; gap:15px; flex-wrap:wrap;">
-
-        <a href="/Clientes/Crear"
-           class="kro-btn kro-btn-primary">
-
-            + Registrar cliente
-
-        </a>
-
-
-        <a href="/Clientes/Index"
-           class="kro-btn kro-btn-secondary">
-
-            👥 Consultar clientes
-
-        </a>
-
-
-        <a href="/Usuarios/Crear"
-           class="kro-btn kro-btn-outline">
-
-            + Registrar usuario
-
-        </a>
-
-    </div>
-
-</div>
+}
+else if (User.IsInRole("ENTRENADOR"))
+{
+    <p class="kro-page-subtitle">
+        Gestiona tus clientes y sus rutinas desde el menú lateral.
+    </p>
+}
+else if (User.IsInRole("CLIENTE"))
+{
+    <p class="kro-page-subtitle">
+        Consulta tu rutina y registra tu ingreso desde el menú lateral.
+    </p>
+}
+else
+{
+    <p class="kro-page-subtitle">
+        Bienvenido al sistema de gestión de KRÒ Training.
+    </p>
+}

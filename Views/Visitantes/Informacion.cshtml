@@ -26,10 +26,6 @@
             <a href="/ControlAsistencia/VisualizarAsistencia" class="kro-btn kro-btn-outline">Mis clientes</a>
         }
         <a href="/Cuenta/Perfil" class="kro-btn kro-btn-outline">Mi perfil</a>
-        <form asp-controller="Cuenta" asp-action="Logout" method="post" style="display:inline;">
-            @Html.AntiForgeryToken()
-            <button type="submit" class="kro-btn kro-btn-alert">Cerrar sesión</button>
-        </form>
     }
     else
     {

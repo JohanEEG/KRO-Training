@@ -94,22 +94,19 @@
                 <small>TRAINING</small>
             </div>
 
-            <!-- PRINCIPAL (Oculto para Clientes) -->
-            @if (!esCliente)
-            {
-                <div class="kro-menu-title">
-                    Principal
-                </div>
+            <!-- PRINCIPAL (Todos los roles) -->
+            <div class="kro-menu-title">
+                Principal
+            </div>
 
-                <ul class="kro-menu">
-                    <li>
-                        <a href="/Home/Index">
-                            🏠
-                            <span>Dashboard</span>
-                        </a>
-                    </li>
-                </ul>
-            }
+            <ul class="kro-menu">
+                <li>
+                    <a href="/Home/Index">
+                        🏠
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+            </ul>
 
             <!-- =====================================================
                  SECCIÓN PARA CLIENTES

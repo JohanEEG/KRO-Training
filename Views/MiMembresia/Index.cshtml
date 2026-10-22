@@ -35,10 +35,6 @@
 <div class="kro-actions" style="margin-bottom:20px; flex-wrap:wrap;">
     <a href="/ControlAsistencia/RegistrarIngreso" class="kro-btn kro-btn-outline">Registrar ingreso</a>
     <a href="/Cuenta/Perfil" class="kro-btn kro-btn-outline">Mi perfil</a>
-    <form asp-controller="Cuenta" asp-action="Logout" method="post" style="display:inline;">
-        @Html.AntiForgeryToken()
-        <button type="submit" class="kro-btn kro-btn-alert">Cerrar sesión</button>
-    </form>
 </div>
 
 <div class="kro-card">
