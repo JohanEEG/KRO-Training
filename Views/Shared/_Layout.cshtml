@@ -1,6 +1,12 @@
-﻿
-@using System.Security.Claims
+﻿@using System.Security.Claims
+@{
+    var userRole = User.FindFirst(ClaimTypes.Role)?.Value?.ToUpper() ?? "";
 
+    // Identificación de Roles
+    bool esAdmin = userRole == "ADMINISTRADOR" || userRole == "ADMIN" || User.IsInRole("Administrador") || User.IsInRole("ADMINISTRADOR");
+    bool esEntrenador = userRole == "ENTRENADOR" || User.IsInRole("Entrenador") || User.IsInRole("ENTRENADOR");
+    bool esCliente = userRole == "CLIENTE" || User.IsInRole("Cliente") || User.IsInRole("CLIENTE");
+}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -18,6 +24,59 @@
 
     <!-- CSS de KRÒ Training -->
     <link rel="stylesheet" href="~/css/kro-training.css" />
+
+    <!-- ESTILOS DEL MODAL DE CIERRE DE SESIÓN (Aportados por tu compañero) -->
+    <style>
+            .kro-modal-overlay[hidden] {
+                display: none;
+            }
+
+            .kro-modal-overlay {
+                position: fixed;
+                inset: 0;
+                z-index: 1000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+                background-color: rgba(28, 28, 28, 0.55);
+            }
+
+            .kro-modal {
+                width: 100%;
+                max-width: 420px;
+                margin-bottom: 0;
+                border-top: 4px solid var(--kro-red, #dc2626);
+                text-align: center;
+                background: #fff; /* Asegura fondo blanco por si acaso */
+                padding: 25px;
+                border-radius: 8px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            }
+
+            .kro-modal-icon {
+                font-size: 36px;
+                margin-bottom: 10px;
+            }
+
+            .kro-modal .kro-card-title {
+                margin-bottom: 10px;
+                font-size: 20px;
+                font-weight: 700;
+            }
+
+            .kro-modal p {
+                margin: 0 0 22px;
+                color: var(--kro-gray, #6b7280);
+            }
+
+            .kro-modal-actions {
+                display: flex;
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+    </style>
 </head>
 <body>
 
@@ -35,25 +94,30 @@
                 <small>TRAINING</small>
             </div>
 
-            <!-- PRINCIPAL -->
-            <div class="kro-menu-title">
-                Principal
-            </div>
-
-            <ul class="kro-menu">
-                <li>
-                    <a href="/Home/Index">
-                        🏠
-                        <span>Dashboard</span>
-                    </a>
-                </li>
-            </ul>
-
-            <!-- MENÚ PARA CLIENTES: HISTORIAS DE USUARIO -->
-            @if (User.IsInRole("CLIENTE"))
+            <!-- PRINCIPAL (Oculto para Clientes) -->
+            @if (!esCliente)
             {
                 <div class="kro-menu-title">
-                    Mi entrenamiento
+                    Principal
+                </div>
+
+                <ul class="kro-menu">
+                    <li>
+                        <a href="/Home/Index">
+                            🏠
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                </ul>
+            }
+
+            <!-- =====================================================
+                 SECCIÓN PARA CLIENTES
+                 ===================================================== -->
+            @if (esCliente)
+            {
+                <div class="kro-menu-title">
+                    Mi Entrenamiento
                 </div>
 
                 <ul class="kro-menu">
@@ -69,107 +133,160 @@
                             <span>Historial de rutinas</span>
                         </a>
                     </li>
+                    <li>
+                        <a asp-controller="MiMembresia" asp-action="Index">
+                            💳
+                            <span>Estado de la membresía</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/Eventos/Index">
+                            🏆
+                            <span>Eventos deportivos</span>
+                        </a>
+                    </li>
                 </ul>
             }
 
-            <!-- GESTIÓN -->
-            <div class="kro-menu-title">
-                Gestión
-            </div>
+            <!-- =====================================================
+                 SECCIÓN DE GESTIÓN (ADMINISTRADOR / ENTRENADOR)
+                 ===================================================== -->
+            @if (esAdmin || esEntrenador)
+            {
+                <div class="kro-menu-title">
+                    Gestión
+                </div>
 
-            <ul class="kro-menu">
-                <li>
-                    <a href="/Clientes/Index">
-                        👥
-                        <span>Clientes</span>
-                    </a>
-                </li>
+                <ul class="kro-menu">
 
-                <li>
-                    <a href="/Usuarios/Index">
-                        👤
-                        <span>Usuarios</span>
-                    </a>
-                </li>
-
-                <!-- RUTINAS PARA ENTRENADORES -->
-                @if (User.IsInRole("ENTRENADOR"))
-                {
+                    <!-- Clientes (Admin y Entrenador) -->
                     <li>
-                        <a asp-controller="Rutinas" asp-action="Index">
-                            💪
-                            <span>Rutinas</span>
+                        <a href="/Clientes/Index">
+                            👥
+                            <span>Clientes</span>
                         </a>
                     </li>
-                }
 
-                <li>
-                    <a href="/Usuarios/Roles">
-                        🔐
-                        <span>Roles y permisos</span>
-                    </a>
-                </li>
+                    <!-- Usuarios (EXCLUSIVO ADMIN) -->
+                    @if (esAdmin)
+                    {
+                        <li>
+                            <a href="/Usuarios/Index">
+                                👤
+                                <span>Usuarios</span>
+                            </a>
+                        </li>
+                    }
 
-                <li>
-                    <a href="/Multimedia/CrearEjercicio">
-                        🎥
-                        <span>Multimedia</span>
-                    </a>
-                </li>
+                    <!-- Rutinas (EXCLUSIVO ENTRENADOR) -->
+                    @if (esEntrenador)
+                    {
+                        <li>
+                            <a asp-controller="Rutinas" asp-action="Index">
+                                💪
+                                <span>Rutinas</span>
+                            </a>
+                        </li>
+                    }
 
-                <li>
-                    <a href="/SeguimientoFisico/ProgresoFisico">
-                        📈
-                        <span>Seguimiento físico</span>
-                    </a>
-                </li>
+                    <!-- Roles y permisos (EXCLUSIVO ADMIN) -->
+                    @if (esAdmin)
+                    {
+                        <li>
+                            <a href="/Usuarios/Roles">
+                                🔐
+                                <span>Roles y permisos</span>
+                            </a>
+                        </li>
+                    }
 
-                <li>
-                    <a href="/ControlAsistencia/HistorialAsistencia">
-                        📝
-                        <span>Asistencia</span>
-                    </a>
-                </li>
+                    <!-- Multimedia (EXCLUSIVO ENTRENADOR) -->
+                    @if (esEntrenador)
+                    {
+                        <li>
+                            <a href="/Multimedia/CrearEjercicio">
+                                🎥
+                                <span>Multimedia</span>
+                            </a>
+                        </li>
+                    }
 
-                <li>
-                    <a href="/Eventos/Index">
-                        🏆
-                        <span>Eventos deportivos</span>
-                    </a>
-                </li>
+                    <!-- Seguimiento físico (EXCLUSIVO ENTRENADOR) -->
+                    @if (esEntrenador)
+                    {
+                        <li>
+                            <a href="/SeguimientoFisico/ProgresoFisico">
+                                📈
+                                <span>Seguimiento físico</span>
+                            </a>
+                        </li>
+                    }
 
-                <li>
-                    <a href="/Membresias/ProximasVencer">
-                        💳
-                        <span>Membresías y pagos</span>
-                    </a>
-                </li>
+                    <!-- Asistencia (Admin y Entrenador) -->
+                    <li>
+                        <a href="/ControlAsistencia/HistorialAsistencia">
+                            📝
+                            <span>Asistencia</span>
+                        </a>
+                    </li>
 
-                <li>
-                    <a href="/Reportes/Estadisticas">
-                        📊
-                        <span>Reportes</span>
-                    </a>
-                </li>
+                    <!-- Eventos deportivos (Admin y Entrenador) -->
+                    <li>
+                        <a href="/Eventos/Index">
+                            🏆
+                            <span>Eventos deportivos</span>
+                        </a>
+                    </li>
 
-                <li>
-                    <a href="/IA/DashboardMetas">
-                        🤖
-                        <span>IA e innovación</span>
-                    </a>
-                </li>
+                    <!-- Membresías y pagos (EXCLUSIVO ADMIN) -->
+                    @if (esAdmin)
+                    {
+                        <li>
+                            <a href="/Membresias/ProximasVencer">
+                                💳
+                                <span>Membresías y pagos</span>
+                            </a>
+                        </li>
+                    }
 
-                <li>
-                    <a href="/GestionPersonal/Index">
-                        👔
-                        <span>Gestión de personal</span>
-                    </a>
-                </li>
-            </ul>
+                    <!-- Reportes (EXCLUSIVO ADMIN) -->
+                    @if (esAdmin)
+                    {
+                        <li>
+                            <a href="/Reportes/Estadisticas">
+                                📊
+                                <span>Reportes</span>
+                            </a>
+                        </li>
+                    }
 
-            <!-- =================================================
-                 CUENTA (Conectado a Persona 1)
-                 ================================================= -->
+                    <!-- IA e innovación (EXCLUSIVO ENTRENADOR) -->
+                    @if (esEntrenador)
+                    {
+                        <li>
+                            <a href="/IA/DashboardMetas">
+                                🤖
+                                <span>IA e innovación</span>
+                            </a>
+                        </li>
+                    }
+
+                    <!-- Gestión de personal (EXCLUSIVO ADMIN) -->
+                    @if (esAdmin)
+                    {
+                        <li>
+                            <a href="/GestionPersonal/Index">
+                                👔
+                                <span>Gestión de personal</span>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            }
+
+            <!-- =====================================================
+                 CUENTA
+                 ===================================================== -->
 
             <div class="kro-menu-title">
                 Cuenta
@@ -191,7 +308,7 @@
                           style="display: inline;">
 
                         <button type="submit"
-                                class="kro-sidebar-logout">
+                                style="background: none; border: none; color: inherit; width: 100%; text-align: left; padding: 10px 15px; display: flex; align-items: center; gap: 10px; cursor: pointer; font-family: inherit; font-size: inherit;">
                             🚪
                             <span>Cerrar sesión</span>
                         </button>
@@ -228,7 +345,6 @@
 
             </header>
 
-
             <!-- CONTENIDO DE LA VISTA -->
             <section class="kro-content">
                 @RenderBody()
@@ -238,61 +354,54 @@
 
     </div>
 
-    <!-- CONFIRMACIÓN DE CIERRE DE SESIÓN -->
-    <div class="kro-modal-overlay" id="logoutModal" hidden>
-        <div class="kro-card kro-modal" role="dialog" aria-modal="true" aria-labelledby="logoutModalTitle">
+    <!-- =====================================================
+         MODAL DE CONFIRMACIÓN DE CIERRE DE SESIÓN
+         ===================================================== -->
+    <div id="logoutModal" class="kro-modal-overlay" hidden>
+        <div class="kro-modal">
             <div class="kro-modal-icon">🚪</div>
-            <h2 class="kro-card-title" id="logoutModalTitle">¿Desea cerrar sesión?</h2>
-            <p>Tendrá que iniciar sesión nuevamente para acceder a su cuenta.</p>
+            <div class="kro-card-title">Cerrar sesión</div>
+            <p>¿Estás seguro de que deseas cerrar sesión?</p>
             <div class="kro-modal-actions">
-                <button type="button" class="kro-btn kro-btn-alert-outline" id="logoutCancelar">Cancelar</button>
-                <button type="button" class="kro-btn kro-btn-alert" id="logoutConfirmar">Sí, cerrar sesión</button>
+                <button type="button" id="btnCancelarLogout" class="kro-btn kro-btn-outline" style="padding: 8px 16px; cursor:pointer;">Cancelar</button>
+                <button type="button" id="btnConfirmarLogout" class="kro-btn kro-btn-secondary" style="padding: 8px 16px; cursor:pointer; background: #dc2626; color: white; border: none; border-radius: 4px;">Sí, cerrar sesión</button>
             </div>
         </div>
     </div>
 
+    <!-- SCRIPT PARA CONTROLAR EL MODAL DE CIERRE DE SESIÓN -->
     <script>
-        (function () {
-            var modal = document.getElementById('logoutModal');
-            var formPendiente = null;
+            document.addEventListener("DOMContentLoaded", function () {
+                const logoutForm = document.getElementById('logoutForm');
+                const logoutModal = document.getElementById('logoutModal');
+                const btnCancelarLogout = document.getElementById('btnCancelarLogout');
+                const btnConfirmarLogout = document.getElementById('btnConfirmarLogout');
 
-            // Intercepta cualquier formulario de cierre de sesión de la página.
-            document.addEventListener('submit', function (e) {
-                var form = e.target;
-                var accion = (form.getAttribute('action') || '').toLowerCase();
+                let formTarget = null;
 
-                if (!accion.endsWith('/cuenta/logout') || form.dataset.confirmado) {
-                    return;
+                if (logoutForm) {
+                    logoutForm.addEventListener('submit', function (event) {
+                        event.preventDefault(); // Detiene el envío inmediato del form
+                        formTarget = this;
+                        logoutModal.removeAttribute('hidden'); // Muestra el modal quitando el atributo hidden
+                    });
                 }
 
-                e.preventDefault();
-                formPendiente = form;
-                modal.hidden = false;
-                document.getElementById('logoutCancelar').focus();
-            });
+                if (btnCancelarLogout) {
+                    btnCancelarLogout.addEventListener('click', function () {
+                        logoutModal.setAttribute('hidden', 'true'); // Oculta el modal
+                        formTarget = null;
+                    });
+                }
 
-            function cerrarModal() {
-                modal.hidden = true;
-                formPendiente = null;
-            }
-
-            document.getElementById('logoutCancelar').addEventListener('click', cerrarModal);
-
-            document.getElementById('logoutConfirmar').addEventListener('click', function () {
-                if (formPendiente) {
-                    formPendiente.dataset.confirmado = 'true';
-                    formPendiente.submit();
+                if (btnConfirmarLogout) {
+                    btnConfirmarLogout.addEventListener('click', function () {
+                        if (formTarget) {
+                            formTarget.submit(); // Envía el formulario formalmente
+                        }
+                    });
                 }
             });
-
-            modal.addEventListener('click', function (e) {
-                if (e.target === modal) cerrarModal();
-            });
-
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape' && !modal.hidden) cerrarModal();
-            });
-        })();
     </script>
 
     <!-- SCRIPTS -->
