@@ -191,7 +191,7 @@
                           style="display: inline;">
 
                         <button type="submit"
-                                style="background: none; border: none; color: inherit; width: 100%; text-align: left; padding: 10px 15px; display: flex; align-items: center; gap: 10px; cursor: pointer; font-family: inherit; font-size: inherit;">
+                                class="kro-sidebar-logout">
                             🚪
                             <span>Cerrar sesión</span>
                         </button>
@@ -236,6 +236,63 @@
         </main>
 
     </div>
+
+    <!-- CONFIRMACIÓN DE CIERRE DE SESIÓN -->
+    <div class="kro-modal-overlay" id="logoutModal" hidden>
+        <div class="kro-card kro-modal" role="dialog" aria-modal="true" aria-labelledby="logoutModalTitle">
+            <div class="kro-modal-icon">🚪</div>
+            <h2 class="kro-card-title" id="logoutModalTitle">¿Desea cerrar sesión?</h2>
+            <p>Tendrá que iniciar sesión nuevamente para acceder a su cuenta.</p>
+            <div class="kro-modal-actions">
+                <button type="button" class="kro-btn kro-btn-alert-outline" id="logoutCancelar">Cancelar</button>
+                <button type="button" class="kro-btn kro-btn-alert" id="logoutConfirmar">Sí, cerrar sesión</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            var modal = document.getElementById('logoutModal');
+            var formPendiente = null;
+
+            // Intercepta cualquier formulario de cierre de sesión de la página.
+            document.addEventListener('submit', function (e) {
+                var form = e.target;
+                var accion = (form.getAttribute('action') || '').toLowerCase();
+
+                if (!accion.endsWith('/cuenta/logout') || form.dataset.confirmado) {
+                    return;
+                }
+
+                e.preventDefault();
+                formPendiente = form;
+                modal.hidden = false;
+                document.getElementById('logoutCancelar').focus();
+            });
+
+            function cerrarModal() {
+                modal.hidden = true;
+                formPendiente = null;
+            }
+
+            document.getElementById('logoutCancelar').addEventListener('click', cerrarModal);
+
+            document.getElementById('logoutConfirmar').addEventListener('click', function () {
+                if (formPendiente) {
+                    formPendiente.dataset.confirmado = 'true';
+                    formPendiente.submit();
+                }
+            });
+
+            modal.addEventListener('click', function (e) {
+                if (e.target === modal) cerrarModal();
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && !modal.hidden) cerrarModal();
+            });
+        })();
+    </script>
 
     <!-- SCRIPTS -->
     @await RenderSectionAsync("Scripts", required: false)

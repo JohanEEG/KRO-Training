@@ -212,6 +212,17 @@
             color: #FFFFFF;
         }
 
+        .kro-baja .baja-button-cancel {
+            border-color: #D62828;
+            color: #D62828;
+        }
+
+            .kro-baja .baja-button-cancel:hover {
+                background: #FEF2F2;
+                border-color: #B51F1F;
+                color: #B51F1F;
+            }
+
             .kro-baja .baja-button-danger:hover {
                 background: #B51F1F;
                 border-color: #B51F1F;

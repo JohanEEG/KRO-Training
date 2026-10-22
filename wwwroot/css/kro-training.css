@@ -388,6 +388,54 @@ body {
         color: #FFFFFF;
     }
 
+/* Alertas: cerrar sesión y confirmaciones importantes */
+.kro-btn-alert {
+    background-color: var(--kro-red);
+    border-color: var(--kro-red);
+    color: #FFFFFF;
+}
+
+    .kro-btn-alert:hover {
+        background-color: #B51F1F;
+        border-color: #B51F1F;
+        color: #FFFFFF;
+    }
+
+/* Cancelar */
+.kro-btn-alert-outline {
+    background-color: #FFFFFF;
+    border-color: var(--kro-red);
+    color: var(--kro-red);
+}
+
+    .kro-btn-alert-outline:hover {
+        background-color: #FEF2F2;
+        border-color: #B51F1F;
+        color: #B51F1F;
+    }
+
+/* Cerrar sesión del menú lateral */
+.kro-sidebar-logout {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 15px;
+    background: none;
+    border: none;
+    color: var(--kro-red);
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+}
+
+    .kro-sidebar-logout:hover {
+        color: #FFFFFF;
+        background-color: var(--kro-red);
+    }
+
 /* Acciones positivas, cuando corresponda */
 .kro-btn-success {
     background-color: var(--kro-success);
@@ -707,4 +755,54 @@ body {
     .kro-table-actions {
         min-width: 180px;
     }
+}
+
+
+/* =========================================================
+   CONFIRMACIÓN DE CIERRE DE SESIÓN
+   ========================================================= */
+
+/* El atributo hidden debe ganarle al display:flex */
+.kro-modal-overlay[hidden] {
+    display: none;
+}
+
+.kro-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background-color: rgba(28, 28, 28, 0.55);
+}
+
+.kro-modal {
+    width: 100%;
+    max-width: 420px;
+    margin-bottom: 0;
+    border-top: 4px solid var(--kro-red);
+    text-align: center;
+}
+
+.kro-modal-icon {
+    font-size: 36px;
+    margin-bottom: 10px;
+}
+
+.kro-modal .kro-card-title {
+    margin-bottom: 10px;
+}
+
+.kro-modal p {
+    margin: 0 0 22px;
+    color: var(--kro-gray);
+}
+
+.kro-modal-actions {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
 }

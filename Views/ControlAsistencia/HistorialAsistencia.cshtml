@@ -58,7 +58,7 @@
           class="kro-attendance-logout-form">
         @Html.AntiForgeryToken()
 
-        <button type="submit" class="kro-attendance-nav-link">
+        <button type="submit" class="kro-attendance-nav-link kro-attendance-logout">
             <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
             Cerrar sesión
         </button>
@@ -409,6 +409,18 @@
             background: #F3F4F6;
             border-color: #9CA3AF;
             color: #1C1C1C;
+        }
+
+    .kro-attendance-logout,
+    .kro-attendance-logout:hover {
+        background: #D62828;
+        border-color: #D62828;
+        color: #FFFFFF;
+    }
+
+        .kro-attendance-logout:hover {
+            background: #B51F1F;
+            border-color: #B51F1F;
         }
 
     .kro-attendance-nav-active,
