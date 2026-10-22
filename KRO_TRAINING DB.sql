@@ -1218,3 +1218,27 @@ BEGIN CATCH
     THROW;
 END CATCH;
 GO
+
+/* =========================Sprint 2===================================
+Historia de Usuario 1,2 y 3*/
+
+USE KRO_Training;
+GO
+
+IF COL_LENGTH('dbo.SESION_EJERCICIO', 'series_asignadas') IS NULL
+    ALTER TABLE dbo.SESION_EJERCICIO
+    ADD series_asignadas INT NULL;
+GO
+
+IF COL_LENGTH('dbo.SESION_EJERCICIO', 'repeticiones_asignadas') IS NULL
+    ALTER TABLE dbo.SESION_EJERCICIO
+    ADD repeticiones_asignadas INT NULL;
+GO
+
+IF COL_LENGTH('dbo.SESION_EJERCICIO', 'descanso_segundos_asignado') IS NULL
+    ALTER TABLE dbo.SESION_EJERCICIO
+    ADD descanso_segundos_asignado INT NULL;
+GO
+
+
+

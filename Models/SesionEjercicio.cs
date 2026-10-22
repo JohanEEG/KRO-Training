@@ -13,6 +13,12 @@ public partial class SesionEjercicio
 
     public int? RepeticionesRealizadas { get; set; }
 
+    public int? SeriesAsignadas { get; set; }
+
+    public int? RepeticionesAsignadas { get; set; }
+
+    public int? DescansoSegundosAsignado { get; set; }
+
     public decimal? PesoUtilizado { get; set; }
 
     public bool Completado { get; set; }

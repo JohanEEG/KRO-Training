@@ -1,0 +1,117 @@
+﻿
+@model KROTraining.ViewModels.ClienteSesionViewModel
+
+@{
+    ViewData["Title"] = "Mi sesión";
+    var porcentaje = Model.TotalEjercicios == 0
+        ? 0
+        : (int)Math.Round(
+            Model.EjerciciosCompletados * 100.0 / Model.TotalEjercicios);
+    var finalizada = Model.Estado == "FINALIZADA";
+}
+
+<div class="kro-page-title">@Model.NombreRutina</div>
+<p class="kro-page-subtitle">
+    Sesión del @Model.Fecha.ToString("dd/MM/yyyy HH:mm")
+</p>
+
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-info">@TempData["Mensaje"]</div>
+}
+
+<div class="kro-card mb-3">
+    <p>
+        <strong>Estado:</strong>
+        @(finalizada ? "Finalizada" : "En progreso")
+    </p>
+    <p>
+        <strong>Progreso:</strong>
+        @Model.EjerciciosCompletados de @Model.TotalEjercicios ejercicios
+        (@porcentaje%)
+    </p>
+    <div class="progress" role="progressbar"
+         aria-valuenow="@porcentaje" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar" style="width: @porcentaje%">
+            @porcentaje%
+        </div>
+    </div>
+</div>
+
+<div class="kro-card">
+    <h4>Ejercicios de la sesión</h4>
+
+    @if (Model.Ejercicios.Count == 0)
+    {
+        <p>No hay ejercicios registrados en esta sesión.</p>
+    }
+    else
+    {
+        @foreach (var ejercicio in Model.Ejercicios)
+        {
+            <div class="border rounded p-3 mb-3">
+                <h5>@ejercicio.Nombre</h5>
+                <p class="mb-1">
+                    <strong>Grupo muscular:</strong>
+                    @(ejercicio.GrupoMuscular ?? "No especificado")
+                </p>
+                <p class="mb-2">
+                    <strong>Series:</strong> @(ejercicio.SeriesAsignadas?.ToString() ?? "—")
+                    &nbsp; | &nbsp;
+                    <strong>Repeticiones:</strong> @(ejercicio.RepeticionesAsignadas?.ToString() ?? "—")
+                    &nbsp; | &nbsp;
+                    <strong>Descanso:</strong>
+                    @(ejercicio.DescansoSegundosAsignado?.ToString() ?? "—") s
+                </p>
+
+                @if (finalizada)
+                {
+                    <span class="badge bg-secondary">
+                        @(ejercicio.Completado ? "Completado" : "No completado")
+                    </span>
+                }
+                else
+                {
+                    <form asp-action="CambiarEjercicio" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="sesionId" value="@Model.SesionId" />
+                        <input type="hidden" name="ejercicioId" value="@ejercicio.EjercicioId" />
+                        <input type="hidden" name="completado"
+                               value="@(!ejercicio.Completado)" />
+
+                        <button type="submit"
+                                class="kro-btn @(ejercicio.Completado ? "kro-btn-secondary" : "kro-btn-primary")">
+                            @(ejercicio.Completado ? "Desmarcar ejercicio" : "Marcar como completado")
+                        </button>
+                    </form>
+                }
+            </div>
+        }
+    }
+
+    @if (!finalizada)
+    {
+        <form asp-action="FinalizarSesion" method="post"
+              onsubmit="return confirm('¿Deseás finalizar esta sesión? Ya no podrás modificar sus ejercicios.');">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@Model.SesionId" />
+            <button type="submit" class="kro-btn kro-btn-primary">
+                Finalizar sesión
+            </button>
+        </form>
+    }
+    else
+    {
+        <div class="alert alert-success">
+            La sesión fue finalizada y quedó registrada en tu historial.
+        </div>
+        <a asp-action="Detalle" asp-route-id="@Model.SesionId"
+           class="kro-btn kro-btn-secondary">Ver resumen</a>
+    }
+</div>
+
+<div class="mt-3">
+    <a asp-action="Index" class="kro-btn kro-btn-secondary">
+        Volver a mi rutina
+    </a>
+</div>
