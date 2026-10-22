@@ -33,17 +33,18 @@ namespace KROTraining.Controllers
                                       || (c.BadgeNumero != null && c.BadgeNumero.Contains(buscar)));
             }
 
-            // 2. Filtro por Estado (Activo / Inactivo) con tolerancia a NULLs
-            if (!string.IsNullOrEmpty(filtroEstado) && filtroEstado != "TODOS")
+            // 2. Filtro por Estado (Maneja el Estado desde la navegación a Usuario)
+            if (!string.IsNullOrEmpty(filtroEstado) && !filtroEstado.Equals("TODOS", StringComparison.OrdinalIgnoreCase))
             {
-                if (filtroEstado == "Activo")
+                if (filtroEstado.Equals("ACTIVO", StringComparison.OrdinalIgnoreCase) || filtroEstado.Equals("Activo", StringComparison.OrdinalIgnoreCase))
                 {
                     query = query.Where(c => c.Usuario != null &&
-                        (c.Usuario.Estado == "Activo" || string.IsNullOrEmpty(c.Usuario.Estado) || c.Usuario.Estado == "1"));
+                        (c.Usuario.Estado == "ACTIVO" || c.Usuario.Estado == "Activo" || c.Usuario.Estado == "1" || string.IsNullOrEmpty(c.Usuario.Estado)));
                 }
-                else if (filtroEstado == "Inactivo")
+                else if (filtroEstado.Equals("INACTIVO", StringComparison.OrdinalIgnoreCase) || filtroEstado.Equals("Inactivo", StringComparison.OrdinalIgnoreCase))
                 {
-                    query = query.Where(c => c.Usuario != null && c.Usuario.Estado == "Inactivo");
+                    query = query.Where(c => c.Usuario != null &&
+                        (c.Usuario.Estado == "INACTIVO" || c.Usuario.Estado == "Inactivo" || c.Usuario.Estado == "0"));
                 }
             }
 
