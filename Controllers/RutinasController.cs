@@ -704,6 +704,186 @@ namespace KROTraining.Controllers
                 .SingleOrDefaultAsync();
         }
 
+        // HU-45: Asignar rutina a cliente
+        [HttpGet]
+        public async Task<IActionResult> Asignar(int id)
+        {
+            var entrenadorId = await ObtenerEntrenadorActivoAsync();
+
+            if (!entrenadorId.HasValue)
+                return Forbid();
+
+            var model = await _context.Rutinas
+                .AsNoTracking()
+                .Where(r =>
+                    r.RutinaId == id &&
+                    r.EntrenadorId == entrenadorId.Value &&
+                    r.Estado == "ACTIVA")
+                .Select(r => new AsignarRutinaViewModel
+                {
+                    RutinaId = r.RutinaId,
+                    NombreRutina = r.Nombre,
+                    ObjetivoRutina = r.Objetivo,
+                    NivelRutina = r.Nivel
+                })
+                .SingleOrDefaultAsync();
+
+            if (model == null)
+                return NotFound("La rutina no existe o no está disponible.");
+
+            await CargarClientesParaAsignacionAsync(
+                model, entrenadorId.Value);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Asignar(
+            int id,
+            AsignarRutinaViewModel model)
+        {
+            var entrenadorId = await ObtenerEntrenadorActivoAsync();
+
+            if (!entrenadorId.HasValue)
+                return Forbid();
+
+            if (id != model.RutinaId)
+                return BadRequest("El identificador de la rutina no coincide.");
+
+            try
+            {
+                await using var transaccion =
+                    await _context.Database.BeginTransactionAsync(
+                        System.Data.IsolationLevel.Serializable);
+
+                var rutina = await _context.Rutinas
+                    .AsNoTracking()
+                    .Where(r =>
+                        r.RutinaId == id &&
+                        r.EntrenadorId == entrenadorId.Value &&
+                        r.Estado == "ACTIVA")
+                    .Select(r => new
+                    {
+                        r.Nombre,
+                        r.Objetivo,
+                        r.Nivel
+                    })
+                    .SingleOrDefaultAsync();
+
+                if (rutina == null)
+                    return NotFound("La rutina no existe o no está disponible.");
+
+                model.NombreRutina = rutina.Nombre;
+                model.ObjetivoRutina = rutina.Objetivo;
+                model.NivelRutina = rutina.Nivel;
+
+                if (ModelState.IsValid)
+                {
+                    var clienteValido = await _context.Clientes
+                        .AsNoTracking()
+                        .AnyAsync(c =>
+                            c.UsuarioId == model.ClienteId!.Value &&
+                            c.EntrenadorId == entrenadorId.Value &&
+                            c.Usuario.Estado == "ACTIVO" &&
+                            c.Usuario.Rol.Nombre == "CLIENTE");
+
+                    if (!clienteValido)
+                    {
+                        ModelState.AddModelError(
+                            nameof(model.ClienteId),
+                            "Seleccione un cliente activo asignado a usted.");
+                    }
+                    else
+                    {
+                        var yaAsignada = await _context.AsignacionRutinas
+                            .AnyAsync(a =>
+                                a.ClienteId == model.ClienteId!.Value &&
+                                a.RutinaId == id &&
+                                a.Estado == "ACTIVA");
+
+                        if (yaAsignada)
+                        {
+                            ModelState.AddModelError(
+                                nameof(model.ClienteId),
+                                "El cliente ya tiene esta rutina activa.");
+                        }
+                    }
+                }
+
+                if (ModelState.IsValid)
+                {
+                    var asignacion = new AsignacionRutina
+                    {
+                        ClienteId = model.ClienteId!.Value,
+                        RutinaId = id,
+                        EntrenadorId = entrenadorId.Value,
+                        FechaAsignacion = DateTime.Now,
+                        Estado = "ACTIVA"
+                    };
+
+                    _context.AsignacionRutinas.Add(asignacion);
+
+                    await _context.SaveChangesAsync();
+                    await transaccion.CommitAsync();
+
+                    TempData["MensajeExito"] =
+                        "La rutina se asignó correctamente al cliente.";
+
+                    return RedirectToAction(nameof(Index));
+                }
+
+                await transaccion.RollbackAsync();
+            }
+            catch (Exception ex) when (
+                ex is DbUpdateException ||
+                ex is Microsoft.Data.SqlClient.SqlException)
+            {
+                _logger.LogError(
+                    ex,
+                    "Error al asignar la rutina {RutinaId} al cliente {ClienteId}.",
+                    id,
+                    model.ClienteId);
+
+                ModelState.AddModelError(
+                    string.Empty,
+                    "No se pudo asignar la rutina. Intente nuevamente.");
+            }
+
+            await CargarClientesParaAsignacionAsync(
+                model, entrenadorId.Value);
+
+            return View(model);
+        }
+
+        private async Task CargarClientesParaAsignacionAsync(
+            AsignarRutinaViewModel model,
+            int entrenadorId)
+        {
+            var clientes = await _context.Clientes
+                .AsNoTracking()
+                .Where(c =>
+                    c.EntrenadorId == entrenadorId &&
+                    c.Usuario.Estado == "ACTIVO" &&
+                    c.Usuario.Rol.Nombre == "CLIENTE")
+                .OrderBy(c => c.Usuario.Nombre)
+                .Select(c => new
+                {
+                    c.UsuarioId,
+                    c.Usuario.Nombre,
+                    c.Usuario.Correo
+                })
+                .ToListAsync();
+
+            model.ClientesDisponibles = clientes
+                .Select(c => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+                {
+                    Value = c.UsuarioId.ToString(),
+                    Text = $"{c.Nombre} ({c.Correo})"
+                })
+                .ToList();
+        }
+
         private async Task<int?> ObtenerEntrenadorActivoAsync()
         {
             var identificador =

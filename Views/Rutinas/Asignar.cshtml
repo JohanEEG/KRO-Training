@@ -1,0 +1,103 @@
+﻿@model KROTraining.Models.AsignarRutinaViewModel
+
+@{
+    ViewData["Title"] = "Asignar rutina";
+}
+
+<div style="margin-bottom:24px;">
+    <h1>Asignar rutina a cliente</h1>
+    <p>Seleccione el cliente que recibirá esta rutina.</p>
+</div>
+
+<div style="max-width:800px; margin:0 auto; background:white;
+    padding:28px; border-radius:12px;
+    box-shadow:0 2px 10px rgba(0,0,0,.08);">
+
+    <h2 style="font-size:20px; margin-bottom:20px;">
+        @Model.NombreRutina
+    </h2>
+
+    <p>
+        <strong>Objetivo:</strong>
+        @(string.IsNullOrWhiteSpace(Model.ObjetivoRutina)
+            ? "Sin especificar"
+            : Model.ObjetivoRutina)
+    </p>
+
+    <p>
+        <strong>Nivel:</strong>
+        @(string.IsNullOrWhiteSpace(Model.NivelRutina)
+            ? "Sin especificar"
+            : Model.NivelRutina)
+    </p>
+
+    <form asp-controller="Rutinas"
+          asp-action="Asignar"
+          asp-route-id="@Model.RutinaId"
+          method="post">
+
+        <input asp-for="RutinaId" type="hidden" />
+
+        <div asp-validation-summary="All"
+             style="color:#B42318; margin-bottom:16px;"
+             role="alert">
+        </div>
+
+        @if (Model.ClientesDisponibles.Count == 0)
+        {
+            <div style="background:#FFF3CD; color:#664D03;
+                padding:16px; border-radius:8px;"
+                 role="status">
+                No tiene clientes activos asignados.
+                Primero debe vincular un cliente con su cuenta de entrenador.
+            </div>
+        }
+        else
+        {
+            <div style="margin:24px 0;">
+                <label asp-for="ClienteId"
+                       style="display:block; margin-bottom:8px;">
+                    Cliente *
+                </label>
+
+                <select asp-for="ClienteId"
+                        asp-items="Model.ClientesDisponibles"
+                        required
+                        style="width:100%; padding:12px;
+                    border:1px solid #D1D5DB;
+                    border-radius:6px;">
+                    <option value="">Seleccione un cliente</option>
+                </select>
+
+                <span asp-validation-for="ClienteId"
+                      style="color:#B42318;">
+                </span>
+            </div>
+
+            <p style="color:#6B7280;">
+                Esta asignación conservará las otras rutinas del cliente.
+            </p>
+        }
+
+        <div style="display:flex; justify-content:flex-end;
+            gap:12px; margin-top:24px; flex-wrap:wrap;">
+
+            <a asp-controller="Rutinas"
+               asp-action="Index"
+               class="kro-btn kro-btn-outline">
+                Volver a rutinas
+            </a>
+
+            @if (Model.ClientesDisponibles.Count > 0)
+            {
+                <button type="submit" class="kro-btn">
+                    Asignar rutina
+                </button>
+            }
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
