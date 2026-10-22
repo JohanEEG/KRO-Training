@@ -1,0 +1,94 @@
+﻿@{
+    var planes = ViewBag.Planes as List<KROTraining.Models.PlanMembresium> ?? new List<KROTraining.Models.PlanMembresium>();
+    var exito = TempData["PlanExito"] as string;
+    var error = TempData["PlanError"] as string;
+    var vNombre = TempData["PlanNombre"] as string;
+    var vDuracion = TempData["PlanDuracion"] as string;
+    var vPrecio = TempData["PlanPrecio"] as string;
+}
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Crear plan de membresía
+    </div>
+
+    @if (!string.IsNullOrEmpty(exito))
+    {
+        <div class="kro-badge kro-badge-green" style="display:inline-block; padding:10px 16px; margin-bottom:16px;">
+            @exito
+        </div>
+    }
+    @if (!string.IsNullOrEmpty(error))
+    {
+        <div class="kro-badge kro-badge-red" style="display:inline-block; padding:10px 16px; margin-bottom:16px;">
+            @error
+        </div>
+    }
+
+    <form asp-controller="Membresias" asp-action="CrearPlan" method="post">
+        @Html.AntiForgeryToken()
+
+        <div class="kro-form-grid">
+
+            <div class="kro-form-group">
+                <label class="kro-form-label">Nombre del plan</label>
+                <input type="text" name="nombre" maxlength="100" class="kro-form-control"
+                       placeholder="Ej. Membresía anual" value="@vNombre" />
+            </div>
+
+            <div class="kro-form-group">
+                <label class="kro-form-label">Duración</label>
+                <select name="duracionMeses" class="kro-form-control">
+                    <option value="">Seleccione la duración</option>
+                    @foreach (var m in new[] { 1, 3, 6, 12 })
+                    {
+                        <option value="@m" selected="@(vDuracion == m.ToString())">@m @(m == 1 ? "mes" : "meses")</option>
+                    }
+                </select>
+            </div>
+
+            <div class="kro-form-group">
+                <label class="kro-form-label">Precio (₡)</label>
+                <input type="number" name="precio" min="1" step="1" class="kro-form-control"
+                       placeholder="₡0" value="@vPrecio" />
+            </div>
+
+        </div>
+
+        <div class="kro-actions">
+            <button type="submit" class="kro-btn kro-btn-primary">Guardar plan</button>
+        </div>
+    </form>
+
+</div>
+
+<div class="kro-card">
+
+    <div class="kro-card-title">
+        Planes disponibles
+    </div>
+
+    <div class="kro-table-container">
+        <table class="kro-table">
+            <thead>
+                <tr>
+                    <th>Plan</th>
+                    <th>Duración</th>
+                    <th>Precio</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in planes)
+                {
+                    <tr>
+                        <td>@p.Nombre</td>
+                        <td>@p.DuracionMeses @(p.DuracionMeses == 1 ? "mes" : "meses")</td>
+                        <td>₡@p.Precio.ToString("N0")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</div>
