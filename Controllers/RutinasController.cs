@@ -329,6 +329,228 @@ namespace KROTraining.Controllers
                 })
                 .ToList();
         }
+        [HttpGet]
+        public async Task<IActionResult> Editar(int id)
+        {
+            var entrenadorId = await ObtenerEntrenadorActivoAsync();
+
+            if (entrenadorId == null)
+            {
+                return Forbid();
+            }
+
+            var rutina = await _context.Rutinas
+                .AsNoTracking()
+                .Include(r => r.RutinaEjercicios)
+                    .ThenInclude(re => re.Ejercicio)
+                .SingleOrDefaultAsync(r =>
+                    r.RutinaId == id &&
+                    r.EntrenadorId == entrenadorId.Value);
+
+            if (rutina == null)
+            {
+                return NotFound("La rutina no fue encontrada o no está disponible para su cuenta.");
+            }
+
+            var model = new EditarRutinaViewModel
+            {
+                RutinaId = rutina.RutinaId,
+                Nombre = rutina.Nombre,
+                Descripcion = rutina.Descripcion,
+                Objetivo = rutina.Objetivo,
+                Nivel = rutina.Nivel,
+                Ejercicios = rutina.RutinaEjercicios
+                    .OrderBy(re => re.Orden)
+                    .Select(re => new EditarEjercicioRutinaViewModel
+                    {
+                        EjercicioId = re.EjercicioId,
+                        NombreEjercicio = re.Ejercicio.Nombre,
+                        Orden = re.Orden,
+                        Series = re.Series,
+                        Repeticiones = re.Repeticiones,
+                        DescansoSegundos = re.DescansoSegundos
+                    })
+                    .ToList()
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Editar(
+            int id,
+            EditarRutinaViewModel model)
+        {
+            var entrenadorId = await ObtenerEntrenadorActivoAsync();
+
+            if (entrenadorId == null)
+            {
+                return Forbid();
+            }
+
+            if (id <= 0 || id != model.RutinaId)
+            {
+                return BadRequest("El identificador de la rutina no es válido.");
+            }
+
+            model.Nombre = (model.Nombre ?? string.Empty).Trim();
+            model.Descripcion = LimpiarOpcional(model.Descripcion);
+            model.Objetivo = LimpiarOpcional(model.Objetivo);
+            model.Nivel = LimpiarOpcional(model.Nivel)?.ToUpperInvariant();
+
+            model.Ejercicios ??= new List<EditarEjercicioRutinaViewModel>();
+
+            if (string.IsNullOrWhiteSpace(model.Nombre))
+            {
+                ModelState.AddModelError(
+                    nameof(model.Nombre),
+                    "Ingrese el nombre de la rutina.");
+            }
+
+            if (model.Nivel != null &&
+                model.Nivel != "PRINCIPIANTE" &&
+                model.Nivel != "INTERMEDIO" &&
+                model.Nivel != "AVANZADO")
+            {
+                ModelState.AddModelError(
+                    nameof(model.Nivel),
+                    "Seleccione un nivel válido.");
+            }
+
+            try
+            {
+                await using var transaccion =
+                    await _context.Database.BeginTransactionAsync(
+                        IsolationLevel.Serializable);
+
+                var rutina = await _context.Rutinas
+                    .Include(r => r.RutinaEjercicios)
+                        .ThenInclude(re => re.Ejercicio)
+                    .SingleOrDefaultAsync(r =>
+                        r.RutinaId == id &&
+                        r.EntrenadorId == entrenadorId.Value);
+
+                if (rutina == null)
+                {
+                    return NotFound(
+                        "La rutina no fue encontrada o no está disponible para su cuenta.");
+                }
+
+                var detalles = rutina.RutinaEjercicios
+                    .ToDictionary(re => re.EjercicioId);
+
+                var idsEnviados = model.Ejercicios
+                    .Select(e => e.EjercicioId)
+                    .ToList();
+
+                // No permite agregar, quitar o sustituir ejercicios
+                // manipulando los campos del formulario de edición.
+                var listaValida =
+                    idsEnviados.Count == detalles.Count &&
+                    idsEnviados.Distinct().Count() == idsEnviados.Count &&
+                    idsEnviados.All(ejercicioId =>
+                        detalles.ContainsKey(ejercicioId));
+
+                if (!listaValida)
+                {
+                    return BadRequest(
+                        "La lista de ejercicios cambió o no es válida. " +
+                        "Vuelva al listado y abra nuevamente la edición.");
+                }
+
+                // Los nombres y el orden siempre se obtienen de la base.
+                foreach (var ejercicio in model.Ejercicios)
+                {
+                    var detalle = detalles[ejercicio.EjercicioId];
+
+                    ejercicio.NombreEjercicio = detalle.Ejercicio.Nombre;
+                    ejercicio.Orden = detalle.Orden;
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    return View(model);
+                }
+
+                var nombreComparacion = model.Nombre.ToUpperInvariant();
+
+                var nombreDuplicado = await _context.Rutinas
+                    .AnyAsync(r =>
+                        r.RutinaId != id &&
+                        r.Nombre.Trim().ToUpper() == nombreComparacion);
+
+                if (nombreDuplicado)
+                {
+                    ModelState.AddModelError(
+                        nameof(model.Nombre),
+                        "Ya existe otra rutina con ese nombre.");
+
+                    return View(model);
+                }
+
+                var datosGeneralesCambiaron =
+                    rutina.Nombre != model.Nombre ||
+                    rutina.Descripcion != model.Descripcion ||
+                    rutina.Objetivo != model.Objetivo ||
+                    rutina.Nivel != model.Nivel;
+
+                var ejerciciosCambiaron = model.Ejercicios.Any(e =>
+                {
+                    var detalle = detalles[e.EjercicioId];
+
+                    return detalle.Series != e.Series!.Value ||
+                           detalle.Repeticiones != e.Repeticiones!.Value ||
+                           detalle.DescansoSegundos != e.DescansoSegundos!.Value;
+                });
+
+                if (!datosGeneralesCambiaron && !ejerciciosCambiaron)
+                {
+                    ViewData["MensajeInformativo"] =
+                        "No realizó cambios en la rutina.";
+
+                    return View(model);
+                }
+
+                rutina.Nombre = model.Nombre;
+                rutina.Descripcion = model.Descripcion;
+                rutina.Objetivo = model.Objetivo;
+                rutina.Nivel = model.Nivel;
+
+                foreach (var ejercicio in model.Ejercicios)
+                {
+                    var detalle = detalles[ejercicio.EjercicioId];
+
+                    detalle.Series = ejercicio.Series!.Value;
+                    detalle.Repeticiones = ejercicio.Repeticiones!.Value;
+                    detalle.DescansoSegundos = ejercicio.DescansoSegundos!.Value;
+                }
+
+                await _context.SaveChangesAsync();
+                await transaccion.CommitAsync();
+
+                TempData["MensajeExito"] =
+                    "La rutina se actualizó correctamente.";
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex) when (
+                ex is DbUpdateException ||
+                ex is Microsoft.Data.SqlClient.SqlException)
+            {
+                _logger.LogError(
+                    ex,
+                    "Error al editar la rutina {RutinaId}.",
+                    id);
+
+                ModelState.AddModelError(
+                    string.Empty,
+                    "No se pudieron guardar los cambios. " +
+                    "Vuelva al listado y abra nuevamente la edición.");
+
+                return View(model);
+            }
+        }
         private async Task<int?> ObtenerEntrenadorActivoAsync()
         {
             var identificador =

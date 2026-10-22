@@ -84,12 +84,22 @@
                             <td>@rutina.Estado</td>
 
                             <td>
-                                <a asp-controller="Rutinas"
-                                   asp-action="AgregarEjercicio"
-                                   asp-route-id="@rutina.RutinaId"
-                                   class="kro-btn kro-btn-small kro-btn-outline">
-                                    Agregar ejercicio
-                                </a>
+                                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+
+                                    <a asp-controller="Rutinas"
+                                       asp-action="Editar"
+                                       asp-route-id="@rutina.RutinaId"
+                                       class="kro-btn kro-btn-small kro-btn-outline">
+                                        Editar
+                                    </a>
+
+                                    <a asp-controller="Rutinas"
+                                       asp-action="AgregarEjercicio"
+                                       asp-route-id="@rutina.RutinaId"
+                                       class="kro-btn kro-btn-small kro-btn-outline">
+                                        Agregar ejercicio
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     }
