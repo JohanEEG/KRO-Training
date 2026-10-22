@@ -1239,6 +1239,6 @@ IF COL_LENGTH('dbo.SESION_EJERCICIO', 'descanso_segundos_asignado') IS NULL
     ALTER TABLE dbo.SESION_EJERCICIO
     ADD descanso_segundos_asignado INT NULL;
 GO
-
+//
 
 
