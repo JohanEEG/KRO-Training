@@ -1,0 +1,110 @@
+﻿
+@model KROTraining.ViewModels.ClienteRutinaViewModel
+
+@{
+    ViewData["Title"] = "Mi rutina";
+}
+
+<div class="kro-page-title">Mi rutina de entrenamiento</div>
+<p class="kro-page-subtitle">
+    Consultá los ejercicios asignados y registrá tu sesión.
+</p>
+
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-info">@TempData["Mensaje"]</div>
+}
+
+@if (Model.AsignacionId <= 0)
+{
+    <div class="kro-card">
+        <h3>No tenés una rutina asignada</h3>
+        <p>Cuando tu entrenador te asigne una rutina, aparecerá en esta sección.</p>
+    </div>
+}
+else
+{
+    <div class="kro-card">
+        <h3>@Model.NombreRutina</h3>
+
+        @if (!string.IsNullOrWhiteSpace(Model.Descripcion))
+        {
+            <p>@Model.Descripcion</p>
+        }
+
+        <p><strong>Objetivo:</strong> @(Model.Objetivo ?? "No especificado")</p>
+        <p><strong>Nivel:</strong> @(Model.Nivel ?? "No especificado")</p>
+        <p>
+            <strong>Fecha de asignación:</strong>
+            @Model.FechaAsignacion.ToString("dd/MM/yyyy")
+        </p>
+
+        @if (Model.SesionEnProgresoId.HasValue)
+        {
+            <a class="kro-btn kro-btn-primary"
+               asp-action="Sesion"
+               asp-route-id="@Model.SesionEnProgresoId.Value">
+                Continuar sesión
+            </a>
+        }
+        else
+        {
+            <form asp-action="IniciarSesion" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="asignacionId" value="@Model.AsignacionId" />
+                <button type="submit" class="kro-btn kro-btn-primary">
+                    Comenzar entrenamiento
+                </button>
+            </form>
+        }
+    </div>
+
+    <div class="kro-card mt-3">
+        <h4>Ejercicios asignados</h4>
+
+        @if (Model.Ejercicios.Count == 0)
+        {
+            <p>Esta rutina todavía no tiene ejercicios registrados.</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Ejercicio</th>
+                            <th>Grupo muscular</th>
+                            <th>Series</th>
+                            <th>Repeticiones</th>
+                            <th>Descanso</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var ejercicio in Model.Ejercicios)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@ejercicio.Nombre</strong>
+                                @if (!string.IsNullOrWhiteSpace(ejercicio.Descripcion))
+                                {
+                                    <div class="text-muted small">@ejercicio.Descripcion</div>
+                                }
+                            </td>
+                            <td>@(ejercicio.GrupoMuscular ?? "No especificado")</td>
+                            <td>@ejercicio.Series</td>
+                            <td>@ejercicio.Repeticiones</td>
+                            <td>@ejercicio.DescansoSegundos segundos</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+}
+
+<div class="mt-3">
+    <a asp-action="Historial" class="kro-btn kro-btn-secondary">
+        Ver historial de rutinas
+    </a>
+</div>

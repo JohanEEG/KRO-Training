@@ -1,4 +1,5 @@
-﻿@using System.Security.Claims
+﻿
+@using System.Security.Claims
 
 <!DOCTYPE html>
 <html lang="es">
@@ -48,6 +49,29 @@
                 </li>
             </ul>
 
+            <!-- MENÚ PARA CLIENTES: HISTORIAS DE USUARIO -->
+            @if (User.IsInRole("CLIENTE"))
+            {
+                <div class="kro-menu-title">
+                    Mi entrenamiento
+                </div>
+
+                <ul class="kro-menu">
+                    <li>
+                        <a asp-controller="ClienteRutinas" asp-action="Index">
+                            💪
+                            <span>Mi rutina asignada</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-controller="ClienteRutinas" asp-action="Historial">
+                            📋
+                            <span>Historial de rutinas</span>
+                        </a>
+                    </li>
+                </ul>
+            }
+
             <!-- GESTIÓN -->
             <div class="kro-menu-title">
                 Gestión
@@ -60,69 +84,81 @@
                         <span>Clientes</span>
                     </a>
                 </li>
+
                 <li>
-                    @if (User.IsInRole("ENTRENADOR"))
-                    {
-                        <li>
-                            <a asp-controller="Rutinas" asp-action="Index">
-                                💪
-                                <span>Rutinas</span>
-                            </a>
-                        </li>
-                    }
                     <a href="/Usuarios/Index">
                         👤
                         <span>Usuarios</span>
                     </a>
                 </li>
+
+                <!-- RUTINAS PARA ENTRENADORES -->
+                @if (User.IsInRole("ENTRENADOR"))
+                {
+                    <li>
+                        <a asp-controller="Rutinas" asp-action="Index">
+                            💪
+                            <span>Rutinas</span>
+                        </a>
+                    </li>
+                }
+
                 <li>
                     <a href="/Usuarios/Roles">
                         🔐
                         <span>Roles y permisos</span>
                     </a>
                 </li>
+
                 <li>
                     <a href="/Multimedia/CrearEjercicio">
                         🎥
                         <span>Multimedia</span>
                     </a>
                 </li>
+
                 <li>
                     <a href="/SeguimientoFisico/ProgresoFisico">
                         📈
                         <span>Seguimiento físico</span>
                     </a>
                 </li>
+
                 <li>
                     <a href="/ControlAsistencia/HistorialAsistencia">
                         📝
                         <span>Asistencia</span>
                     </a>
                 </li>
+
                 <li>
                     <a href="/Eventos/Index">
                         🏆
                         <span>Eventos deportivos</span>
                     </a>
                 </li>
+
                 <li>
                     <a href="/Membresias/ProximasVencer">
                         💳
                         <span>Membresías y pagos</span>
                     </a>
                 </li>
+
                 <li>
                     <a href="/Reportes/Estadisticas">
                         📊
                         <span>Reportes</span>
                     </a>
                 </li>
+
                 <li>
                     <a href="/IA/DashboardMetas">
                         🤖
                         <span>IA e innovación</span>
                     </a>
                 </li>
+
                 <li>
                     <a href="/GestionPersonal/Index">
                         👔
@@ -134,6 +170,7 @@
             <!-- =================================================
                  CUENTA (Conectado a Persona 1)
                  ================================================= -->
+
             <div class="kro-menu-title">
                 Cuenta
             </div>
@@ -145,9 +182,16 @@
                         <span>Mi Perfil</span>
                     </a>
                 </li>
+
                 <li>
-                    <form asp-controller="Cuenta" asp-action="Logout" method="post" id="logoutForm" style="display: inline;">
-                        <button type="submit" style="background: none; border: none; color: inherit; width: 100%; text-align: left; padding: 10px 15px; display: flex; align-items: center; gap: 10px; cursor: pointer; font-family: inherit; font-size: inherit;">
+                    <form asp-controller="Cuenta"
+                          asp-action="Logout"
+                          method="post"
+                          id="logoutForm"
+                          style="display: inline;">
+
+                        <button type="submit"
+                                style="background: none; border: none; color: inherit; width: 100%; text-align: left; padding: 10px 15px; display: flex; align-items: center; gap: 10px; cursor: pointer; font-family: inherit; font-size: inherit;">
                             🚪
                             <span>Cerrar sesión</span>
                         </button>
@@ -156,7 +200,6 @@
             </ul>
 
         </aside>
-
 
         <!-- =====================================================
              CONTENIDO PRINCIPAL

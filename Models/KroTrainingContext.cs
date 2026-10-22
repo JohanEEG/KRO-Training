@@ -797,6 +797,15 @@ public partial class KroTrainingContext : DbContext
                 .HasColumnName("peso_utilizado");
             entity.Property(e => e.RepeticionesRealizadas).HasColumnName("repeticiones_realizadas");
             entity.Property(e => e.SeriesCompletadas).HasColumnName("series_completadas");
+            entity.Property(e => e.SeriesAsignadas)
+                 .HasColumnName("series_asignadas");
+
+            entity.Property(e => e.RepeticionesAsignadas)
+                .HasColumnName("repeticiones_asignadas");
+
+            entity.Property(e => e.DescansoSegundosAsignado)
+                .HasColumnName("descanso_segundos_asignado");
+
 
             entity.HasOne(d => d.Ejercicio).WithMany(p => p.SesionEjercicios)
                 .HasForeignKey(d => d.EjercicioId)
