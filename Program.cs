@@ -44,7 +44,7 @@ app.UseAuthorization();
 
 app.MapStaticAssets();
 
-// --- CORREGIDO: La aplicación arranca directo en el Login ---
+// ---La aplicación arranca directo en el Login ---
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Cuenta}/{action=Login}/{id?}")

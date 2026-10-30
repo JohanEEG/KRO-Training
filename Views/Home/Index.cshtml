@@ -1,68 +1,122 @@
 ﻿@{
     ViewData["Title"] = "Inicio";
     var nombre = User.Identity?.Name ?? "";
+
+    string rolEtiqueta =
+        User.IsInRole("ADMINISTRADOR") ? "Administrador" :
+        User.IsInRole("ENTRENADOR") ? "Entrenador" :
+        User.IsInRole("CLIENTE") ? "Cliente" : "Usuario";
 }
 
-<div class="kro-page-title">
-    Bienvenido, @nombre
+<!-- =====================================================
+     HERO DE BIENVENIDA
+     ===================================================== -->
+
+<div class="kro-hero">
+
+    <div>
+        <div class="kro-hero-eyebrow">Panel principal</div>
+        <h1 class="kro-hero-title">Bienvenido, @nombre</h1>
+
+        @if (User.IsInRole("ADMINISTRADOR"))
+        {
+            <p class="kro-hero-text">Panel de administración de KRÒ Training.</p>
+        }
+        else if (User.IsInRole("ENTRENADOR"))
+        {
+            <p class="kro-hero-text">Gestiona tus clientes y sus rutinas desde el menú lateral.</p>
+        }
+        else if (User.IsInRole("CLIENTE"))
+        {
+            <p class="kro-hero-text">Consulta tu rutina y registra tu ingreso desde el menú lateral.</p>
+        }
+        else
+        {
+            <p class="kro-hero-text">Bienvenido al sistema de gestión de KRÒ Training.</p>
+        }
+    </div>
+
+    <div class="kro-hero-badge">
+        Rol: <span>@rolEtiqueta</span>
+    </div>
+
 </div>
 
 @if (User.IsInRole("ADMINISTRADOR"))
 {
-    <p class="kro-page-subtitle">
-        Panel de administración de KRÒ Training.
-    </p>
+    <p class="kro-section-label">Accesos rápidos</p>
 
-    <div class="kro-card">
+    <div class="kro-quick-grid">
 
-        <div class="kro-card-title">
-            Accesos rápidos
-        </div>
+        <a href="/Clientes/Crear" class="kro-quick-card kro-quick-card-accent">
+            <div class="kro-quick-icon">➕</div>
+            <strong>Registrar cliente</strong>
+            <small>Da de alta a un nuevo miembro del gimnasio.</small>
+        </a>
 
-        <div style="display:flex; gap:15px; flex-wrap:wrap;">
+        <a href="/Clientes/Index" class="kro-quick-card">
+            <div class="kro-quick-icon">👥</div>
+            <strong>Consultar clientes</strong>
+            <small>Revisa y administra la lista de clientes.</small>
+        </a>
 
-            <a href="/Clientes/Crear"
-               class="kro-btn kro-btn-primary">
-
-                + Registrar cliente
-
-            </a>
-
-
-            <a href="/Clientes/Index"
-               class="kro-btn kro-btn-secondary">
-
-                👥 Consultar clientes
-
-            </a>
-
-
-            <a href="/Usuarios/Crear"
-               class="kro-btn kro-btn-outline">
-
-                + Registrar usuario
-
-            </a>
-
-        </div>
+        <a href="/Usuarios/Crear" class="kro-quick-card">
+            <div class="kro-quick-icon">👤</div>
+            <strong>Registrar usuario</strong>
+            <small>Crea cuentas para personal y administradores.</small>
+        </a>
 
     </div>
 }
 else if (User.IsInRole("ENTRENADOR"))
 {
-    <p class="kro-page-subtitle">
-        Gestiona tus clientes y sus rutinas desde el menú lateral.
-    </p>
+    <p class="kro-section-label">Accesos rápidos</p>
+
+    <div class="kro-quick-grid">
+
+        <a href="/Clientes/Index" class="kro-quick-card kro-quick-card-accent">
+            <div class="kro-quick-icon">👥</div>
+            <strong>Clientes</strong>
+            <small>Consulta a tus clientes y su progreso.</small>
+        </a>
+
+        <a href="/Rutinas/Index" class="kro-quick-card">
+            <div class="kro-quick-icon">💪</div>
+            <strong>Rutinas</strong>
+            <small>Crea y asigna rutinas de entrenamiento.</small>
+        </a>
+
+        <a href="/ControlAsistencia/HistorialAsistencia" class="kro-quick-card">
+            <div class="kro-quick-icon">📝</div>
+            <strong>Asistencia</strong>
+            <small>Revisa el historial de asistencia.</small>
+        </a>
+
+    </div>
 }
 else if (User.IsInRole("CLIENTE"))
 {
-    <p class="kro-page-subtitle">
-        Consulta tu rutina y registra tu ingreso desde el menú lateral.
-    </p>
-}
-else
-{
-    <p class="kro-page-subtitle">
-        Bienvenido al sistema de gestión de KRÒ Training.
-    </p>
+    <p class="kro-section-label">Mi entrenamiento</p>
+
+    <div class="kro-quick-grid">
+
+        <a href="/ClienteRutinas/Index" class="kro-quick-card kro-quick-card-accent">
+            <div class="kro-quick-icon">💪</div>
+            <strong>Mi rutina asignada</strong>
+            <small>Revisa los ejercicios de tu rutina actual.</small>
+        </a>
+
+        <a href="/ClienteRutinas/Historial" class="kro-quick-card">
+            <div class="kro-quick-icon">📋</div>
+            <strong>Historial de rutinas</strong>
+            <small>Consulta las rutinas que ya completaste.</small>
+        </a>
+
+        <a href="/MiMembresia/Index" class="kro-quick-card">
+            <div class="kro-quick-icon">💳</div>
+            <strong>Mi membresía</strong>
+            <small>Estado y vigencia de tu membresía.</small>
+        </a>
+
+    </div>
 }

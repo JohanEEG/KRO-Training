@@ -1,336 +1,373 @@
 ﻿@{
     ViewData["Title"] = "Reportes Estadísticos";
+    var esAdmin = User.IsInRole("ADMINISTRADOR");
 }
 
-<div class="kro-page-title">
-    Reportes estadísticos
-</div>
-
-<p class="kro-page-subtitle">
-    Consulte estadísticas de asistencia, membresías y rendimiento del gimnasio.
-</p>
-
-
-<div class="kro-card">
-
-    <div class="kro-card-title">
-        Parámetros del reporte
+@if (!esAdmin)
+{
+    <div class="kro-page-title">
+        Reportes estadísticos
     </div>
 
+    <div class="kro-card">
+        <div class="kro-card-title">
+            Acceso restringido
+        </div>
+        <p>Esta sección es exclusiva del administrador.</p>
+    </div>
+}
+else
+{
+    <div class="kro-page-title">
+        Reportes estadísticos
+    </div>
 
-    <div class="kro-form-grid">
+    <p class="kro-page-subtitle">
+        Consulte estadísticas de asistencia, membresías y rendimiento del gimnasio.
+    </p>
 
-        <div class="kro-form-group">
 
-            <label class="kro-form-label">
-                Fecha inicial
-            </label>
+    <div class="kro-card">
 
-            <input type="date"
-                   class="kro-form-control" />
-
+        <div class="kro-card-title">
+            Parámetros del reporte
         </div>
 
 
-        <div class="kro-form-group">
+        <div class="kro-form-grid">
 
-            <label class="kro-form-label">
-                Fecha final
-            </label>
+            <div class="kro-form-group">
 
-            <input type="date"
-                   class="kro-form-control" />
+                <label class="kro-form-label" for="fechaInicial">
+                    Fecha inicial
+                </label>
 
-        </div>
+                <input type="date"
+                       id="fechaInicial"
+                       class="kro-form-control"
+                       value="2026-08-01" />
 
+            </div>
 
-        <div class="kro-form-group">
 
-            <label class="kro-form-label">
-                Tipo de estadística
-            </label>
+            <div class="kro-form-group">
 
-            <select class="kro-form-control">
+                <label class="kro-form-label" for="fechaFinal">
+                    Fecha final
+                </label>
 
-                <option>Resumen general</option>
-                <option>Asistencia</option>
-                <option>Membresías</option>
-                <option>Rendimiento</option>
+                <input type="date"
+                       id="fechaFinal"
+                       class="kro-form-control"
+                       value="2026-08-17" />
 
-            </select>
+            </div>
 
-        </div>
 
-    </div>
+            <div class="kro-form-group">
 
+                <label class="kro-form-label" for="tipoEstadistica">
+                    Tipo de estadística
+                </label>
 
-    <div class="kro-actions">
+                <select id="tipoEstadistica" class="kro-form-control">
 
-        <button type="button"
-                class="kro-btn kro-btn-primary"
-                onclick="alert('Reporte estadístico generado correctamente.');">
-            Generar reporte
-        </button>
+                    <option>Pagos e ingresos</option>
+                    <option>Resumen general</option>
+                    <option>Asistencia</option>
+                    <option>Membresías</option>
+                    <option>Rendimiento</option>
 
-    </div>
+                </select>
 
-</div>
-
-
-<div class="kro-stat-grid">
-
-    <div class="kro-stat-card">
-
-        <h3>
-            ASISTENCIAS
-        </h3>
-
-        <strong>
-            486
-        </strong>
-
-    </div>
-
-
-    <div class="kro-stat-card">
-
-        <h3>
-            MEMBRESÍAS ACTIVAS
-        </h3>
-
-        <strong>
-            186
-        </strong>
-
-    </div>
-
-
-    <div class="kro-stat-card">
-
-        <h3>
-            NUEVAS MEMBRESÍAS
-        </h3>
-
-        <strong>
-            32
-        </strong>
-
-    </div>
-
-
-    <div class="kro-stat-card">
-
-        <h3>
-            CLIENTES ACTIVOS
-        </h3>
-
-        <strong>
-            248
-        </strong>
-
-    </div>
-
-</div>
-
-
-<div class="kro-card">
-
-    <div class="kro-card-title">
-        Resumen de asistencia
-    </div>
-
-
-    <div class="kro-table-container">
-
-        <table class="kro-table">
-
-            <thead>
-
-                <tr>
-                    <th>Periodo</th>
-                    <th>Asistencias</th>
-                    <th>Clientes activos</th>
-                    <th>Promedio diario</th>
-                    <th>Variación</th>
-                </tr>
-
-            </thead>
-
-
-            <tbody>
-
-                <tr>
-
-                    <td>
-                        Semana 1
-                    </td>
-
-                    <td>
-                        118
-                    </td>
-
-                    <td>
-                        238
-                    </td>
-
-                    <td>
-                        23,6
-                    </td>
-
-                    <td>
-
-                        <span class="kro-badge kro-badge-green">
-                            +8%
-                        </span>
-
-                    </td>
-
-                </tr>
-
-
-                <tr>
-
-                    <td>
-                        Semana 2
-                    </td>
-
-                    <td>
-                        126
-                    </td>
-
-                    <td>
-                        242
-                    </td>
-
-                    <td>
-                        25,2
-                    </td>
-
-                    <td>
-
-                        <span class="kro-badge kro-badge-green">
-                            +6%
-                        </span>
-
-                    </td>
-
-                </tr>
-
-
-                <tr>
-
-                    <td>
-                        Semana 3
-                    </td>
-
-                    <td>
-                        121
-                    </td>
-
-                    <td>
-                        245
-                    </td>
-
-                    <td>
-                        24,2
-                    </td>
-
-                    <td>
-
-                        <span class="kro-badge kro-badge-gray">
-                            -2%
-                        </span>
-
-                    </td>
-
-                </tr>
-
-
-                <tr>
-
-                    <td>
-                        Semana 4
-                    </td>
-
-                    <td>
-                        121
-                    </td>
-
-                    <td>
-                        248
-                    </td>
-
-                    <td>
-                        24,2
-                    </td>
-
-                    <td>
-
-                        <span class="kro-badge kro-badge-green">
-                            +3%
-                        </span>
-
-                    </td>
-
-                </tr>
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-</div>
-
-
-<div class="kro-card">
-
-    <div class="kro-card-title">
-        Indicadores de rendimiento
-    </div>
-
-
-    <div class="kro-form-grid">
-
-        <div class="kro-form-group">
-
-            <label class="kro-form-label">
-                Retención de clientes
-            </label>
-
-            <div style="font-size:28px; font-weight:700;">
-                91%
             </div>
 
         </div>
 
 
-        <div class="kro-form-group">
+        <div class="kro-actions">
 
-            <label class="kro-form-label">
-                Promedio de asistencia
-            </label>
+            <button type="button"
+                    id="btnGenerar"
+                    class="kro-btn kro-btn-primary">
+                Generar reporte
+            </button>
 
-            <div style="font-size:28px; font-weight:700;">
-                24,3 por día
-            </div>
+        </div>
+
+    </div>
+
+
+    <div class="kro-stat-grid">
+
+        <div class="kro-stat-card">
+
+            <h3>
+                ASISTENCIAS
+            </h3>
+
+            <strong>
+                486
+            </strong>
 
         </div>
 
 
-        <div class="kro-form-group">
+        <div class="kro-stat-card">
 
-            <label class="kro-form-label">
-                Renovación de membresías
-            </label>
+            <h3>
+                MEMBRESÍAS ACTIVAS
+            </h3>
 
-            <div style="font-size:28px; font-weight:700;">
-                86%
+            <strong>
+                186
+            </strong>
+
+        </div>
+
+
+        <div class="kro-stat-card">
+
+            <h3>
+                NUEVAS MEMBRESÍAS
+            </h3>
+
+            <strong>
+                32
+            </strong>
+
+        </div>
+
+
+        <div class="kro-stat-card">
+
+            <h3>
+                CLIENTES ACTIVOS
+            </h3>
+
+            <strong>
+                248
+            </strong>
+
+        </div>
+
+    </div>
+
+
+    <div class="kro-card">
+
+        <div class="kro-card-title">
+            Resumen de asistencia
+        </div>
+
+
+        <div class="kro-table-container">
+
+            <table class="kro-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Periodo</th>
+                        <th>Asistencias</th>
+                        <th>Clientes activos</th>
+                        <th>Promedio diario</th>
+                        <th>Variación</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    <tr>
+
+                        <td>
+                            Semana 1
+                        </td>
+
+                        <td>
+                            118
+                        </td>
+
+                        <td>
+                            238
+                        </td>
+
+                        <td>
+                            23,6
+                        </td>
+
+                        <td>
+
+                            <span class="kro-badge kro-badge-green">
+                                +8%
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td>
+                            Semana 2
+                        </td>
+
+                        <td>
+                            126
+                        </td>
+
+                        <td>
+                            242
+                        </td>
+
+                        <td>
+                            25,2
+                        </td>
+
+                        <td>
+
+                            <span class="kro-badge kro-badge-green">
+                                +6%
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td>
+                            Semana 3
+                        </td>
+
+                        <td>
+                            121
+                        </td>
+
+                        <td>
+                            245
+                        </td>
+
+                        <td>
+                            24,2
+                        </td>
+
+                        <td>
+
+                            <span class="kro-badge kro-badge-gray">
+                                -2%
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td>
+                            Semana 4
+                        </td>
+
+                        <td>
+                            121
+                        </td>
+
+                        <td>
+                            248
+                        </td>
+
+                        <td>
+                            24,2
+                        </td>
+
+                        <td>
+
+                            <span class="kro-badge kro-badge-green">
+                                +3%
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <div class="kro-card">
+
+        <div class="kro-card-title">
+            Indicadores de rendimiento
+        </div>
+
+
+        <div class="kro-form-grid">
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Retención de clientes
+                </label>
+
+                <div style="font-size:28px; font-weight:700;">
+                    91%
+                </div>
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Promedio de asistencia
+                </label>
+
+                <div style="font-size:28px; font-weight:700;">
+                    24,3 por día
+                </div>
+
+            </div>
+
+
+            <div class="kro-form-group">
+
+                <label class="kro-form-label">
+                    Renovación de membresías
+                </label>
+
+                <div style="font-size:28px; font-weight:700;">
+                    86%
+                </div>
+
             </div>
 
         </div>
 
     </div>
 
-</div>
-```
+
+    <!-- =====================================================
+         MODAL DE RESULTADO (éxito, sin datos, error o próximamente)
+         ===================================================== -->
+    <div id="modalReporte" class="kro-modal-overlay" hidden>
+        <div class="kro-modal">
+            <div id="modalIcono" class="kro-modal-icon">✅</div>
+            <div id="modalTitulo" class="kro-card-title">Reporte creado</div>
+            <p id="modalMensaje"></p>
+            <div class="kro-modal-actions" id="modalAcciones"></div>
+        </div>
+    </div>
+
+
+    <script src="~/js/reportes-estadisticas.js"></script>
+}

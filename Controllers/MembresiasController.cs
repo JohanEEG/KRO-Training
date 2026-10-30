@@ -87,10 +87,5 @@ namespace KRO_Training_Performance.Controllers
         {
             return View("~/Views/MembresiasPagos/RegistrarPago.cshtml");
         }
-
-        public IActionResult ReportePagos()
-        {
-            return View("~/Views/MembresiasPagos/ReportePagos.cshtml");
-        }
     }
 }
