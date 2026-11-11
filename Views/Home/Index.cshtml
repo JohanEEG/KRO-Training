@@ -53,7 +53,6 @@
 <!-- =====================================================
      ASIGNACIONES DEL USUARIO (arriba, según su rol)
      ===================================================== -->
-
 @if (User.IsInRole("CLIENTE"))
 {
     <p class="kro-section-label">Mi entrenador</p>
@@ -192,7 +191,6 @@
 <!-- =====================================================
      EQUIPO EN TURNO (solo personal)
      ===================================================== -->
-
 @if (esPersonal)
 {
     <p class="kro-section-label">Equipo en turno · @Model.DiaHoy</p>
@@ -214,9 +212,8 @@
 }
 
 <!-- =====================================================
-     ACCESOS RÁPIDOS (administrador y cliente)
+     ACCESOS RÁPIDOS
      ===================================================== -->
-
 @if (User.IsInRole("ADMINISTRADOR"))
 {
     <p class="kro-section-label">Accesos rápidos</p>
@@ -243,8 +240,6 @@
 
     </div>
 }
-<<<<<<< Updated upstream
-=======
 else if (User.IsInRole("ENTRENADOR"))
 {
     <p class="kro-section-label">Accesos rápidos</p>
@@ -265,24 +260,13 @@ else if (User.IsInRole("ENTRENADOR"))
 
     </div>
 }
->>>>>>> Stashed changes
 else if (User.IsInRole("CLIENTE"))
 {
     <p class="kro-section-label">Mi entrenamiento</p>
 
     <div class="kro-quick-grid">
 
-<<<<<<< Updated upstream
-        <a href="/ControlAsistencia/RegistrarIngreso" class="kro-quick-card kro-quick-card-accent">
-            <div class="kro-quick-icon">✔️</div>
-            <strong>Registrar ingreso</strong>
-            <small>Marca tu llegada al gimnasio de hoy.</small>
-        </a>
-
-        <a href="/ClienteRutinas/Index" class="kro-quick-card">
-=======
         <a asp-controller="ClienteRutinas" asp-action="Index" class="kro-quick-card kro-quick-card-accent">
->>>>>>> Stashed changes
             <div class="kro-quick-icon">💪</div>
             <strong>Mi rutina asignada</strong>
             <small>Revisa los ejercicios de tu rutina actual.</small>
@@ -300,19 +284,19 @@ else if (User.IsInRole("CLIENTE"))
             <small>Estado y vigencia de tu membresía.</small>
         </a>
 
-        <a href="/MiMembresia/Historial" class="kro-quick-card">
+        <a asp-controller="MiMembresia" asp-action="Historial" class="kro-quick-card">
             <div class="kro-quick-icon">🧾</div>
             <strong>Historial de membresías</strong>
             <small>Revisa tus pagos y renovaciones anteriores.</small>
         </a>
 
-        <a href="/Eventos/Index" class="kro-quick-card">
+        <a asp-controller="Eventos" asp-action="Index" class="kro-quick-card">
             <div class="kro-quick-icon">🏆</div>
             <strong>Eventos deportivos</strong>
             <small>Consulta los eventos que se van a realizar.</small>
         </a>
 
-        <a href="/Cuenta/Perfil" class="kro-quick-card">
+        <a asp-controller="Cuenta" asp-action="Perfil" class="kro-quick-card">
             <div class="kro-quick-icon">⚙️</div>
             <strong>Mi perfil</strong>
             <small>Actualiza tus datos y tu ficha médica.</small>

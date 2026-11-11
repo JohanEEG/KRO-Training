@@ -151,6 +151,7 @@ namespace KRO_Training_Performance.Controllers
         {
             var usuario = await _context.Usuarios
                 .AsNoTracking()
+                .Include(u => u.Rol)
                 .SingleOrDefaultAsync(u =>
                     u.UsuarioId == id &&
                     RolesColaborador.Contains(u.Rol.Nombre));
@@ -187,6 +188,7 @@ namespace KRO_Training_Performance.Controllers
             }
 
             var usuario = await _context.Usuarios
+                .Include(u => u.Rol)
                 .Include(u => u.Entrenador)
                 .Include(u => u.Administrador)
                 .Include(u => u.Empleado)
@@ -417,103 +419,20 @@ namespace KRO_Training_Performance.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-<<<<<<< Updated upstream
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Reactivar(int id)
         {
-=======
-        [HttpGet]
-        public async Task<IActionResult> Activar(int id)
-        {
-            var usuario = await _context.Usuarios
-                .AsNoTracking()
-                .Include(u => u.Rol)
-                .SingleOrDefaultAsync(u =>
-                    u.UsuarioId == id &&
-                    (u.Rol.Nombre == "ADMINISTRADOR" ||
-                     u.Rol.Nombre == "ENTRENADOR"));
-
-            if (usuario == null)
-            {
-                return NotFound("El colaborador no fue encontrado.");
-            }
-
-            var model = new DarBajaColaboradorViewModel
-            {
-                UsuarioId = usuario.UsuarioId,
-                Nombre = usuario.Nombre,
-                Correo = usuario.Correo,
-                Rol = usuario.Rol.Nombre,
-                Estado = usuario.Estado
-            };
-
-            if (usuario.Estado == "ACTIVO")
-            {
-                ModelState.AddModelError(
-                    string.Empty,
-                    "Este colaborador ya se encuentra activo.");
-            }
-
-            return View(model);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Activar(
-            int id,
-            DarBajaColaboradorViewModel model)
-        {
-            if (id != model.UsuarioId)
-            {
-                return BadRequest(
-                    "El identificador del colaborador no coincide.");
-            }
-
-            var usuario = await _context.Usuarios
-                .AsNoTracking()
-                .Include(u => u.Rol)
-                .SingleOrDefaultAsync(u =>
-                    u.UsuarioId == id &&
-                    (u.Rol.Nombre == "ADMINISTRADOR" ||
-                     u.Rol.Nombre == "ENTRENADOR"));
-
-            if (usuario == null)
-            {
-                return NotFound("El colaborador no fue encontrado.");
-            }
-
-            model.Nombre = usuario.Nombre;
-            model.Correo = usuario.Correo;
-            model.Rol = usuario.Rol.Nombre;
-            model.Estado = usuario.Estado;
-
-            if (usuario.Estado == "ACTIVO")
-            {
-                ModelState.AddModelError(
-                    string.Empty,
-                    "Este colaborador ya se encuentra activo.");
-
-                return View(model);
-            }
-
->>>>>>> Stashed changes
             var filasActualizadas = await _context.Usuarios
                 .Where(u =>
                     u.UsuarioId == id &&
                     u.Estado == "INACTIVO" &&
-<<<<<<< Updated upstream
                     RolesColaborador.Contains(u.Rol.Nombre))
-=======
-                    (u.Rol.Nombre == "ADMINISTRADOR" ||
-                     u.Rol.Nombre == "ENTRENADOR"))
->>>>>>> Stashed changes
                 .ExecuteUpdateAsync(cambios => cambios
                     .SetProperty(u => u.Estado, "ACTIVO"));
 
             if (filasActualizadas == 0)
             {
-<<<<<<< Updated upstream
                 TempData["Error"] =
                     "No se pudo reactivar: el colaborador no existe o ya está activo.";
             }
@@ -523,14 +442,6 @@ namespace KRO_Training_Performance.Controllers
                     "El colaborador fue reactivado correctamente.";
             }
 
-=======
-                return RedirectToAction(nameof(Activar), new { id });
-            }
-
-            TempData["MensajeExito"] =
-                "El colaborador fue dado de alta (activado) correctamente.";
-
->>>>>>> Stashed changes
             return RedirectToAction(nameof(Index));
         }
 
