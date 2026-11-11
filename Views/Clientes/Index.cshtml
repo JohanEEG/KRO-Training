@@ -140,7 +140,7 @@
 
                         bool estaActivo =
                             item.Usuario != null &&
-                            item.Usuario.Estado == "Activo";
+                            string.Equals(item.Usuario.Estado, "ACTIVO", StringComparison.OrdinalIgnoreCase);
 
                         <tr>
                             <td>

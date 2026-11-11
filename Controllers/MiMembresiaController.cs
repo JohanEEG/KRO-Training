@@ -35,5 +35,51 @@ namespace KROTraining.Controllers
 
             return View(estado);
         }
+
+        // GET: /MiMembresia/Historial?fechaInicio=yyyy-MM-dd&fechaFin=yyyy-MM-dd
+        [HttpGet]
+        public async Task<IActionResult> Historial(DateOnly? fechaInicio, DateOnly? fechaFin)
+        {
+            int usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            ViewBag.FechaInicio = fechaInicio;
+            ViewBag.FechaFin = fechaFin;
+
+            if (fechaInicio.HasValue && fechaFin.HasValue && fechaInicio > fechaFin)
+            {
+                ViewBag.Error = "La fecha inicial no puede ser posterior a la fecha final.";
+                return View(new List<Membresium>());
+            }
+
+            try
+            {
+                var consulta = _context.Membresia
+                    .AsNoTracking()
+                    .Include(m => m.Plan)
+                    .Include(m => m.Pagos)
+                    .Where(m => m.ClienteId == usuarioId);
+
+                if (fechaInicio.HasValue)
+                {
+                    consulta = consulta.Where(m => m.FechaInicio >= fechaInicio.Value);
+                }
+
+                if (fechaFin.HasValue)
+                {
+                    consulta = consulta.Where(m => m.FechaInicio <= fechaFin.Value);
+                }
+
+                var historial = await consulta
+                    .OrderByDescending(m => m.FechaInicio)
+                    .ToListAsync();
+
+                return View(historial);
+            }
+            catch
+            {
+                ViewBag.Error = "Error al cargar el historial de membresías. Intente nuevamente más tarde.";
+                return View(new List<Membresium>());
+            }
+        }
     }
 }

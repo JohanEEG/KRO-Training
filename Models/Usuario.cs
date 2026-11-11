@@ -31,7 +31,13 @@ public partial class Usuario
 
     public virtual Cliente? Cliente { get; set; }
 
+    public virtual Empleado? Empleado { get; set; }
+
+    public virtual FichaMedica? FichaMedica { get; set; }
+
     public virtual Entrenador? Entrenador { get; set; }
+
+    public virtual ICollection<HorarioPersonal> HorarioPersonals { get; set; } = new List<HorarioPersonal>();
 
     public virtual ICollection<HorarioTarea> HorarioTareas { get; set; } = new List<HorarioTarea>();
 

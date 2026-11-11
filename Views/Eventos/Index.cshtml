@@ -1,206 +1,100 @@
-﻿@{
-    ViewData["Title"] = "Eventos Deportivos";
+﻿@model List<KROTraining.Models.EventoListaViewModel>
+
+@{
+    ViewData["Title"] = "Eventos deportivos";
+    bool puedeGestionar = ViewBag.PuedeGestionar is bool b && b;
+    var errorCarga = ViewBag.ErrorCarga as string;
 }
 
-<div class="kro-page-title">
-    Eventos deportivos
-</div>
+<h1 class="kro-page-title">Eventos deportivos</h1>
 
 <p class="kro-page-subtitle">
-    Administre los eventos deportivos organizados por KRÒ Training.
+    @(puedeGestionar
+        ? "Cree y administre los eventos deportivos de KRÒ Training."
+        : "Consulte los eventos deportivos programados en KRÒ Training.")
 </p>
 
+@if (TempData["MensajeExito"] is string mensajeExito)
+{
+    <div role="status" class="kro-profile-alert kro-profile-success">
+        <span class="kro-alert-icon" aria-hidden="true">✓</span>
+        <span>@mensajeExito</span>
+    </div>
+}
 
 <div class="kro-card">
 
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:20px;">
+        <div class="kro-card-title" style="margin:0;">Eventos registrados</div>
 
-        <div class="kro-card-title" style="margin:0;">
-            Eventos registrados
+        @if (puedeGestionar)
+        {
+            <a asp-controller="Eventos" asp-action="Crear" class="kro-btn kro-btn-primary">+ Nuevo evento</a>
+        }
+    </div>
+
+    @if (errorCarga != null)
+    {
+        <div role="alert" class="kro-profile-alert kro-profile-error">
+            <span class="kro-alert-icon" aria-hidden="true">!</span>
+            <span>@errorCarga</span>
         </div>
-
-        <button type="button"
-                class="kro-btn kro-btn-primary"
-                onclick="alert('Formulario para crear evento.');">
-            + Nuevo evento
-        </button>
-
-    </div>
-
-
-    <div class="kro-search">
-
-        <input type="text"
-               class="kro-form-control"
-               placeholder="Buscar evento..." />
-
-    </div>
-
-
-    <div class="kro-table-container">
-
-        <table class="kro-table">
-
-            <thead>
-
-                <tr>
-                    <th>Evento</th>
-                    <th>Fecha</th>
-                    <th>Ubicación</th>
-                    <th>Cupos</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-                <tr>
-
-                    <td>
-                        Competencia KRÒ Challenge
-                    </td>
-
-                    <td>
-                        25/08/2026
-                    </td>
-
-                    <td>
-                        KRÒ Training
-                    </td>
-
-                    <td>
-                        30
-                    </td>
-
-                    <td>
-
-                        <span class="kro-badge kro-badge-green">
-                            Próximo
-                        </span>
-
-                    </td>
-
-                    <td>
-
-                        <div class="kro-table-actions">
-
-                            <button type="button"
-                                    class="kro-btn kro-btn-small kro-btn-outline">
-                                Editar
-                            </button>
-
-                            <a href="/Eventos/Inscripciones"
-                               class="kro-btn kro-btn-small kro-btn-primary">
-                                Inscripciones
-                            </a>
-
-                        </div>
-
-                    </td>
-
-                </tr>
-
-
-                <tr>
-
-                    <td>
-                        Torneo interno de levantamiento
-                    </td>
-
-                    <td>
-                        10/09/2026
-                    </td>
-
-                    <td>
-                        Gimnasio principal
-                    </td>
-
-                    <td>
-                        20
-                    </td>
-
-                    <td>
-
-                        <span class="kro-badge kro-badge-green">
-                            Próximo
-                        </span>
-
-                    </td>
-
-                    <td>
-
-                        <div class="kro-table-actions">
-
-                            <button type="button"
-                                    class="kro-btn kro-btn-small kro-btn-outline">
-                                Editar
-                            </button>
-
-                            <a href="/Eventos/Inscripciones"
-                               class="kro-btn kro-btn-small kro-btn-primary">
-                                Inscripciones
-                            </a>
-
-                        </div>
-
-                    </td>
-
-                </tr>
-
-
-                <tr>
-
-                    <td>
-                        Entrenamiento especial comunitario
-                    </td>
-
-                    <td>
-                        02/08/2026
-                    </td>
-
-                    <td>
-                        Parque deportivo
-                    </td>
-
-                    <td>
-                        40
-                    </td>
-
-                    <td>
-
-                        <span class="kro-badge kro-badge-gray">
-                            Finalizado
-                        </span>
-
-                    </td>
-
-                    <td>
-
-                        <div class="kro-table-actions">
-
-                            <button type="button"
-                                    class="kro-btn kro-btn-small kro-btn-outline">
-                                Ver detalle
-                            </button>
-
-                            <a href="/Eventos/Inscripciones"
-                               class="kro-btn kro-btn-small kro-btn-primary">
-                                Inscripciones
-                            </a>
-
-                        </div>
-
-                    </td>
-
-                </tr>
-
-            </tbody>
-
-        </table>
-
-    </div>
-
+    }
+    else if (!Model.Any())
+    {
+        <p role="status">No hay eventos registrados.</p>
+    }
+    else
+    {
+        <div class="kro-table-container">
+            <table class="kro-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Evento</th>
+                        <th scope="col">Fecha</th>
+                        <th scope="col">Cupos</th>
+                        <th scope="col">Estado</th>
+                        @if (puedeGestionar)
+                        {
+                            <th scope="col">Acciones</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var e in Model)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@e.Nombre</strong>
+                                @if (!string.IsNullOrWhiteSpace(e.Descripcion))
+                                {
+                                    <br /><small>@e.Descripcion</small>
+                                }
+                            </td>
+                            <td>@e.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@e.Inscritos / @e.CupoMaximo</td>
+                            <td>
+                                @if (e.EtiquetaEstado == "Próximo")
+                                {
+                                    <span class="kro-badge kro-badge-green">@e.EtiquetaEstado</span>
+                                }
+                                else
+                                {
+                                    <span class="kro-badge kro-badge-gray">@e.EtiquetaEstado</span>
+                                }
+                            </td>
+                            @if (puedeGestionar)
+                            {
+                                <td>
+                                    <a asp-controller="Eventos" asp-action="Editar" asp-route-id="@e.EventoId"
+                                       class="kro-btn kro-btn-small kro-btn-outline"
+                                       aria-label="@($"Editar {e.Nombre}")">Editar</a>
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
 </div>
-```

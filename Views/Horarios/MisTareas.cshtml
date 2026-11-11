@@ -1,0 +1,91 @@
+@model List<KROTraining.Models.HorarioTarea>
+
+@{
+    ViewData["Title"] = "Mis tareas";
+    var errorCarga = ViewBag.ErrorCarga as string;
+}
+
+<h1 class="kro-page-title">Mis tareas</h1>
+
+<p class="kro-page-subtitle">
+    Revise las tareas que tiene asignadas y márquelas como realizadas cuando las termine.
+</p>
+
+@if (TempData["MensajeExito"] is string mensajeExito)
+{
+    <div role="status" class="kro-profile-alert kro-profile-success">
+        <span class="kro-alert-icon" aria-hidden="true">✓</span>
+        <span>@mensajeExito</span>
+    </div>
+}
+
+@if (TempData["Error"] is string mensajeError)
+{
+    <div role="alert" class="kro-profile-alert kro-profile-error">
+        <span class="kro-alert-icon" aria-hidden="true">!</span>
+        <span>@mensajeError</span>
+    </div>
+}
+
+@if (errorCarga != null)
+{
+    <div class="kro-card">
+        <div role="alert" class="kro-profile-alert kro-profile-error">
+            <span class="kro-alert-icon" aria-hidden="true">!</span>
+            <span>@errorCarga</span>
+        </div>
+    </div>
+}
+else if (!Model.Any())
+{
+    <div class="kro-card">
+        <p role="status">No tiene tareas asignadas.</p>
+    </div>
+}
+else
+{
+    <div class="kro-card">
+        <div class="kro-table-container">
+            <table class="kro-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Fecha</th>
+                        <th scope="col">Tarea</th>
+                        <th scope="col">Estado</th>
+                        <th scope="col">Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var tarea in Model)
+                    {
+                        bool realizada = tarea.Estado == "REALIZADA";
+                        <tr>
+                            <td>@tarea.Fecha.ToString("dd/MM/yyyy")</td>
+                            <td>@tarea.Tarea</td>
+                            <td>
+                                <span class="kro-badge @(realizada ? "kro-badge-green" : "kro-badge-gray")">
+                                    @(realizada ? "Realizada" : "Pendiente")
+                                </span>
+                            </td>
+                            <td>
+                                <form asp-controller="Horarios" asp-action="CambiarEstadoTarea" method="post" style="display:inline;">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@tarea.HorarioId" />
+                                    <input type="hidden" name="origen" value="mistareas" />
+                                    @if (realizada)
+                                    {
+                                        <button type="submit" class="kro-btn kro-btn-small kro-btn-outline">Marcar pendiente</button>
+                                    }
+                                    else
+                                    {
+                                        <button type="submit" class="kro-btn kro-btn-small kro-btn-primary">Marcar realizada</button>
+                                    }
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

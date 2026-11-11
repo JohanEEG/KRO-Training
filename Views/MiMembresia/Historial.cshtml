@@ -1,0 +1,97 @@
+@model List<KROTraining.Models.Membresium>
+
+@{
+    ViewData["Title"] = "Historial de membresías";
+    var errorCarga = ViewBag.Error as string;
+    DateOnly? inicio = ViewBag.FechaInicio as DateOnly?;
+    DateOnly? fin = ViewBag.FechaFin as DateOnly?;
+    string inicioTexto = inicio?.ToString("yyyy-MM-dd") ?? "";
+    string finTexto = fin?.ToString("yyyy-MM-dd") ?? "";
+}
+
+<h1 class="kro-page-title">Historial de membresías</h1>
+
+<p class="kro-page-subtitle">
+    Consulte sus membresías anteriores para llevar control de sus pagos y renovaciones.
+</p>
+
+<div class="kro-actions" style="margin-bottom:20px; flex-wrap:wrap;">
+    <a asp-controller="MiMembresia" asp-action="Index" class="kro-btn kro-btn-outline">Estado de mi membresía</a>
+</div>
+
+<div class="kro-card" style="margin-bottom:20px;">
+    <div class="kro-card-title">Filtrar por fecha de inicio</div>
+
+    <form method="get" asp-controller="MiMembresia" asp-action="Historial"
+          style="display:flex; gap:16px; flex-wrap:wrap; align-items:flex-end;">
+
+        <div class="kro-form-group" style="flex:1 1 180px;">
+            <label for="fechaInicio" class="kro-form-label">Desde</label>
+            <input type="date" id="fechaInicio" name="fechaInicio"
+                   class="kro-form-control" value="@inicioTexto" />
+        </div>
+
+        <div class="kro-form-group" style="flex:1 1 180px;">
+            <label for="fechaFin" class="kro-form-label">Hasta</label>
+            <input type="date" id="fechaFin" name="fechaFin"
+                   class="kro-form-control" value="@finTexto" />
+        </div>
+
+        <div class="kro-actions">
+            <button type="submit" class="kro-btn kro-btn-primary">Consultar</button>
+            <a asp-controller="MiMembresia" asp-action="Historial" class="kro-btn kro-btn-outline">Limpiar</a>
+        </div>
+    </form>
+</div>
+
+@if (errorCarga != null)
+{
+    <div class="kro-card">
+        <p role="alert">@errorCarga</p>
+    </div>
+}
+else if (!Model.Any())
+{
+    <div class="kro-card">
+        <p role="status">
+            @(inicio.HasValue || fin.HasValue
+                ? "No hay membresías registradas en el rango de fechas seleccionado."
+                : "Aún no tiene membresías registradas en el historial.")
+        </p>
+    </div>
+}
+else
+{
+    <div class="kro-card">
+        <div class="kro-table-container">
+            <table class="kro-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Plan</th>
+                        <th scope="col">Inicio</th>
+                        <th scope="col">Vencimiento</th>
+                        <th scope="col">Estado</th>
+                        <th scope="col">Pagos</th>
+                        <th scope="col">Total pagado</th>
+                        <th scope="col">Último pago</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var m in Model)
+                    {
+                        var ultimoPago = m.Pagos.OrderByDescending(p => p.FechaPago).FirstOrDefault();
+                        <tr>
+                            <td>@(m.Plan?.Nombre ?? "—")</td>
+                            <td>@m.FechaInicio.ToString("dd/MM/yyyy")</td>
+                            <td>@m.FechaFin.ToString("dd/MM/yyyy")</td>
+                            <td>@m.Estado</td>
+                            <td>@m.Pagos.Count</td>
+                            <td>₡@m.Pagos.Sum(p => p.Monto).ToString("N2")</td>
+                            <td>@(ultimoPago != null ? ultimoPago.FechaPago.ToString("dd/MM/yyyy") : "—")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

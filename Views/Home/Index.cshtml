@@ -1,10 +1,15 @@
-﻿@{
+﻿@model KROTraining.Models.DashboardViewModel
+
+@{
     ViewData["Title"] = "Inicio";
     var nombre = User.Identity?.Name ?? "";
+
+    bool esPersonal = User.IsInRole("ADMINISTRADOR") || User.IsInRole("ENTRENADOR") || User.IsInRole("EMPLEADO");
 
     string rolEtiqueta =
         User.IsInRole("ADMINISTRADOR") ? "Administrador" :
         User.IsInRole("ENTRENADOR") ? "Entrenador" :
+        User.IsInRole("EMPLEADO") ? "Empleado" :
         User.IsInRole("CLIENTE") ? "Cliente" : "Usuario";
 }
 
@@ -24,7 +29,11 @@
         }
         else if (User.IsInRole("ENTRENADOR"))
         {
-            <p class="kro-hero-text">Gestiona tus clientes y sus rutinas desde el menú lateral.</p>
+            <p class="kro-hero-text">Consulte quién está en turno hoy y sus clientes asignados.</p>
+        }
+        else if (User.IsInRole("EMPLEADO"))
+        {
+            <p class="kro-hero-text">Consulte quién está en turno hoy y las tareas que tiene pendientes.</p>
         }
         else if (User.IsInRole("CLIENTE"))
         {
@@ -41,6 +50,173 @@
     </div>
 
 </div>
+
+<!-- =====================================================
+     ASIGNACIONES DEL USUARIO (arriba, según su rol)
+     ===================================================== -->
+
+@if (User.IsInRole("CLIENTE"))
+{
+    <p class="kro-section-label">Mi entrenador</p>
+
+    <div class="kro-card" style="margin-bottom:28px;">
+        @if (Model.EntrenadorAsignado == null)
+        {
+            <p role="status">Todavía no tiene un entrenador asignado.</p>
+        }
+        else
+        {
+            <div class="equipo-persona" style="gap:14px;">
+                <span class="turno-avatar" aria-hidden="true">@Model.EntrenadorAsignado.Nombre.Substring(0, 1).ToUpper()</span>
+                <strong>@Model.EntrenadorAsignado.Nombre</strong>
+            </div>
+        }
+    </div>
+}
+
+@if (User.IsInRole("ENTRENADOR"))
+{
+    <p class="kro-section-label">Mis clientes asignados</p>
+
+    <div class="kro-card" style="margin-bottom:28px;">
+        @if (!Model.ClientesAsignados.Any())
+        {
+            <p role="status">Todavía no tiene clientes asignados.</p>
+        }
+        else
+        {
+            <div class="kro-table-container">
+                <table class="equipo-tabla">
+                    <thead>
+                        <tr>
+                            <th scope="col">Cliente</th>
+                            <th scope="col">Badge</th>
+                            <th scope="col">Nivel</th>
+                            <th scope="col">Objetivo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var c in Model.ClientesAsignados)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="equipo-persona">
+                                        <span class="turno-avatar" aria-hidden="true">@c.Nombre.Substring(0, 1).ToUpper()</span>
+                                        <strong>@c.Nombre</strong>
+                                    </span>
+                                </td>
+                                <td>@(c.BadgeNumero ?? "—")</td>
+                                <td>@(c.Nivel ?? "—")</td>
+                                <td>@(c.Objetivo ?? "—")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+}
+
+@if (User.IsInRole("EMPLEADO"))
+{
+    <p class="kro-section-label">Mis tareas</p>
+
+    <div class="kro-card" style="margin-bottom:28px;">
+        @if (TempData["MensajeExito"] is string mensajeExito)
+        {
+            <div role="status" class="kro-profile-alert kro-profile-success">
+                <span class="kro-alert-icon" aria-hidden="true">✓</span>
+                <span>@mensajeExito</span>
+            </div>
+        }
+
+        @if (TempData["Error"] is string mensajeError)
+        {
+            <div role="alert" class="kro-profile-alert kro-profile-error">
+                <span class="kro-alert-icon" aria-hidden="true">!</span>
+                <span>@mensajeError</span>
+            </div>
+        }
+
+        @if (!Model.TareasProximas.Any())
+        {
+            <p role="status">No tiene tareas pendientes asignadas.</p>
+        }
+        else
+        {
+            <div class="kro-table-container">
+                <table class="equipo-tabla">
+                    <thead>
+                        <tr>
+                            <th scope="col">Fecha</th>
+                            <th scope="col">Tarea</th>
+                            <th scope="col">Estado</th>
+                            <th scope="col">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var t in Model.TareasProximas)
+                        {
+                            bool realizada = t.Estado == "REALIZADA";
+                            <tr>
+                                <td>@t.Fecha.ToString("dd/MM/yyyy")</td>
+                                <td>@t.Tarea</td>
+                                <td>
+                                    <span class="kro-badge @(realizada ? "kro-badge-green" : "kro-badge-gray")">
+                                        @(realizada ? "Realizada" : "Pendiente")
+                                    </span>
+                                </td>
+                                <td>
+                                    <form asp-controller="Horarios" asp-action="CambiarEstadoTarea" method="post" style="display:inline;">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@t.HorarioId" />
+                                        <input type="hidden" name="origen" value="inicio" />
+                                        @if (realizada)
+                                        {
+                                            <button type="submit" class="kro-btn kro-btn-small kro-btn-outline">Marcar pendiente</button>
+                                        }
+                                        else
+                                        {
+                                            <button type="submit" class="kro-btn kro-btn-small kro-btn-primary">Marcar realizada</button>
+                                        }
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+}
+
+<!-- =====================================================
+     EQUIPO EN TURNO (solo personal)
+     ===================================================== -->
+
+@if (esPersonal)
+{
+    <p class="kro-section-label">Equipo en turno · @Model.DiaHoy</p>
+
+    @if (Model.ErrorEquipo != null)
+    {
+        <div class="kro-card" style="margin-bottom:28px;">
+            <p role="alert">@Model.ErrorEquipo</p>
+        </div>
+    }
+    else
+    {
+        <div class="equipo-grid">
+            @await Html.PartialAsync("_TablaTurno", Model.Administradores, new ViewDataDictionary(ViewData) { { "Titulo", "Administradores" } })
+            @await Html.PartialAsync("_TablaTurno", Model.Entrenadores, new ViewDataDictionary(ViewData) { { "Titulo", "Entrenadores" } })
+            @await Html.PartialAsync("_TablaTurno", Model.Empleados, new ViewDataDictionary(ViewData) { { "Titulo", "Empleados" } })
+        </div>
+    }
+}
+
+<!-- =====================================================
+     ACCESOS RÁPIDOS (administrador y cliente)
+     ===================================================== -->
 
 @if (User.IsInRole("ADMINISTRADOR"))
 {
@@ -68,39 +244,19 @@
 
     </div>
 }
-else if (User.IsInRole("ENTRENADOR"))
-{
-    <p class="kro-section-label">Accesos rápidos</p>
-
-    <div class="kro-quick-grid">
-
-        <a href="/Clientes/Index" class="kro-quick-card kro-quick-card-accent">
-            <div class="kro-quick-icon">👥</div>
-            <strong>Clientes</strong>
-            <small>Consulta a tus clientes y su progreso.</small>
-        </a>
-
-        <a href="/Rutinas/Index" class="kro-quick-card">
-            <div class="kro-quick-icon">💪</div>
-            <strong>Rutinas</strong>
-            <small>Crea y asigna rutinas de entrenamiento.</small>
-        </a>
-
-        <a href="/ControlAsistencia/HistorialAsistencia" class="kro-quick-card">
-            <div class="kro-quick-icon">📝</div>
-            <strong>Asistencia</strong>
-            <small>Revisa el historial de asistencia.</small>
-        </a>
-
-    </div>
-}
 else if (User.IsInRole("CLIENTE"))
 {
     <p class="kro-section-label">Mi entrenamiento</p>
 
     <div class="kro-quick-grid">
 
-        <a href="/ClienteRutinas/Index" class="kro-quick-card kro-quick-card-accent">
+        <a href="/ControlAsistencia/RegistrarIngreso" class="kro-quick-card kro-quick-card-accent">
+            <div class="kro-quick-icon">✔️</div>
+            <strong>Registrar ingreso</strong>
+            <small>Marca tu llegada al gimnasio de hoy.</small>
+        </a>
+
+        <a href="/ClienteRutinas/Index" class="kro-quick-card">
             <div class="kro-quick-icon">💪</div>
             <strong>Mi rutina asignada</strong>
             <small>Revisa los ejercicios de tu rutina actual.</small>
@@ -116,6 +272,24 @@ else if (User.IsInRole("CLIENTE"))
             <div class="kro-quick-icon">💳</div>
             <strong>Mi membresía</strong>
             <small>Estado y vigencia de tu membresía.</small>
+        </a>
+
+        <a href="/MiMembresia/Historial" class="kro-quick-card">
+            <div class="kro-quick-icon">🧾</div>
+            <strong>Historial de membresías</strong>
+            <small>Revisa tus pagos y renovaciones anteriores.</small>
+        </a>
+
+        <a href="/Eventos/Index" class="kro-quick-card">
+            <div class="kro-quick-icon">🏆</div>
+            <strong>Eventos deportivos</strong>
+            <small>Consulta los eventos que se van a realizar.</small>
+        </a>
+
+        <a href="/Cuenta/Perfil" class="kro-quick-card">
+            <div class="kro-quick-icon">⚙️</div>
+            <strong>Mi perfil</strong>
+            <small>Actualiza tus datos y tu ficha médica.</small>
         </a>
 
     </div>

@@ -1,0 +1,67 @@
+@model KROTraining.Models.EventoFormViewModel
+
+@{
+    string accion = Model.EventoId.HasValue ? "Editar" : "Crear";
+    string fechaTexto = Model.Fecha.HasValue ? Model.Fecha.Value.ToString("yyyy-MM-ddTHH:mm") : "";
+}
+
+<form asp-controller="Eventos"
+      asp-action="@accion"
+      asp-route-id="@Model.EventoId"
+      method="post"
+      class="kro-card">
+
+    <div asp-validation-summary="ModelOnly" role="alert" style="color:#B71C1C; margin-bottom:20px;"></div>
+
+    <p>Los campos marcados con * son obligatorios.</p>
+
+    <div class="kro-form-grid">
+
+        <div class="kro-form-group">
+            <label asp-for="Nombre" class="kro-form-label">Nombre del evento *</label>
+            <input asp-for="Nombre" class="kro-form-control" maxlength="150" required />
+            <span asp-validation-for="Nombre" style="color:#B71C1C;"></span>
+        </div>
+
+        <div class="kro-form-group">
+            <label asp-for="Fecha" class="kro-form-label">Fecha y hora *</label>
+            <input asp-for="Fecha" type="datetime-local" class="kro-form-control" value="@fechaTexto" required />
+            <span asp-validation-for="Fecha" style="color:#B71C1C;"></span>
+        </div>
+
+        <div class="kro-form-group">
+            <label asp-for="CupoMaximo" class="kro-form-label">Cupo máximo *</label>
+            <input asp-for="CupoMaximo" type="number" min="1" max="10000" class="kro-form-control" required />
+            <span asp-validation-for="CupoMaximo" style="color:#B71C1C;"></span>
+            @if (Model.EventoId.HasValue)
+            {
+                <small style="display:block; margin-top:8px;">Inscritos actuales: @Model.InscritosActuales</small>
+            }
+        </div>
+
+        @if (Model.EventoId.HasValue)
+        {
+            <div class="kro-form-group">
+                <label asp-for="Estado" class="kro-form-label">Estado *</label>
+                <select asp-for="Estado" class="kro-form-control">
+                    <option value="ACTIVO">Activo</option>
+                    <option value="FINALIZADO">Finalizado</option>
+                    <option value="CANCELADO">Cancelado</option>
+                </select>
+                <span asp-validation-for="Estado" style="color:#B71C1C;"></span>
+            </div>
+        }
+
+        <div class="kro-form-group" style="grid-column: 1 / -1;">
+            <label asp-for="Descripcion" class="kro-form-label">Descripción</label>
+            <textarea asp-for="Descripcion" class="kro-form-control" rows="4" maxlength="2000"></textarea>
+            <span asp-validation-for="Descripcion" style="color:#B71C1C;"></span>
+        </div>
+
+    </div>
+
+    <div class="kro-actions" style="margin-top:20px;">
+        <a asp-controller="Eventos" asp-action="Index" class="kro-btn kro-btn-alert-outline">Cancelar</a>
+        <button type="submit" class="kro-btn kro-btn-primary">@(Model.EventoId.HasValue ? "Guardar cambios" : "Crear evento")</button>
+    </div>
+</form>

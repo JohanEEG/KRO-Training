@@ -20,6 +20,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     .AddCookie(options =>
     {
         options.LoginPath = "/Cuenta/Login"; // <-- CORREGIDO: Apunta a CuentaController
+        options.AccessDeniedPath = "/Cuenta/AccesoDenegado"; // Usuario autenticado sin permiso para la página
         options.ExpireTimeSpan = TimeSpan.FromHours(8); // Tiempo que dura la sesión activa
     });
 // -------------------------------------------------

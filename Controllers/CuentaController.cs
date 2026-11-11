@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using KROTraining.Models;
 using System.Net;
 using System.Net.Mail;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Identity;
 
 namespace KROTraining.Controllers
@@ -84,6 +85,13 @@ namespace KROTraining.Controllers
             return true;
         }
 
+        // GET: /Cuenta/AccesoDenegado (sin permiso para la página solicitada)
+        [HttpGet]
+        public IActionResult AccesoDenegado()
+        {
+            return View();
+        }
+
         // GET: /Cuenta/Login
         [HttpGet]
         public IActionResult Login()
@@ -131,6 +139,16 @@ namespace KROTraining.Controllers
                 return View();
             }
 
+            // Una cuenta dada de baja o bloqueada no puede iniciar sesión.
+            if (usuario.Estado != "ACTIVO")
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Su cuenta está inactiva o bloqueada. Comuníquese con la administración.");
+
+                return View();
+            }
+
             if (actualizarHash)
             {
                 usuario.ContrasenaHash = _passwordHasher.HashPassword(
@@ -170,13 +188,8 @@ namespace KROTraining.Controllers
                 }
             }
 
-            return usuario.Rol?.Nombre switch
-            {
-                "ADMINISTRADOR" => RedirectToAction("HistorialAsistencia", "ControlAsistencia"),
-                "ENTRENADOR" => RedirectToAction("VisualizarAsistencia", "ControlAsistencia"),
-                "CLIENTE" => RedirectToAction("RegistrarIngreso", "ControlAsistencia"),
-                _ => RedirectToAction("Index", "Home")
-            };
+            // Todos los roles entran primero al dashboard.
+            return RedirectToAction("Index", "Home");
         }
 
         // POST: /Cuenta/Logout (HU-11)
@@ -282,6 +295,7 @@ namespace KROTraining.Controllers
                 .Include(u => u.Rol)
                 .Include(u => u.Cliente)
                 .Include(u => u.Entrenador)
+                .Include(u => u.FichaMedica)
                 .FirstOrDefaultAsync(u => u.UsuarioId == usuarioId);
 
             if (usuario == null)
@@ -308,11 +322,47 @@ namespace KROTraining.Controllers
                 return NotFound();
             }
 
+            nombre = (nombre ?? string.Empty).Trim();
+            telefono = string.IsNullOrWhiteSpace(telefono) ? null : telefono.Trim();
+            fotoPerfil = string.IsNullOrWhiteSpace(fotoPerfil) ? null : fotoPerfil.Trim();
+
+            // Campos obligatorios incompletos.
+            if (string.IsNullOrEmpty(nombre))
+            {
+                TempData["Error"] = "El nombre completo es obligatorio.";
+                return RedirectToAction(nameof(Perfil));
+            }
+
+            if (nombre.Length > 150)
+            {
+                TempData["Error"] = "El nombre completo no puede superar los 150 caracteres.";
+                return RedirectToAction(nameof(Perfil));
+            }
+
+            // Datos con formato inválido.
+            if (telefono != null && !Regex.IsMatch(telefono, @"^\+?[0-9 \-]{8,20}$"))
+            {
+                TempData["Error"] = "El teléfono debe tener entre 8 y 20 dígitos y solo puede incluir +, espacios o guiones.";
+                return RedirectToAction(nameof(Perfil));
+            }
+
+            if (fotoPerfil != null)
+            {
+                bool urlValida = Uri.TryCreate(fotoPerfil, UriKind.Absolute, out var uri) &&
+                    (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
+
+                if (!urlValida)
+                {
+                    TempData["Error"] = "La fotografía debe ser un enlace válido que comience con http:// o https://.";
+                    return RedirectToAction(nameof(Perfil));
+                }
+            }
+
             usuario.Nombre = nombre;
             usuario.Cedula = cedula;
             usuario.Telefono = telefono;
 
-            if (!string.IsNullOrEmpty(fotoPerfil))
+            if (fotoPerfil != null)
             {
                 usuario.FotoPerfil = fotoPerfil;
             }
@@ -326,8 +376,25 @@ namespace KROTraining.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ActualizarFichaMedica(int usuarioId, string? contactoEmergencia, string? alergias, string? padecimientos, string? medicamentos)
+        public async Task<IActionResult> ActualizarFichaMedica(string? contactoEmergencia, string? alergias, string? padecimientos, string? medicamentos)
         {
+            // El usuario se toma siempre de la sesión, nunca del formulario.
+            if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int usuarioId))
+            {
+                return RedirectToAction("Login", "Cuenta");
+            }
+
+            contactoEmergencia = LimpiarTexto(contactoEmergencia);
+            alergias = LimpiarTexto(alergias);
+            padecimientos = LimpiarTexto(padecimientos);
+            medicamentos = LimpiarTexto(medicamentos);
+
+            if (contactoEmergencia != null && contactoEmergencia.Length > 200)
+            {
+                TempData["Error"] = "El contacto de emergencia no puede superar los 200 caracteres.";
+                return RedirectToAction(nameof(Perfil));
+            }
+
             var cliente = await _context.Clientes.FirstOrDefaultAsync(c => c.UsuarioId == usuarioId);
             if (cliente != null)
             {
@@ -337,15 +404,32 @@ namespace KROTraining.Controllers
                 cliente.Medicamentos = medicamentos;
 
                 _context.Clientes.Update(cliente);
-                await _context.SaveChangesAsync();
-                TempData["Mensaje"] = "Ficha médica y de emergencia actualizada con éxito.";
             }
             else
             {
-                TempData["Error"] = "No se encontró el registro de cliente asociado a este usuario.";
+                // Personal (administrador, entrenador, empleado): ficha en FICHA_MEDICA.
+                var ficha = await _context.FichasMedicas.FirstOrDefaultAsync(f => f.UsuarioId == usuarioId);
+                if (ficha == null)
+                {
+                    ficha = new FichaMedica { UsuarioId = usuarioId };
+                    _context.FichasMedicas.Add(ficha);
+                }
+
+                ficha.ContactoEmergencia = contactoEmergencia;
+                ficha.Alergias = alergias;
+                ficha.Padecimientos = padecimientos;
+                ficha.Medicamentos = medicamentos;
             }
 
+            await _context.SaveChangesAsync();
+            TempData["Mensaje"] = "Ficha médica y de emergencia actualizada con éxito.";
+
             return RedirectToAction(nameof(Perfil));
+        }
+
+        private static string? LimpiarTexto(string? valor)
+        {
+            return string.IsNullOrWhiteSpace(valor) ? null : valor.Trim();
         }
 
         // ==========================================

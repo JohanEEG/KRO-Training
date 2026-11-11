@@ -19,6 +19,14 @@
     </div>
 }
 
+@if (TempData["Error"] is string mensajeError)
+{
+    <div role="alert" class="kro-profile-alert kro-profile-error">
+        <span class="kro-alert-icon" aria-hidden="true">!</span>
+        <span>@mensajeError</span>
+    </div>
+}
+
 <div class="kro-card">
 
     <div style="display:flex; justify-content:space-between;
@@ -85,6 +93,22 @@
                                             ? "Ver baja"
                                             : "Dar de baja")
                                     </a>
+
+                                    @if (colaborador.Estado == "INACTIVO")
+                                    {
+                                        <form asp-controller="GestionPersonal"
+                                              asp-action="Reactivar"
+                                              asp-route-id="@colaborador.UsuarioId"
+                                              method="post"
+                                              style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit"
+                                                    class="kro-btn kro-btn-small kro-btn-primary"
+                                                    aria-label="@($"Reactivar a {colaborador.Nombre}")">
+                                                Reactivar
+                                            </button>
+                                        </form>
+                                    }
                                 </div>
                             </td>
                         </tr>

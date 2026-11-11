@@ -12,6 +12,14 @@ namespace KRO_Training_Performance.Controllers
     [Authorize(Roles = "ADMINISTRADOR")]
     public class GestionPersonalController : Controller
     {
+        // Roles que se gestionan desde esta pantalla (colaboradores del gimnasio).
+        private static readonly string[] RolesColaborador =
+        {
+            "ADMINISTRADOR",
+            "ENTRENADOR",
+            "EMPLEADO"
+        };
+
         private readonly KroTrainingContext _context;
         private readonly IPasswordHasher<Usuario> _passwordHasher;
 
@@ -29,9 +37,7 @@ namespace KRO_Training_Performance.Controllers
             var colaboradores = await _context.Usuarios
                 .AsNoTracking()
                 .Include(u => u.Rol)
-                .Where(u =>
-                    u.Rol.Nombre == "ADMINISTRADOR" ||
-                    u.Rol.Nombre == "ENTRENADOR")
+                .Where(u => RolesColaborador.Contains(u.Rol.Nombre))
                 .OrderBy(u => u.Nombre)
                 .ToListAsync();
 
@@ -59,8 +65,7 @@ namespace KRO_Training_Performance.Controllers
             var rol = await _context.Rols
                 .SingleOrDefaultAsync(r =>
                     r.RolId == model.RolId &&
-                    (r.Nombre == "ADMINISTRADOR" ||
-                     r.Nombre == "ENTRENADOR"));
+                    RolesColaborador.Contains(r.Nombre));
 
             if (rol == null)
             {
@@ -107,6 +112,10 @@ namespace KRO_Training_Performance.Controllers
             {
                 usuario.Entrenador = new Entrenador();
             }
+            else if (rol.Nombre == "EMPLEADO")
+            {
+                usuario.Empleado = new Empleado();
+            }
             else
             {
                 usuario.Administrador = new Administrador();
@@ -144,8 +153,7 @@ namespace KRO_Training_Performance.Controllers
                 .AsNoTracking()
                 .SingleOrDefaultAsync(u =>
                     u.UsuarioId == id &&
-                    (u.Rol.Nombre == "ADMINISTRADOR" ||
-                     u.Rol.Nombre == "ENTRENADOR"));
+                    RolesColaborador.Contains(u.Rol.Nombre));
 
             if (usuario == null)
             {
@@ -182,10 +190,10 @@ namespace KRO_Training_Performance.Controllers
             var usuario = await _context.Usuarios
                 .Include(u => u.Entrenador)
                 .Include(u => u.Administrador)
+                .Include(u => u.Empleado)
                 .SingleOrDefaultAsync(u =>
                     u.UsuarioId == id &&
-                    (u.Rol.Nombre == "ADMINISTRADOR" ||
-                     u.Rol.Nombre == "ENTRENADOR"));
+                    RolesColaborador.Contains(u.Rol.Nombre));
 
             if (usuario == null)
             {
@@ -202,8 +210,7 @@ namespace KRO_Training_Performance.Controllers
             var rol = await _context.Rols
                 .SingleOrDefaultAsync(r =>
                     r.RolId == model.RolId &&
-                    (r.Nombre == "ADMINISTRADOR" ||
-                     r.Nombre == "ENTRENADOR"));
+                    RolesColaborador.Contains(r.Nombre));
 
             if (rol == null)
             {
@@ -256,6 +263,12 @@ namespace KRO_Training_Performance.Controllers
                 usuario.Administrador = new Administrador();
             }
 
+            if (rol.Nombre == "EMPLEADO" &&
+                usuario.Empleado == null)
+            {
+                usuario.Empleado = new Empleado();
+            }
+
             try
             {
                 await _context.SaveChangesAsync();
@@ -297,6 +310,7 @@ namespace KRO_Training_Performance.Controllers
 
             return RedirectToAction(nameof(Editar), new { id });
         }
+
         [HttpGet]
         public async Task<IActionResult> DarBaja(int id)
         {
@@ -305,8 +319,7 @@ namespace KRO_Training_Performance.Controllers
                 .Include(u => u.Rol)
                 .SingleOrDefaultAsync(u =>
                     u.UsuarioId == id &&
-                    (u.Rol.Nombre == "ADMINISTRADOR" ||
-                     u.Rol.Nombre == "ENTRENADOR"));
+                    RolesColaborador.Contains(u.Rol.Nombre));
 
             if (usuario == null)
             {
@@ -349,8 +362,7 @@ namespace KRO_Training_Performance.Controllers
                 .Include(u => u.Rol)
                 .SingleOrDefaultAsync(u =>
                     u.UsuarioId == id &&
-                    (u.Rol.Nombre == "ADMINISTRADOR" ||
-                     u.Rol.Nombre == "ENTRENADOR"));
+                    RolesColaborador.Contains(u.Rol.Nombre));
 
             if (usuario == null)
             {
@@ -400,8 +412,7 @@ namespace KRO_Training_Performance.Controllers
                 .Where(u =>
                     u.UsuarioId == id &&
                     u.Estado != "INACTIVO" &&
-                    (u.Rol.Nombre == "ADMINISTRADOR" ||
-                     u.Rol.Nombre == "ENTRENADOR"))
+                    RolesColaborador.Contains(u.Rol.Nombre))
                 .ExecuteUpdateAsync(cambios => cambios
                     .SetProperty(u => u.Estado, "INACTIVO"));
 
@@ -416,13 +427,37 @@ namespace KRO_Training_Performance.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Reactivar(int id)
+        {
+            var filasActualizadas = await _context.Usuarios
+                .Where(u =>
+                    u.UsuarioId == id &&
+                    u.Estado == "INACTIVO" &&
+                    RolesColaborador.Contains(u.Rol.Nombre))
+                .ExecuteUpdateAsync(cambios => cambios
+                    .SetProperty(u => u.Estado, "ACTIVO"));
+
+            if (filasActualizadas == 0)
+            {
+                TempData["Error"] =
+                    "No se pudo reactivar: el colaborador no existe o ya está activo.";
+            }
+            else
+            {
+                TempData["MensajeExito"] =
+                    "El colaborador fue reactivado correctamente.";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
         private async Task CargarRolesAsync(int? seleccionado = null)
         {
             var roles = await _context.Rols
                 .AsNoTracking()
-                .Where(r =>
-                    r.Nombre == "ADMINISTRADOR" ||
-                    r.Nombre == "ENTRENADOR")
+                .Where(r => RolesColaborador.Contains(r.Nombre))
                 .OrderBy(r => r.Nombre)
                 .ToListAsync();
 

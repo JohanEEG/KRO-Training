@@ -1,0 +1,115 @@
+@model List<KROTraining.Models.HorarioTarea>
+
+@{
+    ViewData["Title"] = "Asignar tareas";
+    var personal = ViewBag.Personal as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> ?? new();
+    var errorCarga = ViewBag.ErrorCarga as string;
+}
+
+<h1 class="kro-page-title">Asignar tareas</h1>
+
+<p class="kro-page-subtitle">
+    Asigne tareas al personal del gimnasio. Cada persona verá sus tareas en "Mis tareas".
+</p>
+
+@if (TempData["MensajeExito"] is string mensajeExito)
+{
+    <div role="status" class="kro-profile-alert kro-profile-success">
+        <span class="kro-alert-icon" aria-hidden="true">✓</span>
+        <span>@mensajeExito</span>
+    </div>
+}
+
+@if (TempData["Error"] is string mensajeError)
+{
+    <div role="alert" class="kro-profile-alert kro-profile-error">
+        <span class="kro-alert-icon" aria-hidden="true">!</span>
+        <span>@mensajeError</span>
+    </div>
+}
+
+<div class="kro-card" style="margin-bottom:20px;">
+    <div class="kro-card-title">Nueva tarea</div>
+
+    <form asp-controller="Tareas" asp-action="Crear" method="post"
+          style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:16px; align-items:end;">
+
+        @Html.AntiForgeryToken()
+
+        <div class="kro-form-group">
+            <label for="usuarioId" class="kro-form-label">Persona *</label>
+            <select id="usuarioId" name="usuarioId" class="kro-form-control" required>
+                <option value="">Seleccione</option>
+                @foreach (var p in personal)
+                {
+                    <option value="@p.Value">@p.Text</option>
+                }
+            </select>
+        </div>
+
+        <div class="kro-form-group">
+            <label for="fecha" class="kro-form-label">Fecha *</label>
+            <input type="date" id="fecha" name="fecha" class="kro-form-control"
+                   value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+        </div>
+
+        <div class="kro-form-group" style="grid-column: span 2;">
+            <label for="tarea" class="kro-form-label">Tarea *</label>
+            <input type="text" id="tarea" name="tarea" class="kro-form-control"
+                   maxlength="255" placeholder="Ej. Limpiar área de pesas" required />
+        </div>
+
+        <div>
+            <button type="submit" class="kro-btn kro-btn-primary">Asignar tarea</button>
+        </div>
+    </form>
+</div>
+
+<div class="kro-card">
+    <div class="kro-card-title" style="margin-bottom:16px;">Tareas asignadas</div>
+
+    @if (errorCarga != null)
+    {
+        <p role="alert">@errorCarga</p>
+    }
+    else if (!Model.Any())
+    {
+        <p role="status">Todavía no hay tareas asignadas.</p>
+    }
+    else
+    {
+        <div class="kro-table-container">
+            <table class="kro-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Fecha</th>
+                        <th scope="col">Persona</th>
+                        <th scope="col">Tarea</th>
+                        <th scope="col">Estado</th>
+                        <th scope="col">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var t in Model)
+                    {
+                        <tr>
+                            <td>@t.Fecha.ToString("dd/MM/yyyy")</td>
+                            <td>@t.Usuario.Nombre</td>
+                            <td>@t.Tarea</td>
+                            <td>@t.Estado</td>
+                            <td>
+                                <form asp-controller="Tareas" asp-action="Eliminar" asp-route-id="@t.HorarioId"
+                                      method="post" style="display:inline;"
+                                      onsubmit="return confirm('¿Eliminar esta tarea?');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="kro-btn kro-btn-small kro-btn-alert-outline"
+                                            aria-label="@($"Eliminar tarea de {t.Usuario.Nombre}")">Eliminar</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

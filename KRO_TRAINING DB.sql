@@ -1242,3 +1242,85 @@ GO
 //
 
 
+/* ============================================================
+   KRÒ Training - Rol EMPLEADO y horario del personal
+   Ejecutar una sola vez sobre la base KRO_Training.
+   Los usuarios se crean desde la página (Gestión de personal).
+   ============================================================ */
+
+USE KRO_Training;
+GO
+
+/* 1. Rol EMPLEADO */
+IF NOT EXISTS (SELECT 1 FROM ROL WHERE nombre = 'EMPLEADO')
+BEGIN
+    INSERT INTO ROL (nombre) VALUES ('EMPLEADO');
+END
+GO
+
+/* 2. Tabla EMPLEADO (extensión de USUARIO, igual que ENTRENADOR y ADMINISTRADOR) */
+IF OBJECT_ID('dbo.EMPLEADO', 'U') IS NULL
+BEGIN
+    CREATE TABLE EMPLEADO
+    (
+        usuario_id INT NOT NULL,
+
+        CONSTRAINT PK_EMPLEADO
+            PRIMARY KEY (usuario_id),
+
+        CONSTRAINT FK_EMPLEADO_USUARIO
+            FOREIGN KEY (usuario_id)
+            REFERENCES USUARIO(usuario_id)
+    );
+END
+GO
+
+/* 3. Horario semanal del personal (una fila por persona y día).
+      dia_semana: 1 = Lunes ... 7 = Domingo
+      turno: texto libre de la celda, por ejemplo "07:00-13:00" o "Descanso" */
+IF OBJECT_ID('dbo.HORARIO_PERSONAL', 'U') IS NULL
+BEGIN
+    CREATE TABLE HORARIO_PERSONAL
+    (
+        usuario_id INT NOT NULL,
+        dia_semana TINYINT NOT NULL,
+        turno NVARCHAR(100) NULL,
+
+        CONSTRAINT PK_HORARIO_PERSONAL
+            PRIMARY KEY (usuario_id, dia_semana),
+
+        CONSTRAINT FK_HORARIO_PERSONAL_USUARIO
+            FOREIGN KEY (usuario_id)
+            REFERENCES USUARIO(usuario_id),
+
+        CONSTRAINT CK_HORARIO_PERSONAL_DIA
+            CHECK (dia_semana BETWEEN 1 AND 7)
+    );
+END
+GO
+
+/* ============================================================
+   CAMBIOS: Ficha medica para personal (no clientes)
+   Los clientes siguen usando las columnas de CLIENTE.
+   Idempotente.
+   ============================================================ */
+
+IF OBJECT_ID('dbo.FICHA_MEDICA', 'U') IS NULL
+BEGIN
+    CREATE TABLE FICHA_MEDICA
+    (
+        usuario_id INT NOT NULL,
+        contacto_emergencia NVARCHAR(200) NULL,
+        alergias NVARCHAR(MAX) NULL,
+        padecimientos NVARCHAR(MAX) NULL,
+        medicamentos NVARCHAR(MAX) NULL,
+
+        CONSTRAINT PK_FICHA_MEDICA
+            PRIMARY KEY (usuario_id),
+
+        CONSTRAINT FK_FICHA_MEDICA_USUARIO
+            FOREIGN KEY (usuario_id)
+            REFERENCES USUARIO(usuario_id)
+    );
+END
+GO

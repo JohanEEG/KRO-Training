@@ -29,11 +29,17 @@ public partial class KroTrainingContext : DbContext
 
     public virtual DbSet<Ejercicio> Ejercicios { get; set; }
 
+    public virtual DbSet<Empleado> Empleados { get; set; }
+
     public virtual DbSet<Entrenador> Entrenadors { get; set; }
+
+    public virtual DbSet<FichaMedica> FichasMedicas { get; set; }
 
     public virtual DbSet<EvaluacionFisica> EvaluacionFisicas { get; set; }
 
     public virtual DbSet<Evento> Eventos { get; set; }
+
+    public virtual DbSet<HorarioPersonal> HorarioPersonals { get; set; }
 
     public virtual DbSet<HorarioTarea> HorarioTareas { get; set; }
 
@@ -259,6 +265,62 @@ public partial class KroTrainingContext : DbContext
             entity.Property(e => e.Nombre)
                 .HasMaxLength(150)
                 .HasColumnName("nombre");
+        });
+
+        modelBuilder.Entity<Empleado>(entity =>
+        {
+            entity.HasKey(e => e.UsuarioId);
+
+            entity.ToTable("EMPLEADO");
+
+            entity.Property(e => e.UsuarioId)
+                .ValueGeneratedNever()
+                .HasColumnName("usuario_id");
+
+            entity.HasOne(d => d.Usuario).WithOne(p => p.Empleado)
+                .HasForeignKey<Empleado>(d => d.UsuarioId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_EMPLEADO_USUARIO");
+        });
+
+        modelBuilder.Entity<FichaMedica>(entity =>
+        {
+            entity.HasKey(e => e.UsuarioId);
+
+            entity.ToTable("FICHA_MEDICA");
+
+            entity.Property(e => e.UsuarioId)
+                .ValueGeneratedNever()
+                .HasColumnName("usuario_id");
+            entity.Property(e => e.ContactoEmergencia)
+                .HasMaxLength(200)
+                .HasColumnName("contacto_emergencia");
+            entity.Property(e => e.Alergias).HasColumnName("alergias");
+            entity.Property(e => e.Padecimientos).HasColumnName("padecimientos");
+            entity.Property(e => e.Medicamentos).HasColumnName("medicamentos");
+
+            entity.HasOne(d => d.Usuario).WithOne(p => p.FichaMedica)
+                .HasForeignKey<FichaMedica>(d => d.UsuarioId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_FICHA_MEDICA_USUARIO");
+        });
+
+        modelBuilder.Entity<HorarioPersonal>(entity =>
+        {
+            entity.HasKey(e => new { e.UsuarioId, e.DiaSemana });
+
+            entity.ToTable("HORARIO_PERSONAL");
+
+            entity.Property(e => e.UsuarioId).HasColumnName("usuario_id");
+            entity.Property(e => e.DiaSemana).HasColumnName("dia_semana");
+            entity.Property(e => e.Turno)
+                .HasMaxLength(100)
+                .HasColumnName("turno");
+
+            entity.HasOne(d => d.Usuario).WithMany(p => p.HorarioPersonals)
+                .HasForeignKey(d => d.UsuarioId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_HORARIO_PERSONAL_USUARIO");
         });
 
         modelBuilder.Entity<Entrenador>(entity =>

@@ -1,14 +1,13 @@
 ﻿@model KROTraining.Models.Usuario
 
 @{
-    ViewData["Title"] = "Mi Perfil";
+    ViewData["Title"] = "Mi perfil";
 
-    bool esPersonalEntrenamiento =
-        User.IsInRole("ADMINISTRADOR") ||
-        User.IsInRole("ENTRENADOR") ||
-        (Model.Rol != null &&
-         (Model.Rol.Nombre == "ADMINISTRADOR" ||
-          Model.Rol.Nombre == "ENTRENADOR"));
+    // Clientes: ficha en CLIENTE. Resto del personal: ficha en FICHA_MEDICA.
+    string? fichaContacto = Model.Cliente != null ? Model.Cliente.ContactoEmergencia : Model.FichaMedica?.ContactoEmergencia;
+    string? fichaAlergias = Model.Cliente != null ? Model.Cliente.Alergias : Model.FichaMedica?.Alergias;
+    string? fichaPadecimientos = Model.Cliente != null ? Model.Cliente.Padecimientos : Model.FichaMedica?.Padecimientos;
+    string? fichaMedicamentos = Model.Cliente != null ? Model.Cliente.Medicamentos : Model.FichaMedica?.Medicamentos;
 }
 
 <div class="kro-profile-container">
@@ -125,9 +124,7 @@
     </section>
 
     <!-- 2. FICHA MÉDICA -->
-    @if (Model.Cliente != null)
-    {
-        <section class="kro-card kro-profile-section">
+    <section class="kro-card kro-profile-section">
 
             <div class="kro-section-heading">
                 <div class="kro-section-icon kro-health-icon"
@@ -172,7 +169,7 @@
                                id="contactoEmergencia"
                                name="contactoEmergencia"
                                class="kro-form-control"
-                               value="@Model.Cliente.ContactoEmergencia"
+                               value="@fichaContacto"
                                placeholder="Nombre y teléfono" />
                     </div>
 
@@ -184,7 +181,7 @@
                                id="alergias"
                                name="alergias"
                                class="kro-form-control"
-                               value="@Model.Cliente.Alergias"
+                               value="@fichaAlergias"
                                placeholder="Indique las alergias conocidas" />
                     </div>
 
@@ -197,7 +194,7 @@
                                   name="padecimientos"
                                   class="kro-form-control"
                                   rows="3"
-                                  placeholder="Indique información relevante para su entrenamiento">@Model.Cliente.Padecimientos</textarea>
+                                  placeholder="Indique información relevante para su entrenamiento">@fichaPadecimientos</textarea>
                     </div>
 
                     <div class="kro-profile-field kro-profile-field-full">
@@ -209,7 +206,7 @@
                                   name="medicamentos"
                                   class="kro-form-control"
                                   rows="3"
-                                  placeholder="Indique los medicamentos que utiliza actualmente">@Model.Cliente.Medicamentos</textarea>
+                                  placeholder="Indique los medicamentos que utiliza actualmente">@fichaMedicamentos</textarea>
                     </div>
 
                 </div>
@@ -221,36 +218,6 @@
                 </div>
             </form>
         </section>
-    }
-    else if (esPersonalEntrenamiento)
-    {
-        <section class="kro-card kro-profile-section">
-
-            <div class="kro-section-heading">
-                <div class="kro-section-icon" aria-hidden="true">02</div>
-                <div>
-                    <h2 class="kro-section-title">
-                        Ficha médica y contacto de emergencia
-                    </h2>
-                    <p class="kro-section-description">
-                        Información de salud asociada a los perfiles de clientes.
-                    </p>
-                </div>
-            </div>
-
-            <div class="kro-information-notice">
-                <strong>Información del perfil</strong>
-                <p>
-                    Su cuenta tiene asignado el rol de
-                    <strong>@(Model.Rol?.Nombre ?? "Personal de entrenamiento")</strong>.
-                    La ficha médica disponible en esta pantalla corresponde
-                    a los perfiles de clientes. Puede consultar la información
-                    de los atletas desde el módulo de gestión de clientes,
-                    según los permisos de su cuenta.
-                </p>
-            </div>
-        </section>
-    }
 
     <!-- 3. CORREO -->
     <section class="kro-card kro-profile-section">

@@ -1,0 +1,10 @@
+@model KROTraining.Models.EventoFormViewModel
+
+@{
+    ViewData["Title"] = "Editar evento";
+}
+
+<h1 class="kro-page-title">Editar evento</h1>
+<p class="kro-page-subtitle">Actualice los datos del evento. El cupo no puede ser menor a los inscritos.</p>
+
+@await Html.PartialAsync("_FormularioEvento", Model)

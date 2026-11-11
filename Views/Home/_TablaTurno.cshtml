@@ -1,0 +1,44 @@
+@model List<KROTraining.Models.TurnoHoyViewModel>
+
+@{
+    string titulo = ViewData["Titulo"] as string ?? "Personal";
+}
+
+<section class="equipo-card" aria-label="@titulo en turno">
+    <header class="equipo-card-header">
+        <span>@titulo</span>
+        <span class="equipo-count">@Model.Count</span>
+    </header>
+
+    @if (!Model.Any())
+    {
+        <p class="equipo-vacio">Nadie en turno hoy.</p>
+    }
+    else
+    {
+        <div class="kro-table-container">
+            <table class="equipo-tabla">
+                <thead>
+                    <tr>
+                        <th scope="col">Persona</th>
+                        <th scope="col">Horario</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in Model)
+                    {
+                        <tr>
+                            <td>
+                                <span class="equipo-persona">
+                                    <span class="turno-avatar" aria-hidden="true">@p.Nombre.Substring(0, 1).ToUpper()</span>
+                                    <strong>@p.Nombre</strong>
+                                </span>
+                            </td>
+                            <td><span class="equipo-horario">@p.Turno</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

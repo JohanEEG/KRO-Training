@@ -1,0 +1,10 @@
+@model KROTraining.Models.EventoFormViewModel
+
+@{
+    ViewData["Title"] = "Nuevo evento";
+}
+
+<h1 class="kro-page-title">Nuevo evento</h1>
+<p class="kro-page-subtitle">Defina el nombre, la fecha y el cupo del evento deportivo.</p>
+
+@await Html.PartialAsync("_FormularioEvento", Model)

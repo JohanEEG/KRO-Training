@@ -1,0 +1,146 @@
+@model KROTraining.Models.HorarioPersonalViewModel
+
+@{
+    ViewData["Title"] = "Empleados y horarios";
+    var dias = KROTraining.Models.HorarioPersonalViewModel.NombresDias;
+    var errorCarga = ViewBag.ErrorCarga as string;
+}
+
+<h1 class="kro-page-title">Empleados y horarios</h1>
+
+<p class="kro-page-subtitle">
+    Consulte el horario semanal de todo el personal para saber quién está en el gimnasio cada día.
+    @if (Model.PuedeEditar)
+    {
+        <span>Como administrador puede editar las celdas y guardar los cambios.</span>
+    }
+</p>
+
+@if (TempData["MensajeExito"] is string mensajeExito)
+{
+    <div role="status" class="kro-profile-alert kro-profile-success">
+        <span class="kro-alert-icon" aria-hidden="true">✓</span>
+        <span>@mensajeExito</span>
+    </div>
+}
+
+@if (TempData["Error"] is string mensajeError)
+{
+    <div role="alert" class="kro-profile-alert kro-profile-error">
+        <span class="kro-alert-icon" aria-hidden="true">!</span>
+        <span>@mensajeError</span>
+    </div>
+}
+
+@if (errorCarga != null)
+{
+    <div role="alert" class="kro-profile-alert kro-profile-error">
+        <span class="kro-alert-icon" aria-hidden="true">!</span>
+        <span>@errorCarga</span>
+    </div>
+}
+else if (!Model.Filas.Any())
+{
+    <div class="kro-card">
+        <p role="status">No hay personal activo registrado.</p>
+    </div>
+}
+else
+{
+    var formularioEditable = Model.PuedeEditar;
+
+    <form asp-action="Guardar" method="post" class="kro-card horario-card">
+
+        <div class="kro-table-container horario-scroll">
+            <table class="kro-table horario-tabla">
+                <thead>
+                    <tr>
+                        <th scope="col" class="horario-col-persona">Persona</th>
+                        <th scope="col" class="horario-col-rol">Rol</th>
+                        @foreach (var dia in dias)
+                        {
+                            <th scope="col">@dia</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.Filas.Count; i++)
+                    {
+                        var fila = Model.Filas[i];
+                        <tr>
+                            <td class="horario-col-persona">
+                                <input type="hidden" name="Filas[@i].UsuarioId" value="@fila.UsuarioId" />
+                                <strong>@fila.Nombre</strong>
+                            </td>
+                            <td class="horario-col-rol">@fila.Rol</td>
+
+                            @for (int d = 0; d < 7; d++)
+                            {
+                                <td>
+                                    @if (formularioEditable)
+                                    {
+                                        <input type="text"
+                                               class="kro-form-control horario-celda"
+                                               name="Filas[@i].Dias[@d]"
+                                               value="@fila.Dias[d]"
+                                               maxlength="100"
+                                               placeholder="Ej. 07:00-13:00"
+                                               aria-label="@($"{fila.Nombre}, {dias[d]}")" />
+                                    }
+                                    else
+                                    {
+                                        <span>@(string.IsNullOrWhiteSpace(fila.Dias[d]) ? "—" : fila.Dias[d])</span>
+                                    }
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (formularioEditable)
+        {
+            <div class="kro-actions" style="margin-top:20px;">
+                <button type="submit" class="kro-btn kro-btn-primary">Guardar horario</button>
+            </div>
+        }
+    </form>
+}
+
+<style>
+    .horario-card {
+        padding: 20px;
+    }
+
+    .horario-scroll {
+        overflow-x: auto;
+    }
+
+    .horario-tabla {
+        min-width: 960px;
+    }
+
+        .horario-tabla th,
+        .horario-tabla td {
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+    .horario-col-persona {
+        position: sticky;
+        left: 0;
+        background: #fff;
+        z-index: 1;
+    }
+
+    .horario-tabla thead .horario-col-persona {
+        background: #f3f4f6;
+    }
+
+    .horario-celda {
+        min-width: 130px;
+        padding: 6px 8px;
+        font-size: 13px;
+    }
+</style>
