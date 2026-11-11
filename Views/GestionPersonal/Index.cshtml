@@ -7,7 +7,6 @@
 <h1 class="kro-page-title">
     Gestión de personal
 </h1>
-
 <p class="kro-page-subtitle">
     Consulte los colaboradores registrados y administre su información.
 </p>
@@ -68,12 +67,18 @@
                 <tbody>
                     @foreach (var colaborador in Model)
                     {
+                        bool estaActivo = colaborador.Estado == "ACTIVO";
+
                         <tr>
                             <td>@colaborador.Nombre</td>
                             <td>@colaborador.Correo</td>
                             <td>@(colaborador.Telefono ?? "—")</td>
                             <td>@colaborador.Rol.Nombre</td>
-                            <td>@colaborador.Estado</td>
+                            <td>
+                                <span class="badge @(estaActivo ? "bg-success" : "bg-danger")">
+                                    @colaborador.Estado
+                                </span>
+                            </td>
                             <td>
                                 <div style="display:flex; gap:8px; flex-wrap:wrap;">
                                     <a asp-controller="GestionPersonal"
@@ -84,6 +89,7 @@
                                         Editar
                                     </a>
 
+<<<<<<< Updated upstream
                                     <a asp-controller="GestionPersonal"
                                        asp-action="DarBaja"
                                        asp-route-id="@colaborador.UsuarioId"
@@ -108,6 +114,28 @@
                                                 Reactivar
                                             </button>
                                         </form>
+=======
+                                    @if (estaActivo)
+                                    {
+                                        <a asp-controller="GestionPersonal"
+                                           asp-action="DarBaja"
+                                           asp-route-id="@colaborador.UsuarioId"
+                                           class="kro-btn kro-btn-small kro-btn-outline"
+                                           aria-label="@($"Dar de baja a {colaborador.Nombre}")">
+                                            Dar de baja
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a asp-controller="GestionPersonal"
+                                           asp-action="Activar"
+                                           asp-route-id="@colaborador.UsuarioId"
+                                           class="kro-btn kro-btn-small kro-btn-outline"
+                                           style="border-color: #198754; color: #198754;"
+                                           aria-label="@($"Dar de alta a {colaborador.Nombre}")">
+                                            Dar de alta
+                                        </a>
+>>>>>>> Stashed changes
                                     }
                                 </div>
                             </td>

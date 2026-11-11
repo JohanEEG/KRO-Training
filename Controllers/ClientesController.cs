@@ -4,6 +4,8 @@ using KROTraining.Models;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace KROTraining.Controllers
 {
@@ -14,6 +16,16 @@ namespace KROTraining.Controllers
         public ClientesController(KroTrainingContext context)
         {
             _context = context;
+        }
+
+        // Método auxiliar para redirigir o recargar según el rol del usuario autenticado
+        private IActionResult RedirigirSegunRol()
+        {
+            if (User.IsInRole("ENTRENADOR") || User.IsInRole("Entrenador"))
+            {
+                return RedirectToAction(nameof(MisClientes));
+            }
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Clientes (Búsqueda por nombre, cédula o badge + Filtro Estado + Paginación)
@@ -66,7 +78,48 @@ namespace KROTraining.Controllers
             return View(clientes);
         }
 
-        // GET: Clientes/Perfil/5 (Expediente y Ficha Médica del Cliente)
+        // GET: Clientes/MisClientes (HU-79: Visualizar lista de clientes asignados al entrenador autenticado)
+        [Authorize(Roles = "ENTRENADOR,Entrenador")]
+        public async Task<IActionResult> MisClientes(string buscar, int pagina = 1)
+        {
+            int registrosPorPagina = 10;
+
+            var usuarioIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(usuarioIdClaim) || !int.TryParse(usuarioIdClaim, out int entrenadorId))
+            {
+                return Challenge();
+            }
+
+            var query = _context.Clientes
+                .Include(c => c.Usuario)
+                .Where(c => c.EntrenadorId == entrenadorId)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(buscar))
+            {
+                query = query.Where(c => (c.Usuario != null && c.Usuario.Nombre.Contains(buscar))
+                                      || (c.Usuario != null && c.Usuario.Cedula != null && c.Usuario.Cedula.Contains(buscar))
+                                      || (c.BadgeNumero != null && c.BadgeNumero.Contains(buscar)));
+            }
+
+            int totalRegistros = await query.CountAsync();
+            int totalPaginas = (int)Math.Ceiling((double)totalRegistros / registrosPorPagina);
+
+            var clientes = await query
+                .OrderByDescending(c => c.UsuarioId)
+                .Skip((pagina - 1) * registrosPorPagina)
+                .Take(registrosPorPagina)
+                .ToListAsync();
+
+            ViewBag.TotalPaginas = totalPaginas > 0 ? totalPaginas : 1;
+            ViewBag.PaginaActual = pagina;
+            ViewBag.Buscar = buscar;
+
+            return View("Index", clientes);
+        }
+
+        // GET: Clientes/Perfil/5 (Expediente y Ficha Médica del Cliente - HU-80)
         public async Task<IActionResult> Perfil(int? id)
         {
             if (id == null) return NotFound();
@@ -121,7 +174,7 @@ namespace KROTraining.Controllers
                 _context.Clientes.Add(nuevoCliente);
                 await _context.SaveChangesAsync();
 
-                return RedirectToAction(nameof(Index));
+                return RedirigirSegunRol();
             }
 
             return View();
@@ -165,7 +218,7 @@ namespace KROTraining.Controllers
                 _context.Update(cliente);
                 await _context.SaveChangesAsync();
 
-                return RedirectToAction(nameof(Index));
+                return RedirigirSegunRol();
             }
 
             return View(cliente);
@@ -183,7 +236,7 @@ namespace KROTraining.Controllers
                 _context.Update(usuario);
                 await _context.SaveChangesAsync();
             }
-            return RedirectToAction(nameof(Index));
+            return RedirigirSegunRol();
         }
 
         // POST: Clientes/Reactivar/5
@@ -198,7 +251,7 @@ namespace KROTraining.Controllers
                 _context.Update(usuario);
                 await _context.SaveChangesAsync();
             }
-            return RedirectToAction(nameof(Index));
+            return RedirigirSegunRol();
         }
     }
 }

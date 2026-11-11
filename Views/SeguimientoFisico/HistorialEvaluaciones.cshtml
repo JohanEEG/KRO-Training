@@ -1,242 +1,113 @@
-﻿@{
+﻿@model IEnumerable<KROTraining.Models.Cliente>
+
+@{
     ViewData["Title"] = "Historial de Evaluaciones";
 }
 
 <div class="kro-page-title">
-    Historial de evaluaciones físicas
+    Módulo de Seguimiento Físico
 </div>
-
 <p class="kro-page-subtitle">
-    Consulte la evolución física de los clientes mediante sus evaluaciones registradas.
+    Consulte la evolución física de los clientes seleccionando un expediente de la lista.
 </p>
 
-
-<div class="kro-card">
-
-    <div class="kro-card-title">
-        Consultar evaluaciones
+<div class="kro-card mb-4">
+    <div class="kro-card-title mb-3">
+        Seleccionar cliente para seguimiento
     </div>
 
-    <div class="kro-form-grid">
-
-        <div class="kro-form-group">
-
-            <label class="kro-form-label">
-                Cliente
-            </label>
-
-            <select class="kro-form-control">
-
-                <option>Seleccione un cliente</option>
-                <option>Juan Pérez</option>
-                <option>María Rodríguez</option>
-                <option>Carlos Vargas</option>
-                <option>Ana González</option>
-
+    <!-- Formulario para buscar o seleccionar rápido -->
+    <div class="kro-form-grid" style="display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap;">
+        <div class="kro-form-group" style="flex: 1; min-width: 250px;">
+            <label class="kro-form-label">Cliente registrado</label>
+            <select id="selectClienteId" class="kro-form-control">
+                <option value="">Seleccione un cliente...</option>
+                @if (Model != null)
+                {
+                    @foreach (var c in Model)
+                    {
+                        <option value="@c.UsuarioId">@(c.Usuario?.Nombre ?? "Sin nombre") (Badge: @(c.BadgeNumero ?? "N/D"))</option>
+                    }
+                }
             </select>
-
         </div>
 
-
-        <div class="kro-form-group">
-
-            <label class="kro-form-label">
-                Fecha inicial
-            </label>
-
-            <input type="date"
-                   class="kro-form-control" />
-
+        <div class="kro-actions">
+            <button type="button"
+                    class="kro-btn kro-clients-primary"
+                    onclick="irAProgreso()">
+                <i class="bi bi-search"></i> Consultar Progreso
+            </button>
         </div>
-
-
-        <div class="kro-form-group">
-
-            <label class="kro-form-label">
-                Fecha final
-            </label>
-
-            <input type="date"
-                   class="kro-form-control" />
-
-        </div>
-
     </div>
-
-
-    <div class="kro-actions">
-
-        <button type="button"
-                class="kro-btn kro-btn-primary"
-                onclick="alert('Consulta realizada correctamente.');">
-            Consultar
-        </button>
-
-    </div>
-
 </div>
 
-
 <div class="kro-card">
-
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
         <div class="kro-card-title" style="margin:0;">
-            Evaluaciones registradas
+            Listado general de clientes en seguimiento
         </div>
-
-        <a href="/SeguimientoFisico/RegistrarEvaluacion"
-           class="kro-btn kro-btn-outline">
-            + Nueva evaluación
-        </a>
-
     </div>
-
 
     <div class="kro-table-container">
-
         <table class="kro-table">
-
             <thead>
-
                 <tr>
-
-                    <th>Fecha</th>
-                    <th>Peso</th>
-                    <th>Estatura</th>
-                    <th>Cintura</th>
-                    <th>Pecho</th>
-                    <th>Brazo</th>
-                    <th>Muslo</th>
+                    <th>Badge</th>
+                    <th>Cédula</th>
+                    <th>Nombre completo</th>
                     <th>Estado</th>
-
+                    <th class="text-end">Acciones</th>
                 </tr>
-
             </thead>
-
             <tbody>
-
-                <tr>
-
-                    <td>
-                        15/08/2026
-                    </td>
-
-                    <td>
-                        75.5 kg
-                    </td>
-
-                    <td>
-                        175 cm
-                    </td>
-
-                    <td>
-                        82 cm
-                    </td>
-
-                    <td>
-                        98 cm
-                    </td>
-
-                    <td>
-                        34 cm
-                    </td>
-
-                    <td>
-                        55 cm
-                    </td>
-
-                    <td>
-                        <span class="kro-badge kro-badge-green">
-                            Registrada
-                        </span>
-                    </td>
-
-                </tr>
-
-
-                <tr>
-
-                    <td>
-                        15/07/2026
-                    </td>
-
-                    <td>
-                        76.2 kg
-                    </td>
-
-                    <td>
-                        175 cm
-                    </td>
-
-                    <td>
-                        84 cm
-                    </td>
-
-                    <td>
-                        97 cm
-                    </td>
-
-                    <td>
-                        33 cm
-                    </td>
-
-                    <td>
-                        54 cm
-                    </td>
-
-                    <td>
-                        <span class="kro-badge kro-badge-green">
-                            Registrada
-                        </span>
-                    </td>
-
-                </tr>
-
-
-                <tr>
-
-                    <td>
-                        15/06/2026
-                    </td>
-
-                    <td>
-                        77.1 kg
-                    </td>
-
-                    <td>
-                        175 cm
-                    </td>
-
-                    <td>
-                        86 cm
-                    </td>
-
-                    <td>
-                        96 cm
-                    </td>
-
-                    <td>
-                        32 cm
-                    </td>
-
-                    <td>
-                        53 cm
-                    </td>
-
-                    <td>
-                        <span class="kro-badge kro-badge-green">
-                            Registrada
-                        </span>
-                    </td>
-
-                </tr>
-
+                @if (Model == null || !Model.Any())
+                {
+                    <tr>
+                        <td colspan="5" class="text-center py-4 text-muted">
+                            No hay clientes registrados en el sistema.
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var c in Model)
+                    {
+                        bool activo = c.Usuario?.Estado == "Activo";
+                        <tr>
+                            <td><strong>@(c.BadgeNumero ?? "N/D")</strong></td>
+                            <td>@(c.Usuario?.Cedula ?? "-")</td>
+                            <td><span class="fw-semibold text-dark">@(c.Usuario?.Nombre ?? "Sin nombre")</span></td>
+                            <td>
+                                @if (activo)
+                                {
+                                    <span class="kro-badge kro-badge-green" style="background:#F0FDF4; color:#166534; padding:4px 8px; border-radius:4px; font-size:11px;">Activo</span>
+                                }
+                                else
+                                {
+                                    <span class="kro-badge kro-badge-gray" style="background:#F3F4F6; color:#4B5563; padding:4px 8px; border-radius:4px; font-size:11px;">Inactivo</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <a asp-action="ProgresoFisico" asp-route-id="@c.UsuarioId" class="kro-btn kro-clients-primary" style="padding: 6px 12px; font-size: 12px; text-decoration: none;">
+                                    <i class="bi bi-activity"></i> Ver Progreso Físico
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
             </tbody>
-
         </table>
-
     </div>
-
 </div>
-```
+
+<script>
+    function irAProgreso() {
+        var clienteId = document.getElementById("selectClienteId").value;
+        if (!clienteId) {
+            alert("Por favor seleccione un cliente primero.");
+            return;
+        }
+        window.location.href = '/SeguimientoFisico/ProgresoFisico/' + clienteId;
+    }
+</script>

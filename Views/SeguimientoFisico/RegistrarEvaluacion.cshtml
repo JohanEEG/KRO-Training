@@ -1,189 +1,154 @@
 ﻿@{
     ViewData["Title"] = "Registrar Evaluación Física";
+    var clienteId = ViewBag.ClienteId ?? 0;
 }
 
 <div class="kro-page-title">
     Registrar evaluación física
 </div>
-
 <p class="kro-page-subtitle">
-    Registre las medidas y datos físicos iniciales del cliente.
+    Registre las medidas y datos físicos actuales del cliente.
 </p>
 
+<form asp-action="RegistrarEvaluacion" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="clienteId" value="@clienteId" />
 
-<div class="kro-card">
-
-    <div class="kro-card-title">
-        Información de la evaluación
-    </div>
-
-    <form>
-
-        <div class="kro-form-grid">
-
-            <div class="kro-form-group">
-
-                <label class="kro-form-label">
-                    Cliente
-                </label>
-
-                <select class="kro-form-control">
-
-                    <option>Seleccione un cliente</option>
-                    <option>Juan Pérez</option>
-                    <option>María Rodríguez</option>
-                    <option>Carlos Vargas</option>
-                    <option>Ana González</option>
-
-                </select>
-
-            </div>
-
-
-            <div class="kro-form-group">
-
-                <label class="kro-form-label">
-                    Fecha de evaluación
-                </label>
-
-                <input type="date"
-                       class="kro-form-control"
-                       value="2026-08-17" />
-
-            </div>
-
+    <div class="kro-card mb-4">
+        <div class="kro-card-title">
+            Información de la evaluación
         </div>
 
-    </form>
-
-</div>
-
-
-<div class="kro-card">
-
-    <div class="kro-card-title">
-        Medidas físicas
-    </div>
-
-    <form>
-
         <div class="kro-form-grid">
+            <div class="kro-form-group">
+                <label class="kro-form-label">Tipo de evaluación</label>
+                <select name="tipo" class="kro-form-control" required>
+                    <option value="General">General</option>
+                    <option value="Control Mensual">Control Mensual</option>
+                    <option value="Inicio de Ciclo">Inicio de Ciclo</option>
+                </select>
+            </div>
 
             <div class="kro-form-group">
+                <label class="kro-form-label">Fecha de evaluación</label>
+                <input type="date"
+                       class="kro-form-control"
+                       value="@DateTime.Now.ToString("yyyy-MM-dd")" readonly />
+            </div>
+        </div>
+    </div>
 
-                <label class="kro-form-label">
-                    Peso (kg)
-                </label>
+    <div class="kro-card mb-4">
+        <div class="kro-card-title">
+            Medidas físicas
+        </div>
 
+        <div class="kro-form-grid">
+            <div class="kro-form-group">
+                <label class="kro-form-label">Peso (kg)</label>
                 <input type="number"
+                       name="peso"
                        class="kro-form-control"
                        placeholder="Ej. 75.5"
                        step="0.1" />
-
             </div>
 
-
             <div class="kro-form-group">
-
-                <label class="kro-form-label">
-                    Estatura (cm)
-                </label>
-
+                <label class="kro-form-label">Estatura (m)</label>
                 <input type="number"
+                       name="estatura"
                        class="kro-form-control"
-                       placeholder="Ej. 175"
-                       step="0.1" />
-
+                       placeholder="Ej. 1.75"
+                       step="0.01" />
             </div>
 
-
             <div class="kro-form-group">
-
-                <label class="kro-form-label">
-                    Cintura (cm)
-                </label>
-
+                <label class="kro-form-label">Cintura (cm)</label>
                 <input type="number"
+                       id="txtCintura"
                        class="kro-form-control"
                        placeholder="Ej. 82"
-                       step="0.1" />
-
+                       step="0.1"
+                       oninput="actualizarMedidas()" />
             </div>
 
-
             <div class="kro-form-group">
-
-                <label class="kro-form-label">
-                    Pecho (cm)
-                </label>
-
+                <label class="kro-form-label">Pecho (cm)</label>
                 <input type="number"
+                       id="txtPecho"
                        class="kro-form-control"
                        placeholder="Ej. 98"
-                       step="0.1" />
-
+                       step="0.1"
+                       oninput="actualizarMedidas()" />
             </div>
 
-
             <div class="kro-form-group">
-
-                <label class="kro-form-label">
-                    Brazo (cm)
-                </label>
-
+                <label class="kro-form-label">Brazo (cm)</label>
                 <input type="number"
+                       id="txtBrazo"
                        class="kro-form-control"
                        placeholder="Ej. 34"
-                       step="0.1" />
-
+                       step="0.1"
+                       oninput="actualizarMedidas()" />
             </div>
-
 
             <div class="kro-form-group">
-
-                <label class="kro-form-label">
-                    Muslo (cm)
-                </label>
-
+                <label class="kro-form-label">Muslo (cm)</label>
                 <input type="number"
+                       id="txtMuslo"
                        class="kro-form-control"
                        placeholder="Ej. 55"
-                       step="0.1" />
-
+                       step="0.1"
+                       oninput="actualizarMedidas()" />
             </div>
-
         </div>
 
+        <!-- Campo oculto o visible que concatena las medidas para guardarlas en la BD -->
+        <div class="kro-form-group" style="margin-top:20px;">
+            <label class="kro-form-label">Resumen de medidas (Generado automáticamente)</label>
+            <input type="text"
+                   id="medidas"
+                   name="medidas"
+                   class="kro-form-control"
+                   readonly
+                   placeholder="Se llenará automáticamente con los datos de arriba..." />
+        </div>
 
         <div class="kro-form-group" style="margin-top:20px;">
-
-            <label class="kro-form-label">
-                Observaciones
-            </label>
-
+            <label class="kro-form-label">Observaciones</label>
             <textarea class="kro-form-control"
+                      name="observaciones"
                       rows="4"
                       placeholder="Ingrese observaciones relevantes de la evaluación"></textarea>
-
         </div>
 
-
-        <div class="kro-actions">
-
-            <a href="/SeguimientoFisico/Index"
-               class="kro-btn kro-btn-alert-outline">
+        <div class="kro-actions" style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+            <a href="javascript:history.back()"
+               class="kro-btn kro-clients-secondary" style="text-decoration:none;">
                 Cancelar
             </a>
 
-            <button type="button"
-                    class="kro-btn kro-btn-primary"
-                    onclick="alert('Evaluación física registrada correctamente.');">
+            <button type="submit"
+                    class="kro-btn kro-clients-primary">
                 Guardar evaluación
             </button>
-
         </div>
+    </div>
+</form>
 
-    </form>
+<script>
+    function actualizarMedidas() {
+        var cintura = document.getElementById("txtCintura").value;
+        var pecho = document.getElementById("txtPecho").value;
+        var brazo = document.getElementById("txtBrazo").value;
+        var muslo = document.getElementById("txtMuslo").value;
 
-</div>
-```
+        var partes = [];
+        if (cintura) partes.push("Cintura: " + cintura + "cm");
+        if (pecho) partes.push("Pecho: " + pecho + "cm");
+        if (brazo) partes.push("Brazo: " + brazo + "cm");
+        if (muslo) partes.push("Muslo: " + muslo + "cm");
+
+        document.getElementById("medidas").value = partes.join(", ");
+    }
+</script>

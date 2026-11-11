@@ -1,299 +1,227 @@
-﻿@{
+﻿@model IEnumerable<KROTraining.Models.EvaluacionFisica>
+
+@{
     ViewData["Title"] = "Progreso Físico";
+    var cliente = ViewBag.Cliente as KROTraining.Models.Cliente;
+    var observaciones = ViewBag.Observaciones as List<KROTraining.Models.ObservacionEntrenador>;
+
+    // Obtener la última evaluación y la inicial para los cálculos rápidos
+    var ultimaEval = Model?.OrderByDescending(e => e.Fecha).FirstOrDefault();
+    var primeraEval = Model?.OrderBy(e => e.Fecha).FirstOrDefault();
 }
 
 <div class="kro-page-title">
     Progreso físico
 </div>
-
 <p class="kro-page-subtitle">
     Consulte los cambios y evolución física del cliente a partir de sus evaluaciones.
 </p>
 
-
-<div class="kro-card">
-
-    <div class="kro-card-title">
-        Cliente
-    </div>
-
-    <div class="kro-form-grid">
-
-        <div class="kro-form-group">
-
-            <label class="kro-form-label">
-                Seleccionar cliente
-            </label>
-
-            <select class="kro-form-control">
-
-                <option>Juan Pérez</option>
-                <option>María Rodríguez</option>
-                <option>Carlos Vargas</option>
-                <option>Ana González</option>
-
-            </select>
-
+@if (cliente != null)
+{
+    <!-- Cabecera de información del cliente -->
+    <div class="kro-card mb-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <div class="kro-card-title mb-1">
+                    <i class="bi bi-person-fill text-primary"></i> @(cliente.Usuario?.Nombre ?? "Cliente")
+                </div>
+                <p style="margin:0; color:#6B7280; font-size:13px;">
+                    <strong>Badge:</strong> @(cliente.BadgeNumero ?? "N/D") |
+                    <strong>Nivel:</strong> @(cliente.Nivel ?? "No asignado") |
+                    <strong>Objetivo:</strong> @(cliente.Objetivo ?? "No especificado")
+                </p>
+            </div>
+            <div>
+                <a asp-controller="Clientes" asp-action="MisClientes" class="kro-btn kro-clients-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver a Mis Clientes
+                </a>
+            </div>
         </div>
-
-
-        <div class="kro-form-group">
-
-            <label class="kro-form-label">
-                Periodo
-            </label>
-
-            <select class="kro-form-control">
-
-                <option>Últimos 3 meses</option>
-                <option>Últimos 6 meses</option>
-                <option>Último año</option>
-
-            </select>
-
-        </div>
-
     </div>
+}
 
-</div>
-
-
+<!-- Tarjetas de Estadísticas (Valores dinámicos basados en la última evaluación) -->
 <div class="kro-stat-grid">
-
     <div class="kro-stat-card">
-
-        <h3>
-            PESO ACTUAL
-        </h3>
-
-        <strong>
-            75.5 kg
-        </strong>
-
-        <p style="margin:8px 0 0;">
-            Última evaluación
-        </p>
-
+        <h3>PESO ACTUAL</h3>
+        <strong>@(ultimaEval?.Peso.HasValue == true ? $"{ultimaEval.Peso} kg" : "N/D")</strong>
+        <p style="margin:8px 0 0;">Última evaluación</p>
     </div>
 
-
     <div class="kro-stat-card">
-
-        <h3>
-            CINTURA
-        </h3>
-
-        <strong>
-            82 cm
-        </strong>
-
-        <p style="margin:8px 0 0;">
-            Última evaluación
-        </p>
-
+        <h3>ESTATURA</h3>
+        <strong>@(ultimaEval?.Estatura.HasValue == true ? $"{ultimaEval.Estatura} m" : "N/D")</strong>
+        <p style="margin:8px 0 0;">Última evaluación</p>
     </div>
 
-
     <div class="kro-stat-card">
-
-        <h3>
-            PECHO
-        </h3>
-
-        <strong>
-            98 cm
-        </strong>
-
-        <p style="margin:8px 0 0;">
-            Última evaluación
-        </p>
-
+        <h3>TIPO DE EVALUACIÓN</h3>
+        <strong>@(ultimaEval?.Tipo ?? "Sin registros")</strong>
+        <p style="margin:8px 0 0;">Último control</p>
     </div>
 
-
     <div class="kro-stat-card">
-
-        <h3>
-            EVALUACIONES
-        </h3>
-
-        <strong>
-            6
-        </strong>
-
-        <p style="margin:8px 0 0;">
-            Registradas
-        </p>
-
+        <h3>EVALUACIONES</h3>
+        <strong>@(Model?.Count() ?? 0)</strong>
+        <p style="margin:8px 0 0;">Registradas</p>
     </div>
-
 </div>
 
-
+<!-- Tabla de Comparación / Historial -->
 <div class="kro-card">
-
-    <div class="kro-card-title">
-        Comparación de progreso
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <div class="kro-card-title m-0">
+            Historial de Evaluaciones y Progreso
+        </div>
+        @if (cliente != null)
+        {
+            <button type="button" class="kro-btn kro-clients-primary" data-bs-toggle="modal" data-bs-target="#modalEvaluacion">
+                <i class="bi bi-plus-circle"></i> Registrar nueva evaluación
+            </button>
+        }
     </div>
-
 
     <div class="kro-table-container">
-
         <table class="kro-table">
-
             <thead>
-
                 <tr>
-
-                    <th>Medición</th>
-                    <th>Inicial</th>
-                    <th>Actual</th>
-                    <th>Variación</th>
-                    <th>Estado</th>
-
+                    <th>Fecha</th>
+                    <th>Tipo</th>
+                    <th>Peso</th>
+                    <th>Estatura</th>
+                    <th>Medidas / Notas</th>
                 </tr>
-
             </thead>
-
             <tbody>
-
-                <tr>
-
-                    <td>
-                        Peso
-                    </td>
-
-                    <td>
-                        80.0 kg
-                    </td>
-
-                    <td>
-                        75.5 kg
-                    </td>
-
-                    <td>
-                        -4.5 kg
-                    </td>
-
-                    <td>
-
-                        <span class="kro-badge kro-badge-green">
-                            Progreso
-                        </span>
-
-                    </td>
-
-                </tr>
-
-
-                <tr>
-
-                    <td>
-                        Cintura
-                    </td>
-
-                    <td>
-                        88 cm
-                    </td>
-
-                    <td>
-                        82 cm
-                    </td>
-
-                    <td>
-                        -6 cm
-                    </td>
-
-                    <td>
-
-                        <span class="kro-badge kro-badge-green">
-                            Progreso
-                        </span>
-
-                    </td>
-
-                </tr>
-
-
-                <tr>
-
-                    <td>
-                        Pecho
-                    </td>
-
-                    <td>
-                        94 cm
-                    </td>
-
-                    <td>
-                        98 cm
-                    </td>
-
-                    <td>
-                        +4 cm
-                    </td>
-
-                    <td>
-
-                        <span class="kro-badge kro-badge-green">
-                            Progreso
-                        </span>
-
-                    </td>
-
-                </tr>
-
-
-                <tr>
-
-                    <td>
-                        Brazo
-                    </td>
-
-                    <td>
-                        31 cm
-                    </td>
-
-                    <td>
-                        34 cm
-                    </td>
-
-                    <td>
-                        +3 cm
-                    </td>
-
-                    <td>
-
-                        <span class="kro-badge kro-badge-green">
-                            Progreso
-                        </span>
-
-                    </td>
-
-                </tr>
-
+                @if (Model == null || !Model.Any())
+                {
+                    <tr>
+                        <td colspan="5" class="text-center py-4" style="color: #6B7280;">
+                            <i class="bi bi-clipboard-x fs-3 d-block mb-2"></i>
+                            No hay evaluaciones físicas registradas para este cliente.
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var ev in Model)
+                    {
+                        <tr>
+                            <td>@ev.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>
+                                <span class="kro-badge kro-badge-green">
+                                    @(ev.Tipo ?? "Evaluación")
+                                </span>
+                            </td>
+                            <td><strong>@(ev.Peso.HasValue ? $"{ev.Peso} kg" : "-")</strong></td>
+                            <td>@(ev.Estatura.HasValue ? $"{ev.Estatura} m" : "-")</td>
+                            <td>
+                                <div style="font-size: 13px;">
+                                    @if (!string.IsNullOrEmpty(ev.Medidas))
+                                    {
+                                        <div><strong>Medidas:</strong> @ev.Medidas</div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(ev.Observaciones))
+                                    {
+                                        <div style="color: #6B7280;">@ev.Observaciones</div>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
             </tbody>
-
         </table>
-
     </div>
-
 </div>
 
-
-<div class="kro-card">
-
-    <div class="kro-card-title">
-        Resumen de evolución
+<!-- Sección de Observaciones del Entrenador (HU-81) -->
+<div class="row g-4 mt-1">
+    <div class="col-lg-6">
+        <div class="kro-card h-100">
+            <div class="kro-card-title mb-3">Registrar observación de entrenador</div>
+            <form asp-action="RegistrarObservacion" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="clienteId" value="@cliente?.UsuarioId" />
+                <div class="mb-3">
+                    <label for="contenido" class="kro-form-label">Nueva nota u observación</label>
+                    <textarea class="kro-form-control" id="contenido" name="contenido" rows="3" required placeholder="Escriba aquí los detalles del avance o recomendaciones..."></textarea>
+                </div>
+                <button type="submit" class="kro-btn kro-clients-primary w-100 justify-content-center">
+                    <i class="bi bi-send"></i> Guardar observación
+                </button>
+            </form>
+        </div>
     </div>
 
-    <p style="margin:0; line-height:1.6;">
-
-        El cliente presenta evaluaciones físicas registradas durante el periodo seleccionado.
-        El sistema permite comparar las mediciones iniciales con las más recientes para
-        facilitar el seguimiento de su evolución.
-
-    </p>
-
+    <div class="col-lg-6">
+        <div class="kro-card h-100 d-flex flex-column">
+            <div class="kro-card-title mb-3">Historial de observaciones</div>
+            <div class="overflow-auto flex-grow-1" style="max-height: 250px;">
+                @if (observaciones != null && observaciones.Any())
+                {
+                    @foreach (var obs in observaciones)
+                    {
+                        <div class="p-3 mb-2 rounded border bg-light">
+                            <div class="d-flex justify-content-between text-muted" style="font-size: 11px;">
+                                <span><strong>@(obs.Entrenador?.Usuario?.Nombre ?? "Entrenador")</strong></span>
+                                <span>@obs.Fecha.ToString("dd/MM/yyyy")</span>
+                            </div>
+                            <p class="mb-0 mt-1 text-dark" style="font-size: 13px;">@obs.Contenido</p>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted text-center py-4 m-0" style="font-size: 13px;">Sin observaciones registradas aún.</p>
+                }
+            </div>
+        </div>
+    </div>
 </div>
-```
+
+<!-- Modal para Registrar Nueva Evaluación -->
+@if (cliente != null)
+{
+    <div class="modal fade" id="modalEvaluacion" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <form asp-action="RegistrarEvaluacion" method="post" class="modal-content">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="clienteId" value="@cliente.UsuarioId" />
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Registrar Evaluación Física</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="kro-form-label">Tipo de evaluación</label>
+                        <input type="text" name="tipo" class="kro-form-control" required placeholder="Ej. Control mensual, Inicial..." />
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="kro-form-label">Peso (kg)</label>
+                            <input type="number" step="0.01" name="peso" class="kro-form-control" placeholder="0.00" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="kro-form-label">Estatura (m)</label>
+                            <input type="number" step="0.01" name="estatura" class="kro-form-control" placeholder="0.00" />
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="kro-form-label">Medidas corporales</label>
+                        <input type="text" name="medidas" class="kro-form-control" placeholder="Ej. Pecho: 100cm, Cintura: 80cm..." />
+                    </div>
+                    <div class="mb-3">
+                        <label class="kro-form-label">Observaciones generales</label>
+                        <textarea name="observaciones" class="kro-form-control" rows="2" placeholder="Notas adicionales..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="kro-btn kro-clients-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="kro-btn kro-clients-primary">Guardar evaluación</button>
+                </div>
+            </form>
+        </div>
+    </div>
+}

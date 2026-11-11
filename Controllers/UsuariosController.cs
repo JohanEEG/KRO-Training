@@ -34,6 +34,61 @@ namespace KROTraining.Controllers
             return View(usuarios);
         }
 
+        // POST: Usuarios/Activar/5 (Dar de alta / Reactivar usuario dado de baja)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Activar(int id)
+        {
+            if (!await EsAdministradorActivoAsync())
+            {
+                return Forbid();
+            }
+
+            var usuario = await _context.Usuarios.FindAsync(id);
+            if (usuario == null)
+            {
+                return NotFound("El usuario no fue encontrado.");
+            }
+
+            usuario.Estado = "ACTIVO";
+            _context.Update(usuario);
+            await _context.SaveChangesAsync();
+
+            TempData["MensajeExito"] = $"El usuario {usuario.Nombre} fue dado de alta (activado) correctamente.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // POST: Usuarios/Desactivar/5 (Dar de baja / Inactivar usuario)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Desactivar(int id)
+        {
+            if (!await EsAdministradorActivoAsync())
+            {
+                return Forbid();
+            }
+
+            var usuario = await _context.Usuarios.FindAsync(id);
+            if (usuario == null)
+            {
+                return NotFound("El usuario no fue encontrado.");
+            }
+
+            var identificadorActual = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (int.TryParse(identificadorActual, out var usuarioActualId) && usuario.UsuarioId == usuarioActualId)
+            {
+                TempData["MensajeError"] = "No puede dar de baja su propia cuenta de administrador.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            usuario.Estado = "INACTIVO";
+            _context.Update(usuario);
+            await _context.SaveChangesAsync();
+
+            TempData["MensajeExito"] = $"El usuario {usuario.Nombre} fue dado de baja correctamente.";
+            return RedirectToAction(nameof(Index));
+        }
+
         [HttpGet]
         public async Task<IActionResult> AsignarRol(int id)
         {
@@ -95,7 +150,6 @@ namespace KROTraining.Controllers
                 return NotFound("El usuario no fue encontrado.");
             }
 
-            // Los datos informativos se recuperan de la base de datos.
             model.Nombre = usuario.Nombre;
             model.Correo = usuario.Correo;
             model.RolActual = usuario.Rol.Nombre;
@@ -106,7 +160,6 @@ namespace KROTraining.Controllers
                 return View(model);
             }
 
-            // Validar en el servidor que el rol seleccionado exista.
             var rol = await _context.Rols
                 .SingleOrDefaultAsync(r => r.RolId == model.RolId);
 
@@ -128,7 +181,6 @@ namespace KROTraining.Controllers
                 return Forbid();
             }
 
-            // Evitar que el administrador se quite su propio acceso.
             if (usuario.UsuarioId == usuarioActualId &&
                 rol.Nombre != "ADMINISTRADOR")
             {
@@ -142,8 +194,6 @@ namespace KROTraining.Controllers
 
             usuario.RolId = rol.RolId;
 
-            // Crear la relación necesaria si todavía no existe.
-            // Las relaciones anteriores se conservan para mantener el historial.
             if (rol.Nombre == "ADMINISTRADOR" &&
                 usuario.Administrador == null)
             {
@@ -270,10 +320,9 @@ namespace KROTraining.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditarRol(
-    int id,
-    ConfigurarPermisosViewModel model)
+            int id,
+            ConfigurarPermisosViewModel model)
         {
-            // Comprobar el rol y el estado actual del administrador en la BD.
             if (!await EsAdministradorActivoAsync())
             {
                 return Forbid();
@@ -297,7 +346,6 @@ namespace KROTraining.Controllers
                 .OrderBy(p => p.Nombre)
                 .ToListAsync();
 
-            // Recuperar los datos informativos desde la base de datos.
             model.NombreRol = rol.Nombre;
 
             model.PermisosDisponibles = catalogo
@@ -323,7 +371,7 @@ namespace KROTraining.Controllers
             {
                 ModelState.AddModelError(
                     string.Empty,
-                    "Uno o más permisos seleccionados no existen. " +
+                    "Uno o más permisos seleccionados não existen. " +
                     "Recargue la página y revise la selección.");
             }
 
@@ -332,22 +380,21 @@ namespace KROTraining.Controllers
                 .Select(p => p.Nombre)
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-            // Reglas de conflicto acordadas para la HU-66.
             var dependencias = new[]
             {
-        (
-            Accion: "COLABORADORES_EDITAR",
-            Consulta: "COLABORADORES_VER"
-        ),
-        (
-            Accion: "USUARIOS_ASIGNAR_ROL",
-            Consulta: "USUARIOS_VER"
-        ),
-        (
-            Accion: "ROLES_CONFIGURAR",
-            Consulta: "ROLES_VER"
-        )
-    };
+                (
+                    Accion: "COLABORADORES_EDITAR",
+                    Consulta: "COLABORADORES_VER"
+                ),
+                (
+                    Accion: "USUARIOS_ASIGNAR_ROL",
+                    Consulta: "USUARIOS_VER"
+                ),
+                (
+                    Accion: "ROLES_CONFIGURAR",
+                    Consulta: "ROLES_VER"
+                )
+            };
 
             foreach (var dependencia in dependencias)
             {
@@ -367,7 +414,6 @@ namespace KROTraining.Controllers
                 return View(model);
             }
 
-            // Retirar únicamente las asignaciones que se desmarcaron.
             var permisosARetirar = rol.Permisos
                 .Where(p => !seleccionados.Contains(p.PermisoId))
                 .ToList();
@@ -377,7 +423,6 @@ namespace KROTraining.Controllers
                 rol.Permisos.Remove(permiso);
             }
 
-            // Agregar únicamente las asignaciones que faltan.
             var idsAsignados = rol.Permisos
                 .Select(p => p.PermisoId)
                 .ToHashSet();
@@ -393,7 +438,6 @@ namespace KROTraining.Controllers
 
             try
             {
-                // EF guarda estos cambios juntos en una transacción.
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateException)
@@ -411,6 +455,7 @@ namespace KROTraining.Controllers
 
             return RedirectToAction(nameof(Roles));
         }
+
         private async Task CargarRolesAsync(int? seleccionado = null)
         {
             var roles = await _context.Rols

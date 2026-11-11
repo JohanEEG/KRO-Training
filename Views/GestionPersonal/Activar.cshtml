@@ -1,0 +1,141 @@
+﻿@model KROTraining.Models.DarBajaColaboradorViewModel
+
+@{
+    ViewData["Title"] = "Activar colaborador";
+    var estaActivo = Model.Estado == "ACTIVO";
+}
+
+<link rel="stylesheet"
+      href="~/css/kro-baja.css"
+      asp-append-version="true" />
+
+<div class="kro-baja">
+
+    <a asp-controller="GestionPersonal"
+       asp-action="Index"
+       class="baja-back">
+        ← Volver a colaboradores
+    </a>
+
+    <section class="baja-card" aria-labelledby="alta-title">
+
+        <header class="baja-header">
+            <p class="baja-eyebrow">Gestión de personal</p>
+
+            <h1 id="alta-title" class="baja-title">
+                @(estaActivo
+                    ? "Colaborador ya activo"
+                    : "Dar de alta a colaborador")
+            </h1>
+
+            <p class="baja-description">
+                @(estaActivo
+                    ? "Consulta los datos del colaborador y su estado actual."
+                    : "Revisa la información del colaborador antes de confirmar la activación de su cuenta.")
+            </p>
+        </header>
+
+        <div class="baja-body">
+
+            @if (!estaActivo)
+            {
+                <div asp-validation-summary="All"
+                     class="baja-errors"
+                     role="alert"></div>
+            }
+
+            <h2 class="baja-section-title">
+                Información del colaborador
+            </h2>
+
+            <dl class="baja-details">
+                <div>
+                    <dt>Nombre completo</dt>
+                    <dd>@Model.Nombre</dd>
+                </div>
+
+                <div>
+                    <dt>Correo electrónico</dt>
+                    <dd>@Model.Correo</dd>
+                </div>
+
+                <div>
+                    <dt>Rol asignado</dt>
+                    <dd>@Model.Rol</dd>
+                </div>
+
+                <div>
+                    <dt>Estado actual</dt>
+                    <dd>
+                        <span class="baja-badge @(Model.Estado == "ACTIVO" ? "baja-badge-active" : "")">
+                            @Model.Estado
+                        </span>
+                    </dd>
+                </div>
+            </dl>
+
+            @if (estaActivo)
+            {
+                <div class="baja-notice baja-notice-neutral" role="status">
+                    <strong>Este colaborador ya se encuentra activo</strong>
+                    <p>
+                        Su cuenta tiene acceso habilitado al sistema.
+                        No es necesario realizar otra activación.
+                    </p>
+                </div>
+
+                <div class="baja-actions">
+                    <a asp-controller="GestionPersonal"
+                       asp-action="Index"
+                       class="baja-button">
+                        Volver al listado
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="baja-notice" style="border-left-color: #198754; background-color: #f0fdf4;">
+                    <strong>Antes de continuar</strong>
+                    <p>
+                        El colaborador recuperará el acceso activo al sistema y podrá iniciar sesión de nuevo.
+                    </p>
+                </div>
+
+                <form asp-controller="GestionPersonal"
+                      asp-action="Activar"
+                      asp-route-id="@Model.UsuarioId"
+                      method="post">
+
+                    <input asp-for="UsuarioId" type="hidden" />
+                    <input asp-for="Nombre" type="hidden" />
+                    <input asp-for="Correo" type="hidden" />
+                    <input asp-for="Rol" type="hidden" />
+                    <input asp-for="Estado" type="hidden" />
+
+                    <label class="baja-confirm" for="ConfirmarAlta">
+                        <input type="checkbox" id="ConfirmarAlta" required />
+                        <span id="confirmacion-texto">
+                            Confirmo que deseo dar de alta a
+                            <strong>@Model.Nombre</strong>.
+                        </span>
+                    </label>
+
+                    <div class="baja-actions">
+                        <a asp-controller="GestionPersonal"
+                           asp-action="Index"
+                           class="baja-button baja-button-cancel">
+                            Cancelar
+                        </a>
+
+                        <button type="submit"
+                                class="baja-button"
+                                style="background-color: #198754; color: white;">
+                            Confirmar alta
+                        </button>
+                    </div>
+                </form>
+            }
+
+        </div>
+    </section>
+</div>

@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<KROTraining.Models.Cliente>
 
 @{
-    ViewData["Title"] = "Gestión de Clientes";
+    ViewData["Title"] = User.IsInRole("ENTRENADOR") ? "Mis Clientes" : "Gestión de Clientes";
 
     int paginaActual = ViewBag.PaginaActual ?? 1;
     int totalPaginas = ViewBag.TotalPaginas ?? 1;
@@ -13,31 +13,47 @@
     {
         filtroEstado = "TODOS";
     }
+
+    // Define de forma dinámica si apunta a Index (Admin) o MisClientes (Entrenador)
+    string accionDestino = User.IsInRole("ENTRENADOR") ? "MisClientes" : "Index";
 }
 
-<div class="kro-page-title">Gestión de Clientes</div>
+<div class="kro-page-title">@(User.IsInRole("ENTRENADOR") ? "Mis Clientes Asignados" : "Gestión de Clientes")</div>
 
 <p class="kro-page-subtitle">
-    Consulta y administra la información de los clientes registrados en KRÒ Training.
+    @(User.IsInRole("ENTRENADOR") ? "Consulta el progreso y la información de los clientes asignados a tu cuenta." : "Consulta y administra la información de los clientes registrados en KRÒ Training.")
 </p>
 
 <div class="kro-card">
 
     <div class="kro-clients-header">
         <div>
-            <div class="kro-card-title">Clientes registrados</div>
+            <div class="kro-card-title">@(User.IsInRole("ENTRENADOR") ? "Mi cartera de clientes" : "Clientes registrados")</div>
             <p class="kro-clients-description">
                 Administra los datos, consulta las fichas médicas y controla el estado de cada cliente.
             </p>
         </div>
 
-        <a asp-action="Crear" class="kro-btn kro-clients-primary">
-            <i class="bi bi-person-plus" aria-hidden="true"></i>
-            Nuevo cliente
-        </a>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            @if (User.IsInRole("ENTRENADOR"))
+            {
+                <!-- Botón exclusivo para alternar o ver la lista de sus clientes asignados (HU-79) -->
+                <a asp-action="MisClientes" class="kro-btn kro-clients-primary">
+                    <i class="bi bi-person-check" aria-hidden="true"></i>
+                    Ver mis clientes asignados
+                </a>
+            }
+            else
+            {
+                <a asp-action="Crear" class="kro-btn kro-clients-primary">
+                    <i class="bi bi-person-plus" aria-hidden="true"></i>
+                    Nuevo cliente
+                </a>
+            }
+        </div>
     </div>
 
-    <form method="get" asp-action="Index" class="kro-clients-filters">
+    <form method="get" asp-action="@accionDestino" class="kro-clients-filters">
 
         <div class="kro-clients-search">
             <label for="buscar" class="kro-filter-label">Buscar cliente</label>
@@ -49,39 +65,42 @@
                    placeholder="Nombre, cédula o número de badge..." />
         </div>
 
-        <div class="kro-clients-state-filter">
-            <label for="filtroEstado" class="kro-filter-label">Estado del cliente</label>
-            <select id="filtroEstado"
-                    name="filtroEstado"
-                    class="kro-form-control">
-                @if (filtroEstado == "TODOS")
-                {
-                    <option value="TODOS" selected>Todos los estados</option>
-                }
-                else
-                {
-                    <option value="TODOS">Todos los estados</option>
-                }
+        @if (!User.IsInRole("ENTRENADOR"))
+        {
+            <div class="kro-clients-state-filter">
+                <label for="filtroEstado" class="kro-filter-label">Estado del cliente</label>
+                <select id="filtroEstado"
+                        name="filtroEstado"
+                        class="kro-form-control">
+                    @if (filtroEstado == "TODOS")
+                    {
+                        <option value="TODOS" selected>Todos los estados</option>
+                    }
+                    else
+                    {
+                        <option value="TODOS">Todos los estados</option>
+                    }
 
-                @if (filtroEstado == "Activo")
-                {
-                    <option value="Activo" selected>Activos</option>
-                }
-                else
-                {
-                    <option value="Activo">Activos</option>
-                }
+                    @if (filtroEstado == "Activo")
+                    {
+                        <option value="Activo" selected>Activos</option>
+                    }
+                    else
+                    {
+                        <option value="Activo">Activos</option>
+                    }
 
-                @if (filtroEstado == "Inactivo")
-                {
-                    <option value="Inactivo" selected>Inactivos</option>
-                }
-                else
-                {
-                    <option value="Inactivo">Inactivos</option>
-                }
-            </select>
-        </div>
+                    @if (filtroEstado == "Inactivo")
+                    {
+                        <option value="Inactivo" selected>Inactivos</option>
+                    }
+                    else
+                    {
+                        <option value="Inactivo">Inactivos</option>
+                    }
+                </select>
+            </div>
+        }
 
         <div class="kro-clients-filter-actions">
             <button type="submit" class="kro-btn kro-clients-primary">
@@ -89,7 +108,7 @@
                 Filtrar
             </button>
 
-            <a asp-action="Index" class="kro-btn kro-clients-secondary">
+            <a asp-action="@accionDestino" class="kro-btn kro-clients-secondary">
                 Limpiar
             </a>
         </div>
@@ -235,37 +254,49 @@
                                         <span>Editar</span>
                                     </a>
 
-                                    @if (estaActivo)
-                                    {
-                                        <form asp-action="Desactivar"
-                                              method="post"
-                                              class="kro-clients-inline-form kro-clients-action-wide">
-                                            @Html.AntiForgeryToken()
-                                            <input type="hidden" name="id" value="@item.UsuarioId" />
+                                    <a asp-controller="SeguimientoFisico"
+                                       asp-action="ProgresoFisico"
+                                       asp-route-id="@item.UsuarioId"
+                                       class="kro-btn kro-action-btn kro-clients-secondary"
+                                       title="Ver progreso físico y observaciones">
+                                        <i class="bi bi-activity" aria-hidden="true"></i>
+                                        <span>Seguimiento</span>
+                                    </a>
 
-                                            <button type="submit"
-                                                    class="kro-btn kro-action-btn kro-clients-danger"
-                                                    onclick="return confirm('¿Está seguro de desactivar a este cliente?');">
-                                                <i class="bi bi-person-dash" aria-hidden="true"></i>
-                                                <span>Desactivar</span>
-                                            </button>
-                                        </form>
-                                    }
-                                    else
+                                    @if (!User.IsInRole("ENTRENADOR"))
                                     {
-                                        <form asp-action="Reactivar"
-                                              method="post"
-                                              class="kro-clients-inline-form kro-clients-action-wide">
-                                            @Html.AntiForgeryToken()
-                                            <input type="hidden" name="id" value="@item.UsuarioId" />
+                                        @if (estaActivo)
+                                        {
+                                            <form asp-action="Desactivar"
+                                                  method="post"
+                                                  class="kro-clients-inline-form kro-clients-action-wide">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@item.UsuarioId" />
 
-                                            <button type="submit"
-                                                    class="kro-btn kro-action-btn kro-clients-success"
-                                                    onclick="return confirm('¿Desea reactivar a este cliente?');">
-                                                <i class="bi bi-person-check" aria-hidden="true"></i>
-                                                <span>Activar</span>
-                                            </button>
-                                        </form>
+                                                <button type="submit"
+                                                        class="kro-btn kro-action-btn kro-clients-danger w-100"
+                                                        onclick="return confirm('¿Está seguro de desactivar a este cliente?');">
+                                                    <i class="bi bi-person-dash" aria-hidden="true"></i>
+                                                    <span>Desactivar</span>
+                                                </button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <form asp-action="Reactivar"
+                                                  method="post"
+                                                  class="kro-clients-inline-form kro-clients-action-wide">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@item.UsuarioId" />
+
+                                                <button type="submit"
+                                                        class="kro-btn kro-action-btn kro-clients-success w-100"
+                                                        onclick="return confirm('¿Desea reactivar a este cliente?');">
+                                                    <i class="bi bi-person-check" aria-hidden="true"></i>
+                                                    <span>Activar</span>
+                                                </button>
+                                            </form>
+                                        }
                                     }
                                 </div>
                             </td>
@@ -282,7 +313,7 @@
 
             @if (paginaActual > 1)
             {
-                <a asp-action="Index"
+                <a asp-action="@accionDestino"
                    asp-route-pagina="@(paginaActual - 1)"
                    asp-route-buscar="@buscar"
                    asp-route-filtroEstado="@filtroEstado"
@@ -295,7 +326,7 @@
 
             @for (int i = 1; i <= totalPaginas; i++)
             {
-                <a asp-action="Index"
+                <a asp-action="@accionDestino"
                    asp-route-pagina="@i"
                    asp-route-buscar="@buscar"
                    asp-route-filtroEstado="@filtroEstado"
@@ -307,7 +338,7 @@
 
             @if (paginaActual < totalPaginas)
             {
-                <a asp-action="Index"
+                <a asp-action="@accionDestino"
                    asp-route-pagina="@(paginaActual + 1)"
                    asp-route-buscar="@buscar"
                    asp-route-filtroEstado="@filtroEstado"
@@ -595,15 +626,14 @@
         text-align: center !important;
     }
 
-    /* Acciones simétricas: dos botones iguales y acción de estado a todo el ancho */
     .kro-clients-row-actions {
         display: grid;
-        grid-template-columns: repeat(2, minmax(82px, 1fr));
+        grid-template-columns: repeat(3, minmax(85px, 1fr));
         align-items: stretch;
         gap: 8px;
         width: 100%;
-        min-width: 205px;
-        max-width: 250px;
+        min-width: 270px;
+        max-width: 330px;
         margin: 0 auto;
     }
 
@@ -634,6 +664,7 @@
         width: 100%;
         min-width: 0;
         margin: 0;
+        grid-column: 1 / -1;
     }
 
     .kro-clients-action-wide {
@@ -770,11 +801,11 @@
             }
 
         .kro-clients-table {
-            min-width: 1050px;
+            min-width: 1150px;
         }
 
         .kro-clients-row-actions {
-            min-width: 205px;
+            min-width: 270px;
         }
 
         .kro-clients-filter-actions .kro-btn {

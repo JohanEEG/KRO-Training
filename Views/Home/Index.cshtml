@@ -16,7 +16,6 @@
 <!-- =====================================================
      HERO DE BIENVENIDA
      ===================================================== -->
-
 <div class="kro-hero">
 
     <div>
@@ -224,19 +223,19 @@
 
     <div class="kro-quick-grid">
 
-        <a href="/Clientes/Crear" class="kro-quick-card kro-quick-card-accent">
+        <a asp-controller="Clientes" asp-action="Crear" class="kro-quick-card kro-quick-card-accent">
             <div class="kro-quick-icon">➕</div>
             <strong>Registrar cliente</strong>
             <small>Da de alta a un nuevo miembro del gimnasio.</small>
         </a>
 
-        <a href="/Clientes/Index" class="kro-quick-card">
+        <a asp-controller="Clientes" asp-action="Index" class="kro-quick-card">
             <div class="kro-quick-icon">👥</div>
             <strong>Consultar clientes</strong>
             <small>Revisa y administra la lista de clientes.</small>
         </a>
 
-        <a href="/Usuarios/Crear" class="kro-quick-card">
+        <a asp-controller="Usuarios" asp-action="Crear" class="kro-quick-card">
             <div class="kro-quick-icon">👤</div>
             <strong>Registrar usuario</strong>
             <small>Crea cuentas para personal y administradores.</small>
@@ -244,12 +243,36 @@
 
     </div>
 }
+<<<<<<< Updated upstream
+=======
+else if (User.IsInRole("ENTRENADOR"))
+{
+    <p class="kro-section-label">Accesos rápidos</p>
+
+    <div class="kro-quick-grid">
+
+        <a asp-controller="Rutinas" asp-action="Index" class="kro-quick-card kro-quick-card-accent">
+            <div class="kro-quick-icon">💪</div>
+            <strong>Rutinas</strong>
+            <small>Crea y asigna rutinas de entrenamiento.</small>
+        </a>
+
+        <a asp-controller="ControlAsistencia" asp-action="HistorialAsistencia" class="kro-quick-card">
+            <div class="kro-quick-icon">📝</div>
+            <strong>Asistencia</strong>
+            <small>Revisa el historial de asistencia.</small>
+        </a>
+
+    </div>
+}
+>>>>>>> Stashed changes
 else if (User.IsInRole("CLIENTE"))
 {
     <p class="kro-section-label">Mi entrenamiento</p>
 
     <div class="kro-quick-grid">
 
+<<<<<<< Updated upstream
         <a href="/ControlAsistencia/RegistrarIngreso" class="kro-quick-card kro-quick-card-accent">
             <div class="kro-quick-icon">✔️</div>
             <strong>Registrar ingreso</strong>
@@ -257,18 +280,21 @@ else if (User.IsInRole("CLIENTE"))
         </a>
 
         <a href="/ClienteRutinas/Index" class="kro-quick-card">
+=======
+        <a asp-controller="ClienteRutinas" asp-action="Index" class="kro-quick-card kro-quick-card-accent">
+>>>>>>> Stashed changes
             <div class="kro-quick-icon">💪</div>
             <strong>Mi rutina asignada</strong>
             <small>Revisa los ejercicios de tu rutina actual.</small>
         </a>
 
-        <a href="/ClienteRutinas/Historial" class="kro-quick-card">
+        <a asp-controller="ClienteRutinas" asp-action="Historial" class="kro-quick-card">
             <div class="kro-quick-icon">📋</div>
             <strong>Historial de rutinas</strong>
             <small>Consulta las rutinas que ya completaste.</small>
         </a>
 
-        <a href="/MiMembresia/Index" class="kro-quick-card">
+        <a asp-controller="MiMembresia" asp-action="Index" class="kro-quick-card">
             <div class="kro-quick-icon">💳</div>
             <strong>Mi membresía</strong>
             <small>Estado y vigencia de tu membresía.</small>
