@@ -181,11 +181,36 @@ namespace KRO_Training_Performance.Controllers
 
                     if (ModelState.IsValid)
                     {
+                        var fechaRegistroInicial = DateTime.Now;
+                        var inicioDiaInicial = fechaRegistroInicial.Date;
+                        var finDiaInicial = inicioDiaInicial.AddDays(1);
+
+                        var existeEvaluacionEnFecha = await _context.EvaluacionFisicas
+                            .AnyAsync(e =>
+                                e.ClienteId == model.ClienteId!.Value &&
+                                e.Fecha >= inicioDiaInicial &&
+                                e.Fecha < finDiaInicial);
+
+                        if (existeEvaluacionEnFecha)
+                        {
+                            ModelState.AddModelError(
+                                string.Empty,
+                                "El cliente ya tiene una evaluación registrada hoy. " +
+                                "No se puede registrar otra en la misma fecha.");
+
+                            await transaccion.RollbackAsync();
+
+                            await CargarClientesEvaluacionAsync(
+                                model, entrenadorId.Value);
+
+                            return View(model);
+                        }
+
                         var evaluacion = new EvaluacionFisica
                         {
                             ClienteId = model.ClienteId!.Value,
                             EntrenadorId = entrenadorId.Value,
-                            Fecha = DateTime.Now,
+                            Fecha = fechaRegistroInicial,
                             Peso = model.Peso,
                             Estatura = model.Estatura,
                             Medidas = model.Medidas,
@@ -278,39 +303,170 @@ namespace KRO_Training_Performance.Controllers
                 .ToList();
         }
 
-        // GET: SeguimientoFisico/RegistrarEvaluacion/5
-        public IActionResult RegistrarEvaluacion(int clienteId)
+        // HU-49: Abrir formulario de evaluación periódica
+        [HttpGet]
+        [Authorize(Roles = "ENTRENADOR")]
+        public async Task<IActionResult> RegistrarEvaluacion(int clienteId)
         {
-            ViewBag.ClienteId = clienteId;
-            return View();
+            var entrenadorId = await ObtenerEntrenadorEvaluacionAsync();
+
+            if (!entrenadorId.HasValue)
+                return Forbid();
+
+            var cliente = await _context.Clientes
+                .AsNoTracking()
+                .Where(c =>
+                    c.UsuarioId == clienteId &&
+                    c.EntrenadorId == entrenadorId.Value &&
+                    c.Usuario.Estado == "ACTIVO" &&
+                    c.Usuario.Rol.Nombre == "CLIENTE")
+                .Select(c => new
+                {
+                    c.UsuarioId,
+                    c.Usuario.Nombre
+                })
+                .SingleOrDefaultAsync();
+
+            if (cliente == null)
+                return NotFound("El cliente no está disponible para su cuenta.");
+
+            var model = new RegistrarEvaluacionPeriodicaViewModel
+            {
+                ClienteId = cliente.UsuarioId,
+                NombreCliente = cliente.Nombre
+            };
+
+            return View(model);
         }
 
-        // POST: SeguimientoFisico/RegistrarEvaluacion
+        // HU-49: Guardar evaluación periódica
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "ENTRENADOR,Entrenador")]
-        public async Task<IActionResult> RegistrarEvaluacion(int clienteId, decimal? peso, decimal? estatura, string medidas, string observaciones, string tipo)
+        [Authorize(Roles = "ENTRENADOR")]
+        public async Task<IActionResult> RegistrarEvaluacion(
+            RegistrarEvaluacionPeriodicaViewModel model)
         {
-            var usuarioIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (int.TryParse(usuarioIdClaim, out int entrenadorId))
-            {
-                var nuevaEvaluacion = new EvaluacionFisica
-                {
-                    ClienteId = clienteId,
-                    EntrenadorId = entrenadorId,
-                    Fecha = DateTime.Now,
-                    Peso = peso,
-                    Estatura = estatura,
-                    Medidas = medidas,
-                    Observaciones = observaciones,
-                    Tipo = tipo
-                };
+            var entrenadorId = await ObtenerEntrenadorEvaluacionAsync();
 
-                _context.EvaluacionFisicas.Add(nuevaEvaluacion);
-                await _context.SaveChangesAsync();
+            if (!entrenadorId.HasValue)
+                return Forbid();
+
+            model.Medidas = string.IsNullOrWhiteSpace(model.Medidas)
+                ? null
+                : model.Medidas.Trim();
+
+            model.Observaciones = string.IsNullOrWhiteSpace(model.Observaciones)
+                ? null
+                : model.Observaciones.Trim();
+
+            if (model.Peso.HasValue &&
+                decimal.Round(model.Peso.Value, 2) != model.Peso.Value)
+            {
+                ModelState.AddModelError(
+                    nameof(model.Peso),
+                    "El peso puede tener como máximo dos decimales.");
             }
 
-            return RedirectToAction(nameof(ProgresoFisico), new { id = clienteId });
+            if (model.Estatura.HasValue &&
+                decimal.Round(model.Estatura.Value, 2) != model.Estatura.Value)
+            {
+                ModelState.AddModelError(
+                    nameof(model.Estatura),
+                    "La estatura puede tener como máximo dos decimales.");
+            }
+
+            try
+            {
+                await using var transaccion =
+                    await _context.Database.BeginTransactionAsync(
+                        System.Data.IsolationLevel.Serializable);
+
+                var cliente = await _context.Clientes
+                    .AsNoTracking()
+                    .Where(c =>
+                        c.UsuarioId == model.ClienteId &&
+                        c.EntrenadorId == entrenadorId.Value &&
+                        c.Usuario.Estado == "ACTIVO" &&
+                        c.Usuario.Rol.Nombre == "CLIENTE")
+                    .Select(c => new
+                    {
+                        c.UsuarioId,
+                        c.Usuario.Nombre
+                    })
+                    .SingleOrDefaultAsync();
+
+                if (cliente == null)
+                    return NotFound("El cliente no está disponible para su cuenta.");
+
+                model.NombreCliente = cliente.Nombre;
+
+                if (!ModelState.IsValid)
+                    return View(model);
+
+                var fechaRegistro = DateTime.Now;
+                var inicioDia = fechaRegistro.Date;
+                var finDia = inicioDia.AddDays(1);
+
+                var existeEvaluacionHoy = await _context.EvaluacionFisicas
+                    .AnyAsync(e =>
+                        e.ClienteId == model.ClienteId &&
+                        e.Fecha >= inicioDia &&
+                        e.Fecha < finDia);
+
+                if (existeEvaluacionHoy)
+                {
+                    ModelState.AddModelError(
+                        string.Empty,
+                        "El cliente ya tiene una evaluación registrada hoy. " +
+                        "No se puede registrar otra en la misma fecha.");
+
+                    return View(model);
+                }
+
+                var evaluacion = new EvaluacionFisica
+                {
+                    ClienteId = cliente.UsuarioId,
+                    EntrenadorId = entrenadorId.Value,
+                    Fecha = fechaRegistro,
+                    Peso = model.Peso,
+                    Estatura = model.Estatura,
+                    Medidas = model.Medidas,
+                    Observaciones = model.Observaciones,
+                    Tipo = "Periódica"
+                };
+
+                _context.EvaluacionFisicas.Add(evaluacion);
+
+                await _context.SaveChangesAsync();
+                await transaccion.CommitAsync();
+
+                TempData["MensajeExito"] =
+                    "La evaluación física periódica se registró correctamente.";
+
+                return RedirectToAction(
+                    nameof(ProgresoFisico),
+                    new { id = model.ClienteId });
+            }
+            catch (Exception ex) when (
+                ex is DbUpdateException ||
+                ex is Microsoft.Data.SqlClient.SqlException)
+            {
+                var logger = HttpContext.RequestServices
+                    .GetRequiredService<
+                        Microsoft.Extensions.Logging.ILogger<
+                            SeguimientoFisicoController>>();
+
+                logger.LogError(
+                    ex,
+                    "Error al registrar la evaluación periódica del cliente {ClienteId}.",
+                    model.ClienteId);
+
+                ModelState.AddModelError(
+                    string.Empty,
+                    "No se pudo guardar la evaluación. Intente nuevamente.");
+
+                return View(model);
+            }
         }
     }
 }

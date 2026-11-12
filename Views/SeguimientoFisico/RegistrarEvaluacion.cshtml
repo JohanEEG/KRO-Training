@@ -1,154 +1,128 @@
-﻿@{
-    ViewData["Title"] = "Registrar Evaluación Física";
-    var clienteId = ViewBag.ClienteId ?? 0;
+﻿@model KROTraining.Models.RegistrarEvaluacionPeriodicaViewModel
+
+@{
+    ViewData["Title"] = "Evaluación física periódica";
 }
 
-<div class="kro-page-title">
-    Registrar evaluación física
-</div>
+<h1 class="kro-page-title">
+    Registrar evaluación física periódica
+</h1>
+
 <p class="kro-page-subtitle">
-    Registre las medidas y datos físicos actuales del cliente.
+    Registre las medidas actuales del cliente.
+    Los campos con asterisco (*) son obligatorios.
 </p>
 
-<form asp-action="RegistrarEvaluacion" method="post">
-    @Html.AntiForgeryToken()
-    <input type="hidden" name="clienteId" value="@clienteId" />
+<div class="kro-card" style="max-width:850px; margin:0 auto;">
 
-    <div class="kro-card mb-4">
-        <div class="kro-card-title">
-            Información de la evaluación
+    <p>
+        <strong>Cliente:</strong> @Model.NombreCliente
+    </p>
+
+    <p>
+        La evaluación se registrará con la fecha del día en que se guarde.
+    </p>
+
+    <form asp-controller="SeguimientoFisico"
+          asp-action="RegistrarEvaluacion"
+          method="post">
+
+        <input asp-for="ClienteId" type="hidden" />
+
+        <div asp-validation-summary="All"
+             role="alert"
+             style="color:#B42318; margin-bottom:16px;">
         </div>
 
         <div class="kro-form-grid">
             <div class="kro-form-group">
-                <label class="kro-form-label">Tipo de evaluación</label>
-                <select name="tipo" class="kro-form-control" required>
-                    <option value="General">General</option>
-                    <option value="Control Mensual">Control Mensual</option>
-                    <option value="Inicio de Ciclo">Inicio de Ciclo</option>
-                </select>
+                <label asp-for="Peso" class="kro-form-label">
+                    Peso (kg) *
+                </label>
+
+                <input asp-for="Peso"
+                       type="number"
+                       class="kro-form-control"
+                       min="0.01"
+                       max="9999.99"
+                       step="0.01"
+                       placeholder="Ej. 75.50"
+                       required />
+
+                <span asp-validation-for="Peso"
+                      style="color:#B42318;"></span>
             </div>
 
             <div class="kro-form-group">
-                <label class="kro-form-label">Fecha de evaluación</label>
-                <input type="date"
-                       class="kro-form-control"
-                       value="@DateTime.Now.ToString("yyyy-MM-dd")" readonly />
-            </div>
-        </div>
-    </div>
+                <label asp-for="Estatura" class="kro-form-label">
+                    Estatura (m) *
+                </label>
 
-    <div class="kro-card mb-4">
-        <div class="kro-card-title">
-            Medidas físicas
-        </div>
-
-        <div class="kro-form-grid">
-            <div class="kro-form-group">
-                <label class="kro-form-label">Peso (kg)</label>
-                <input type="number"
-                       name="peso"
+                <input asp-for="Estatura"
+                       type="number"
                        class="kro-form-control"
-                       placeholder="Ej. 75.5"
-                       step="0.1" />
-            </div>
-
-            <div class="kro-form-group">
-                <label class="kro-form-label">Estatura (m)</label>
-                <input type="number"
-                       name="estatura"
-                       class="kro-form-control"
+                       min="0.01"
+                       max="999.99"
+                       step="0.01"
                        placeholder="Ej. 1.75"
-                       step="0.01" />
-            </div>
+                       aria-describedby="ayuda-estatura"
+                       required />
 
-            <div class="kro-form-group">
-                <label class="kro-form-label">Cintura (cm)</label>
-                <input type="number"
-                       id="txtCintura"
-                       class="kro-form-control"
-                       placeholder="Ej. 82"
-                       step="0.1"
-                       oninput="actualizarMedidas()" />
-            </div>
+                <small id="ayuda-estatura">
+                    Ingrese la estatura en metros. Por ejemplo: 1.75.
+                </small>
 
-            <div class="kro-form-group">
-                <label class="kro-form-label">Pecho (cm)</label>
-                <input type="number"
-                       id="txtPecho"
-                       class="kro-form-control"
-                       placeholder="Ej. 98"
-                       step="0.1"
-                       oninput="actualizarMedidas()" />
-            </div>
-
-            <div class="kro-form-group">
-                <label class="kro-form-label">Brazo (cm)</label>
-                <input type="number"
-                       id="txtBrazo"
-                       class="kro-form-control"
-                       placeholder="Ej. 34"
-                       step="0.1"
-                       oninput="actualizarMedidas()" />
-            </div>
-
-            <div class="kro-form-group">
-                <label class="kro-form-label">Muslo (cm)</label>
-                <input type="number"
-                       id="txtMuslo"
-                       class="kro-form-control"
-                       placeholder="Ej. 55"
-                       step="0.1"
-                       oninput="actualizarMedidas()" />
+                <span asp-validation-for="Estatura"
+                      style="color:#B42318;"></span>
             </div>
         </div>
 
-        <!-- Campo oculto o visible que concatena las medidas para guardarlas en la BD -->
         <div class="kro-form-group" style="margin-top:20px;">
-            <label class="kro-form-label">Resumen de medidas (Generado automáticamente)</label>
-            <input type="text"
-                   id="medidas"
-                   name="medidas"
-                   class="kro-form-control"
-                   readonly
-                   placeholder="Se llenará automáticamente con los datos de arriba..." />
+            <label asp-for="Medidas" class="kro-form-label">
+                Medidas adicionales
+            </label>
+
+            <textarea asp-for="Medidas"
+                      class="kro-form-control"
+                      rows="3"
+                      maxlength="1000"
+                      placeholder="Ej. Cintura: 82 cm; brazo: 34 cm"></textarea>
+
+            <span asp-validation-for="Medidas"
+                  style="color:#B42318;"></span>
         </div>
 
         <div class="kro-form-group" style="margin-top:20px;">
-            <label class="kro-form-label">Observaciones</label>
-            <textarea class="kro-form-control"
-                      name="observaciones"
+            <label asp-for="Observaciones"
+                   class="kro-form-label"></label>
+
+            <textarea asp-for="Observaciones"
+                      class="kro-form-control"
                       rows="4"
-                      placeholder="Ingrese observaciones relevantes de la evaluación"></textarea>
+                      placeholder="Observaciones de la evaluación"></textarea>
+
+            <span asp-validation-for="Observaciones"
+                  style="color:#B42318;"></span>
         </div>
 
-        <div class="kro-actions" style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
-            <a href="javascript:history.back()"
-               class="kro-btn kro-clients-secondary" style="text-decoration:none;">
+        <div style="display:flex; justify-content:flex-end;
+            gap:12px; flex-wrap:wrap; margin-top:24px;">
+
+            <a asp-controller="SeguimientoFisico"
+               asp-action="ProgresoFisico"
+               asp-route-id="@Model.ClienteId"
+               class="kro-btn kro-btn-outline">
                 Cancelar
             </a>
 
             <button type="submit"
-                    class="kro-btn kro-clients-primary">
-                Guardar evaluación
+                    class="kro-btn kro-btn-primary">
+                Guardar evaluación periódica
             </button>
         </div>
-    </div>
-</form>
+    </form>
+</div>
 
-<script>
-    function actualizarMedidas() {
-        var cintura = document.getElementById("txtCintura").value;
-        var pecho = document.getElementById("txtPecho").value;
-        var brazo = document.getElementById("txtBrazo").value;
-        var muslo = document.getElementById("txtMuslo").value;
-
-        var partes = [];
-        if (cintura) partes.push("Cintura: " + cintura + "cm");
-        if (pecho) partes.push("Pecho: " + pecho + "cm");
-        if (brazo) partes.push("Brazo: " + brazo + "cm");
-        if (muslo) partes.push("Muslo: " + muslo + "cm");
-
-        document.getElementById("medidas").value = partes.join(", ");
-    }
-</script>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

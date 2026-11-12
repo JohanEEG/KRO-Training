@@ -16,6 +16,15 @@
 <p class="kro-page-subtitle">
     Consulte los cambios y evolución física del cliente a partir de sus evaluaciones.
 </p>
+@if (TempData["MensajeExito"] is string mensaje)
+{
+    <div role="status"
+         style="background:#E8F5E9; color:#1B5E20;
+        border-left:4px solid #2E7D32;
+        padding:16px; border-radius:8px; margin-bottom:20px;">
+        @mensaje
+    </div>
+}
 
 @if (cliente != null)
 {
@@ -74,11 +83,14 @@
         <div class="kro-card-title m-0">
             Historial de Evaluaciones y Progreso
         </div>
-        @if (cliente != null)
+        @if (cliente != null && User.IsInRole("ENTRENADOR"))
         {
-            <button type="button" class="kro-btn kro-clients-primary" data-bs-toggle="modal" data-bs-target="#modalEvaluacion">
-                <i class="bi bi-plus-circle"></i> Registrar nueva evaluación
-            </button>
+            <a asp-controller="SeguimientoFisico"
+               asp-action="RegistrarEvaluacion"
+               asp-route-clienteId="@cliente.UsuarioId"
+               class="kro-btn kro-btn-primary">
+                + Registrar evaluación periódica
+            </a>
         }
     </div>
 
@@ -181,47 +193,3 @@
     </div>
 </div>
 
-<!-- Modal para Registrar Nueva Evaluación -->
-@if (cliente != null)
-{
-    <div class="modal fade" id="modalEvaluacion" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <form asp-action="RegistrarEvaluacion" method="post" class="modal-content">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="clienteId" value="@cliente.UsuarioId" />
-                <div class="modal-header">
-                    <h5 class="modal-title fw-bold">Registrar Evaluación Física</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="kro-form-label">Tipo de evaluación</label>
-                        <input type="text" name="tipo" class="kro-form-control" required placeholder="Ej. Control mensual, Inicial..." />
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="kro-form-label">Peso (kg)</label>
-                            <input type="number" step="0.01" name="peso" class="kro-form-control" placeholder="0.00" />
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="kro-form-label">Estatura (m)</label>
-                            <input type="number" step="0.01" name="estatura" class="kro-form-control" placeholder="0.00" />
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="kro-form-label">Medidas corporales</label>
-                        <input type="text" name="medidas" class="kro-form-control" placeholder="Ej. Pecho: 100cm, Cintura: 80cm..." />
-                    </div>
-                    <div class="mb-3">
-                        <label class="kro-form-label">Observaciones generales</label>
-                        <textarea name="observaciones" class="kro-form-control" rows="2" placeholder="Notas adicionales..."></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="kro-btn kro-clients-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="kro-btn kro-clients-primary">Guardar evaluación</button>
-                </div>
-            </form>
-        </div>
-    </div>
-}
