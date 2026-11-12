@@ -1,0 +1,154 @@
+﻿@model KROTraining.Models.RegistrarEvaluacionInicialViewModel
+
+@{
+    ViewData["Title"] = "Evaluación física inicial";
+}
+
+<h1 class="kro-page-title">Registrar evaluación física inicial</h1>
+
+<p class="kro-page-subtitle">
+    Registre los datos iniciales del cliente.
+    Los campos con asterisco (*) son obligatorios.
+</p>
+
+@if (TempData["MensajeExito"] is string mensaje)
+{
+    <div role="status"
+         style="background:#E8F5E9; color:#1B5E20;
+        padding:16px; border-radius:8px; margin-bottom:20px;">
+        @mensaje
+    </div>
+}
+
+<div class="kro-card" style="max-width:850px; margin:0 auto;">
+
+    <form asp-controller="SeguimientoFisico"
+          asp-action="RegistrarEvaluacionInicial"
+          method="post">
+
+        <div asp-validation-summary="All"
+             role="alert"
+             style="color:#B42318; margin-bottom:16px;">
+        </div>
+
+        @if (Model.ClientesDisponibles.Count == 0)
+        {
+            <div role="status"
+                 style="background:#FFF3CD; color:#664D03;
+                padding:16px; border-radius:8px;">
+                No tiene clientes activos vinculados a su cuenta.
+            </div>
+        }
+        else
+        {
+            <div class="kro-form-group">
+                <label asp-for="ClienteId" class="kro-form-label">
+                    Cliente *
+                </label>
+
+                <select asp-for="ClienteId"
+                        asp-items="Model.ClientesDisponibles"
+                        class="kro-form-control"
+                        required>
+                    <option value="">Seleccione un cliente</option>
+                </select>
+
+                <span asp-validation-for="ClienteId"
+                      style="color:#B42318;"></span>
+            </div>
+
+            <div class="kro-form-grid" style="margin-top:20px;">
+                <div class="kro-form-group">
+                    <label asp-for="Peso" class="kro-form-label">
+                        Peso (kg) *
+                    </label>
+
+                    <input asp-for="Peso"
+                           type="number"
+                           class="kro-form-control"
+                           min="0.01"
+                           max="9999.99"
+                           step="0.01"
+                           placeholder="Ej. 75.50"
+                           required />
+
+                    <span asp-validation-for="Peso"
+                          style="color:#B42318;"></span>
+                </div>
+
+                <div class="kro-form-group">
+                    <label asp-for="Estatura" class="kro-form-label">
+                        Estatura (m) *
+                    </label>
+
+                    <input asp-for="Estatura"
+                           type="number"
+                           class="kro-form-control"
+                           min="0.01"
+                           max="999.99"
+                           step="0.01"
+                           placeholder="Ej. 1.75"
+                           aria-describedby="ayuda-estatura"
+                           required />
+
+                    <small id="ayuda-estatura">
+                        Ingrese la estatura en metros: por ejemplo, 1.75.
+                    </small>
+
+                    <span asp-validation-for="Estatura"
+                          style="color:#B42318;"></span>
+                </div>
+            </div>
+
+            <div class="kro-form-group" style="margin-top:20px;">
+                <label asp-for="Medidas" class="kro-form-label">
+                    Medidas adicionales
+                </label>
+
+                <textarea asp-for="Medidas"
+                          class="kro-form-control"
+                          rows="3"
+                          maxlength="1000"
+                          placeholder="Ej. Cintura: 82 cm; brazo: 34 cm"></textarea>
+
+                <span asp-validation-for="Medidas"
+                      style="color:#B42318;"></span>
+            </div>
+
+            <div class="kro-form-group" style="margin-top:20px;">
+                <label asp-for="Observaciones"
+                       class="kro-form-label"></label>
+
+                <textarea asp-for="Observaciones"
+                          class="kro-form-control"
+                          rows="4"
+                          placeholder="Observaciones de la evaluación"></textarea>
+
+                <span asp-validation-for="Observaciones"
+                      style="color:#B42318;"></span>
+            </div>
+        }
+
+        <div style="display:flex; justify-content:flex-end;
+            gap:12px; flex-wrap:wrap; margin-top:24px;">
+
+            <a asp-controller="SeguimientoFisico"
+               asp-action="ProgresoFisico"
+               class="kro-btn kro-btn-outline">
+                Volver a seguimiento físico
+            </a>
+
+            @if (Model.ClientesDisponibles.Count > 0)
+            {
+                <button type="submit"
+                        class="kro-btn kro-btn-primary">
+                    Guardar evaluación inicial
+                </button>
+            }
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -11,6 +11,17 @@
     Consulte la evolución física de los clientes seleccionando un expediente de la lista.
 </p>
 
+@if (User.IsInRole("ENTRENADOR"))
+{
+    <div style="margin-bottom:20px;">
+        <a asp-controller="SeguimientoFisico"
+           asp-action="RegistrarEvaluacionInicial"
+           class="kro-btn kro-btn-primary">
+            + Registrar evaluación inicial
+        </a>
+    </div>
+}
+
 <div class="kro-card mb-4">
     <div class="kro-card-title mb-3">
         Seleccionar cliente para seguimiento

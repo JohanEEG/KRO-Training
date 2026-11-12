@@ -88,6 +88,196 @@ namespace KRO_Training_Performance.Controllers
             return RedirectToAction(nameof(ProgresoFisico), new { id = clienteId });
         }
 
+        // HU-48: Abrir el formulario de evaluación inicial
+        [HttpGet]
+        [Authorize(Roles = "ENTRENADOR")]
+        public async Task<IActionResult> RegistrarEvaluacionInicial()
+        {
+            var entrenadorId = await ObtenerEntrenadorEvaluacionAsync();
+
+            if (!entrenadorId.HasValue)
+                return Forbid();
+
+            var model = new RegistrarEvaluacionInicialViewModel();
+
+            await CargarClientesEvaluacionAsync(model, entrenadorId.Value);
+
+            return View(model);
+        }
+
+        // HU-48: Guardar la evaluación inicial
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "ENTRENADOR")]
+        public async Task<IActionResult> RegistrarEvaluacionInicial(
+            RegistrarEvaluacionInicialViewModel model)
+        {
+            var entrenadorId = await ObtenerEntrenadorEvaluacionAsync();
+
+            if (!entrenadorId.HasValue)
+                return Forbid();
+
+            model.Medidas = string.IsNullOrWhiteSpace(model.Medidas)
+                ? null
+                : model.Medidas.Trim();
+
+            model.Observaciones = string.IsNullOrWhiteSpace(model.Observaciones)
+                ? null
+                : model.Observaciones.Trim();
+
+            // La base de datos guarda dos decimales.
+            if (model.Peso.HasValue &&
+                decimal.Round(model.Peso.Value, 2) != model.Peso.Value)
+            {
+                ModelState.AddModelError(
+                    nameof(model.Peso),
+                    "El peso puede tener como máximo dos decimales.");
+            }
+
+            if (model.Estatura.HasValue &&
+                decimal.Round(model.Estatura.Value, 2) != model.Estatura.Value)
+            {
+                ModelState.AddModelError(
+                    nameof(model.Estatura),
+                    "La estatura puede tener como máximo dos decimales.");
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    await using var transaccion =
+                        await _context.Database.BeginTransactionAsync(
+                            System.Data.IsolationLevel.Serializable);
+
+                    var clienteValido = await _context.Clientes
+                        .AnyAsync(c =>
+                            c.UsuarioId == model.ClienteId!.Value &&
+                            c.EntrenadorId == entrenadorId.Value &&
+                            c.Usuario.Estado == "ACTIVO" &&
+                            c.Usuario.Rol.Nombre == "CLIENTE");
+
+                    if (!clienteValido)
+                    {
+                        ModelState.AddModelError(
+                            nameof(model.ClienteId),
+                            "Seleccione un cliente activo asignado a usted.");
+                    }
+                    else
+                    {
+                        var tieneInicial = await _context.EvaluacionFisicas
+                            .AnyAsync(e =>
+                                e.ClienteId == model.ClienteId!.Value &&
+                                e.Tipo != null &&
+                                e.Tipo.Trim().ToUpper() == "INICIAL");
+
+                        if (tieneInicial)
+                        {
+                            ModelState.AddModelError(
+                                nameof(model.ClienteId),
+                                "El cliente ya tiene una evaluación inicial registrada.");
+                        }
+                    }
+
+                    if (ModelState.IsValid)
+                    {
+                        var evaluacion = new EvaluacionFisica
+                        {
+                            ClienteId = model.ClienteId!.Value,
+                            EntrenadorId = entrenadorId.Value,
+                            Fecha = DateTime.Now,
+                            Peso = model.Peso,
+                            Estatura = model.Estatura,
+                            Medidas = model.Medidas,
+                            Observaciones = model.Observaciones,
+                            Tipo = "Inicial"
+                        };
+
+                        _context.EvaluacionFisicas.Add(evaluacion);
+
+                        await _context.SaveChangesAsync();
+                        await transaccion.CommitAsync();
+
+                        TempData["MensajeExito"] =
+                            "La evaluación física inicial se registró correctamente.";
+
+                        return RedirectToAction(
+                            nameof(RegistrarEvaluacionInicial));
+                    }
+
+                    await transaccion.RollbackAsync();
+                }
+                catch (Exception ex) when (
+                    ex is DbUpdateException ||
+                    ex is Microsoft.Data.SqlClient.SqlException)
+                {
+                    var logger = HttpContext.RequestServices
+                        .GetRequiredService<
+                            Microsoft.Extensions.Logging.ILogger<
+                                SeguimientoFisicoController>>();
+
+                    logger.LogError(
+                        ex,
+                        "Error al registrar la evaluación inicial del cliente {ClienteId}.",
+                        model.ClienteId);
+
+                    ModelState.AddModelError(
+                        string.Empty,
+                        "No se pudo guardar la evaluación. Intente nuevamente.");
+                }
+            }
+
+            await CargarClientesEvaluacionAsync(model, entrenadorId.Value);
+
+            return View(model);
+        }
+
+        private async Task<int?> ObtenerEntrenadorEvaluacionAsync()
+        {
+            var identificador =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!int.TryParse(identificador, out var usuarioId))
+                return null;
+
+            var entrenadorValido = await _context.Entrenadors
+                .AsNoTracking()
+                .AnyAsync(e =>
+                    e.UsuarioId == usuarioId &&
+                    e.Usuario.Estado == "ACTIVO" &&
+                    e.Usuario.Rol.Nombre == "ENTRENADOR");
+
+            return entrenadorValido ? usuarioId : null;
+        }
+
+        private async Task CargarClientesEvaluacionAsync(
+            RegistrarEvaluacionInicialViewModel model,
+            int entrenadorId)
+        {
+            var clientes = await _context.Clientes
+                .AsNoTracking()
+                .Where(c =>
+                    c.EntrenadorId == entrenadorId &&
+                    c.Usuario.Estado == "ACTIVO" &&
+                    c.Usuario.Rol.Nombre == "CLIENTE")
+                .OrderBy(c => c.Usuario.Nombre)
+                .Select(c => new
+                {
+                    c.UsuarioId,
+                    c.Usuario.Nombre,
+                    c.Usuario.Correo
+                })
+                .ToListAsync();
+
+            model.ClientesDisponibles = clientes
+                .Select(c => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+                {
+                    Value = c.UsuarioId.ToString(),
+                    Text = $"{c.Nombre} ({c.Correo})"
+                })
+                .ToList();
+        }
+
         // GET: SeguimientoFisico/RegistrarEvaluacion/5
         public IActionResult RegistrarEvaluacion(int clienteId)
         {
