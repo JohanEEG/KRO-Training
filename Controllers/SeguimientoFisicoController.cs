@@ -19,37 +19,108 @@ namespace KRO_Training_Performance.Controllers
             _context = context;
         }
 
-        // GET: SeguimientoFisico/ProgresoFisico/5 (HU-19: Consultar progreso físico del cliente)
-        public async Task<IActionResult> ProgresoFisico(int? id) // id del cliente (usuario_id)
+       
+        // HU-50: Consultar historial de evaluaciones físicas
+[HttpGet]
+        [Authorize(Roles = "ENTRENADOR")]
+        public async Task<IActionResult> ProgresoFisico(
+    int? id,
+    [FromQuery] FiltroHistorialEvaluacionesViewModel filtro)
         {
-            // Si entran al módulo desde el menú principal sin un ID de cliente, 
-            // cargamos la lista de clientes utilizando la vista "HistorialEvaluaciones" para evitar redundancias.
-            if (id == null)
+            var entrenadorId = await ObtenerEntrenadorEvaluacionAsync();
+
+            if (!entrenadorId.HasValue)
+                return Forbid();
+
+            // Al entrar desde el menú, mostrar mis clientes activos.
+            if (!id.HasValue)
             {
                 var clientes = await _context.Clientes
+                    .AsNoTracking()
                     .Include(c => c.Usuario)
+                    .Where(c =>
+                        c.EntrenadorId == entrenadorId.Value &&
+                        c.Usuario.Estado == "ACTIVO" &&
+                        c.Usuario.Rol.Nombre == "CLIENTE")
+                    .OrderBy(c => c.Usuario.Nombre)
                     .ToListAsync();
 
                 return View("HistorialEvaluaciones", clientes);
             }
 
+            // Comprobar que el cliente pertenece al entrenador.
             var cliente = await _context.Clientes
+                .AsNoTracking()
                 .Include(c => c.Usuario)
-                .FirstOrDefaultAsync(c => c.UsuarioId == id);
+                .SingleOrDefaultAsync(c =>
+                    c.UsuarioId == id.Value &&
+                    c.EntrenadorId == entrenadorId.Value &&
+                    c.Usuario.Estado == "ACTIVO" &&
+                    c.Usuario.Rol.Nombre == "CLIENTE");
 
-            if (cliente == null) return NotFound();
+            if (cliente == null)
+                return NotFound("El cliente no está disponible para su cuenta.");
 
-            // Obtener el historial de evaluaciones físicas usando el DbSet correcto del contexto
-            var evaluaciones = await _context.EvaluacionFisicas
-                .Where(e => e.ClienteId == id)
+            var consultaGeneral = _context.EvaluacionFisicas
+                .AsNoTracking()
+                .Where(e => e.ClienteId == cliente.UsuarioId);
+
+            // Datos generales: no dependen del filtro de fechas.
+            var totalEvaluaciones = await consultaGeneral.CountAsync();
+
+            var ultimaEvaluacion = await consultaGeneral
                 .OrderByDescending(e => e.Fecha)
+                .ThenByDescending(e => e.EvaluacionId)
+                .FirstOrDefaultAsync();
+
+            var primeraEvaluacion = await consultaGeneral
+                .OrderBy(e => e.Fecha)
+                .ThenBy(e => e.EvaluacionId)
+                .FirstOrDefaultAsync();
+
+            var consultaFiltrada = consultaGeneral;
+
+            if (ModelState.IsValid)
+            {
+                if (filtro.FechaInicio.HasValue)
+                {
+                    var desde = filtro.FechaInicio.Value.Date;
+
+                    consultaFiltrada = consultaFiltrada
+                        .Where(e => e.Fecha >= desde);
+                }
+
+                if (filtro.FechaFin.HasValue)
+                {
+                    var hasta = filtro.FechaFin.Value.Date;
+
+                    // Incluir todas las horas del día final.
+                    // Evitar desbordamiento si se recibe 31/12/9999.
+                    if (hasta < DateTime.MaxValue.Date)
+                    {
+                        var hastaExclusivo = hasta.AddDays(1);
+
+                        consultaFiltrada = consultaFiltrada
+                            .Where(e => e.Fecha < hastaExclusivo);
+                    }
+                }
+            }
+            else
+            {
+                // No mostrar resultados de un filtro inválido.
+                consultaFiltrada = consultaFiltrada.Where(e => false);
+            }
+
+            var evaluaciones = await consultaFiltrada
+                .OrderByDescending(e => e.Fecha)
+                .ThenByDescending(e => e.EvaluacionId)
                 .ToListAsync();
 
-            // Obtener las observaciones registradas por los entrenadores usando el DbSet correcto
             var observaciones = await _context.ObservacionEntrenadors
+                .AsNoTracking()
                 .Include(o => o.Entrenador)
-                .ThenInclude(e => e.Usuario)
-                .Where(o => o.ClienteId == id)
+                    .ThenInclude(e => e.Usuario)
+                .Where(o => o.ClienteId == cliente.UsuarioId)
                 .OrderByDescending(o => o.Fecha)
                 .ToListAsync();
 
@@ -57,7 +128,17 @@ namespace KRO_Training_Performance.Controllers
             ViewBag.Evaluaciones = evaluaciones;
             ViewBag.Observaciones = observaciones;
 
-            // Pasamos la lista de evaluaciones como Modelo para que la vista la reciba correctamente
+            ViewBag.Filtro = filtro;
+            ViewBag.TotalEvaluaciones = totalEvaluaciones;
+            ViewBag.UltimaEvaluacion = ultimaEvaluacion;
+            ViewBag.PrimeraEvaluacion = primeraEvaluacion;
+
+            ViewBag.FiltroInvalido = !ModelState.IsValid;
+
+            ViewBag.HayFiltro =
+                filtro.FechaInicio.HasValue ||
+                filtro.FechaFin.HasValue;
+
             return View(evaluaciones);
         }
 

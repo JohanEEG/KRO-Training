@@ -2,12 +2,27 @@
 
 @{
     ViewData["Title"] = "Progreso Físico";
-    var cliente = ViewBag.Cliente as KROTraining.Models.Cliente;
-    var observaciones = ViewBag.Observaciones as List<KROTraining.Models.ObservacionEntrenador>;
 
-    // Obtener la última evaluación y la inicial para los cálculos rápidos
-    var ultimaEval = Model?.OrderByDescending(e => e.Fecha).FirstOrDefault();
-    var primeraEval = Model?.OrderBy(e => e.Fecha).FirstOrDefault();
+    var cliente = ViewBag.Cliente as KROTraining.Models.Cliente;
+
+    var observaciones = ViewBag.Observaciones
+        as List<KROTraining.Models.ObservacionEntrenador>;
+
+    var ultimaEval = ViewBag.UltimaEvaluacion
+        as KROTraining.Models.EvaluacionFisica;
+
+    var filtro = ViewBag.Filtro
+        as KROTraining.Models.FiltroHistorialEvaluacionesViewModel
+        ?? new KROTraining.Models.FiltroHistorialEvaluacionesViewModel();
+
+    var totalEvaluaciones = (int?)ViewBag.TotalEvaluaciones ?? 0;
+    var filtroInvalido = (bool?)ViewBag.FiltroInvalido ?? false;
+
+    var mensajeSinResultados = filtroInvalido
+        ? "Corrija las fechas para consultar el historial."
+        : totalEvaluaciones == 0
+            ? "No hay evaluaciones físicas registradas para este cliente."
+            : "No hay evaluaciones en el rango de fechas seleccionado.";
 }
 
 <div class="kro-page-title">
@@ -72,7 +87,7 @@
 
     <div class="kro-stat-card">
         <h3>EVALUACIONES</h3>
-        <strong>@(Model?.Count() ?? 0)</strong>
+        <strong>@totalEvaluaciones</strong>
         <p style="margin:8px 0 0;">Registradas</p>
     </div>
 </div>
@@ -94,6 +109,72 @@
         }
     </div>
 
+    @if (cliente != null)
+    {
+        <form asp-controller="SeguimientoFisico"
+              asp-action="ProgresoFisico"
+              method="get"
+              style="margin-bottom:20px;">
+
+            <input type="hidden" name="id" value="@cliente.UsuarioId" />
+
+            <div asp-validation-summary="All"
+                 role="alert"
+                 style="color:#B42318; margin-bottom:12px;">
+            </div>
+
+            <div style="display:flex; gap:16px; flex-wrap:wrap; align-items:flex-end;">
+                <div>
+                    <label for="FechaInicio" class="kro-form-label">
+                        Desde
+                    </label>
+
+                    @Html.TextBox(
+                        "FechaInicio",
+                        filtro.FechaInicio,
+                        "{0:yyyy-MM-dd}",
+                        new
+                        {
+                            type = "date",
+                            @class = "kro-form-control"
+                        })
+                </div>
+
+                <div>
+                    <label for="FechaFin" class="kro-form-label">
+                        Hasta
+                    </label>
+
+                    @Html.TextBox(
+                        "FechaFin",
+                        filtro.FechaFin,
+                        "{0:yyyy-MM-dd}",
+                        new
+                        {
+                            type = "date",
+                            @class = "kro-form-control"
+                        })
+                </div>
+
+                <button type="submit" class="kro-btn kro-btn-primary">
+                    Filtrar
+                </button>
+
+                <a asp-controller="SeguimientoFisico"
+                   asp-action="ProgresoFisico"
+                   asp-route-id="@cliente.UsuarioId"
+                   class="kro-btn kro-btn-outline">
+                    Limpiar
+                </a>
+            </div>
+
+            <p style="margin:12px 0 0; color:#6B7280;">
+                Puede indicar ambas fechas o solamente una.
+                El filtro incluye el día final completo.
+            </p>
+        </form>
+    }
+
     <div class="kro-table-container">
         <table class="kro-table">
             <thead>
@@ -111,7 +192,7 @@
                     <tr>
                         <td colspan="5" class="text-center py-4" style="color: #6B7280;">
                             <i class="bi bi-clipboard-x fs-3 d-block mb-2"></i>
-                            No hay evaluaciones físicas registradas para este cliente.
+                            @mensajeSinResultados
                         </td>
                     </tr>
                 }
