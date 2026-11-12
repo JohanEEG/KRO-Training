@@ -1324,3 +1324,59 @@ BEGIN
     );
 END
 GO
+
+-- Fecha: 12/11/2026
+-- Sprint: 3
+-- HU-17: Registrar medidas corporales (Cliente)
+-- Crea la tabla MEDIDA_CORPORAL para guardar peso, estatura,
+-- cintura, cadera y brazo del cliente, junto con la fecha del registro.
+
+USE [KRO_Training];
+GO
+
+IF OBJECT_ID(N'dbo.MEDIDA_CORPORAL', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.MEDIDA_CORPORAL
+    (
+        medida_id INT IDENTITY(1,1) NOT NULL,
+        cliente_id INT NOT NULL,
+        fecha DATETIME2 NOT NULL,
+        peso DECIMAL(5,2) NOT NULL,
+        estatura DECIMAL(3,2) NOT NULL,
+        cintura DECIMAL(5,2) NULL,
+        cadera DECIMAL(5,2) NULL,
+        brazo DECIMAL(5,2) NULL,
+
+        CONSTRAINT PK_MEDIDA_CORPORAL
+            PRIMARY KEY (medida_id),
+
+        CONSTRAINT FK_MEDIDA_CORPORAL_CLIENTE
+            FOREIGN KEY (cliente_id)
+            REFERENCES dbo.CLIENTE(usuario_id),
+
+        CONSTRAINT CK_MEDIDA_CORPORAL_PESO
+            CHECK (peso BETWEEN 1 AND 700),
+
+        CONSTRAINT CK_MEDIDA_CORPORAL_ESTATURA
+            CHECK (estatura BETWEEN 0.30 AND 3.00),
+
+        CONSTRAINT CK_MEDIDA_CORPORAL_CINTURA
+            CHECK (cintura IS NULL OR cintura BETWEEN 1 AND 300),
+
+        CONSTRAINT CK_MEDIDA_CORPORAL_CADERA
+            CHECK (cadera IS NULL OR cadera BETWEEN 1 AND 300),
+
+        CONSTRAINT CK_MEDIDA_CORPORAL_BRAZO
+            CHECK (brazo IS NULL OR brazo BETWEEN 1 AND 150)
+    );
+
+    CREATE INDEX IX_MEDIDA_CORPORAL_CLIENTE_FECHA
+        ON dbo.MEDIDA_CORPORAL (cliente_id, fecha);
+
+    PRINT N'Tabla MEDIDA_CORPORAL creada correctamente.';
+END
+ELSE
+BEGIN
+    PRINT N'La tabla MEDIDA_CORPORAL ya existe. No se realizaron cambios.';
+END;
+GO

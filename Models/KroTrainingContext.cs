@@ -27,6 +27,8 @@ public partial class KroTrainingContext : DbContext
 
     public virtual DbSet<Cliente> Clientes { get; set; }
 
+    public virtual DbSet<MedidaCorporal> MedidasCorporales { get; set; }
+
     public virtual DbSet<Ejercicio> Ejercicios { get; set; }
 
     public virtual DbSet<Empleado> Empleados { get; set; }

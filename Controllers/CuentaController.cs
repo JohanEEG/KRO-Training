@@ -140,7 +140,10 @@ namespace KROTraining.Controllers
             }
 
             // Una cuenta dada de baja o bloqueada no puede iniciar sesión.
-            if (usuario.Estado != "ACTIVO")
+            if (!string.Equals(
+    usuario.Estado?.Trim(),
+    "ACTIVO",
+    StringComparison.OrdinalIgnoreCase))
             {
                 ModelState.AddModelError(
                     string.Empty,
