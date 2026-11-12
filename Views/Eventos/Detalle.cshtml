@@ -1,0 +1,94 @@
+@model KROTraining.Models.EventoDetalleViewModel
+
+@{
+    ViewData["Title"] = "Detalle del evento";
+}
+
+<h1 class="kro-page-title">@Model.Nombre</h1>
+<p class="kro-page-subtitle">Información de la competencia o evento deportivo.</p>
+
+@if (TempData["MensajeExito"] is string mensajeExito)
+{
+    <div role="status" class="kro-profile-alert kro-profile-success">
+        <span class="kro-alert-icon" aria-hidden="true">✓</span>
+        <span>@mensajeExito</span>
+    </div>
+}
+
+@if (TempData["MensajeError"] is string mensajeError)
+{
+    <div role="alert" class="kro-profile-alert kro-profile-error">
+        <span class="kro-alert-icon" aria-hidden="true">!</span>
+        <span>@mensajeError</span>
+    </div>
+}
+
+<div class="kro-card">
+    <div class="kro-card-title">Información del evento</div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Descripcion))
+    {
+        <p>@Model.Descripcion</p>
+    }
+
+    <dl class="kro-form-grid">
+        <div class="kro-form-group">
+            <dt class="kro-form-label">Fecha y hora</dt>
+            <dd>@Model.Fecha.ToString("dd/MM/yyyy HH:mm")</dd>
+        </div>
+        <div class="kro-form-group">
+            <dt class="kro-form-label">Estado</dt>
+            <dd>@Model.Estado</dd>
+        </div>
+        <div class="kro-form-group">
+            <dt class="kro-form-label">Inscritos</dt>
+            <dd>@Model.Inscritos / @Model.CupoMaximo</dd>
+        </div>
+        <div class="kro-form-group">
+            <dt class="kro-form-label">Cupos disponibles</dt>
+            <dd>@Model.CuposDisponibles</dd>
+        </div>
+    </dl>
+
+    <div class="kro-actions">
+        @if (Model.PuedeInscribirse)
+        {
+            <form asp-controller="Eventos" asp-action="Inscribir" asp-route-id="@Model.EventoId" method="post">
+                <button type="submit" class="kro-btn kro-btn-primary">Inscribirme</button>
+                @Html.AntiForgeryToken()
+            </form>
+        }
+        else if (Model.EsCliente && Model.YaInscrito)
+        {
+            <span class="kro-badge kro-badge-green">Ya está inscrito</span>
+            <form asp-controller="Eventos" asp-action="CancelarInscripcion" method="post">
+                <input type="hidden" name="eventoId" value="@Model.EventoId" />
+                <button type="submit" class="kro-btn kro-btn-alert-outline">Cancelar inscripción</button>
+                @Html.AntiForgeryToken()
+            </form>
+        }
+        else if (Model.EsCliente)
+        {
+            <span class="kro-badge kro-badge-gray">El evento no está disponible para inscripción</span>
+        }
+
+        @if (Model.PuedeGestionar)
+        {
+            <a asp-controller="Eventos" asp-action="Editar" asp-route-id="@Model.EventoId" class="kro-btn kro-btn-outline">Editar</a>
+            @if (Model.Estado != EstadosEvento.Cancelado)
+            {
+                <form asp-controller="Eventos" asp-action="Cancelar" asp-route-id="@Model.EventoId" method="post">
+                    <button type="submit" class="kro-btn kro-btn-alert-outline">Cancelar evento</button>
+                    @Html.AntiForgeryToken()
+                </form>
+            }
+        }
+
+        @if (Model.PuedeGestionarInscripciones)
+        {
+            <a asp-controller="Eventos" asp-action="Inscripciones" asp-route-id="@Model.EventoId" class="kro-btn kro-btn-outline">Gestionar inscripciones</a>
+        }
+
+        <a asp-controller="Eventos" asp-action="Index" class="kro-btn kro-btn-outline">Volver</a>
+    </div>
+</div>

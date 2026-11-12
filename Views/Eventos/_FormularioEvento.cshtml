@@ -11,6 +11,11 @@
       method="post"
       class="kro-card">
 
+    @if (Model.EventoId.HasValue)
+    {
+        <input asp-for="EventoId" type="hidden" />
+    }
+
     <div asp-validation-summary="ModelOnly" role="alert" style="color:#B71C1C; margin-bottom:20px;"></div>
 
     <p>Los campos marcados con * son obligatorios.</p>

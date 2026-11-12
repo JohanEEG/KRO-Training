@@ -1242,7 +1242,7 @@ GO
 //
 
 
-/* ============================================================
+/* ===================== SPRINT 3 =======================================
    KRÒ Training - Rol EMPLEADO y horario del personal
    Ejecutar una sola vez sobre la base KRO_Training.
    Los usuarios se crean desde la página (Gestión de personal).

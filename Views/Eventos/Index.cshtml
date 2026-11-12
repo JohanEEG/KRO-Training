@@ -3,7 +3,16 @@
 @{
     ViewData["Title"] = "Eventos deportivos";
     bool puedeGestionar = ViewBag.PuedeGestionar is bool b && b;
+    bool puedeGestionarInscripciones = ViewBag.PuedeGestionarInscripciones is bool inscripciones && inscripciones;
     var errorCarga = ViewBag.ErrorCarga as string;
+}
+
+@if (TempData["MensajeError"] is string mensajeError)
+{
+    <div role="alert" class="kro-profile-alert kro-profile-error">
+        <span class="kro-alert-icon" aria-hidden="true">!</span>
+        <span>@mensajeError</span>
+    </div>
 }
 
 <h1 class="kro-page-title">Eventos deportivos</h1>
@@ -11,7 +20,9 @@
 <p class="kro-page-subtitle">
     @(puedeGestionar
         ? "Cree y administre los eventos deportivos de KRÒ Training."
-        : "Consulte los eventos deportivos programados en KRÒ Training.")
+        : puedeGestionarInscripciones
+            ? "Consulte los eventos y gestione sus inscripciones."
+            : "Consulte los eventos deportivos programados en KRÒ Training.")
 </p>
 
 @if (TempData["MensajeExito"] is string mensajeExito)
@@ -54,10 +65,7 @@
                         <th scope="col">Fecha</th>
                         <th scope="col">Cupos</th>
                         <th scope="col">Estado</th>
-                        @if (puedeGestionar)
-                        {
-                            <th scope="col">Acciones</th>
-                        }
+                        <th scope="col">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -66,6 +74,10 @@
                         <tr>
                             <td>
                                 <strong>@e.Nombre</strong>
+                                @if (e.EstaInscrito)
+                                {
+                                    <br /><span class="kro-badge kro-badge-green">Inscrito</span>
+                                }
                                 @if (!string.IsNullOrWhiteSpace(e.Descripcion))
                                 {
                                     <br /><small>@e.Descripcion</small>
@@ -86,9 +98,32 @@
                             @if (puedeGestionar)
                             {
                                 <td>
+                                    <a asp-controller="Eventos" asp-action="Detalle" asp-route-id="@e.EventoId"
+                                       class="kro-btn kro-btn-small kro-btn-outline">Ver</a>
                                     <a asp-controller="Eventos" asp-action="Editar" asp-route-id="@e.EventoId"
                                        class="kro-btn kro-btn-small kro-btn-outline"
                                        aria-label="@($"Editar {e.Nombre}")">Editar</a>
+                                    @if (puedeGestionarInscripciones)
+                                    {
+                                        <a asp-controller="Eventos" asp-action="Inscripciones" asp-route-id="@e.EventoId"
+                                           class="kro-btn kro-btn-small kro-btn-outline">Inscripciones</a>
+                                    }
+                                </td>
+                            }
+                            else if (puedeGestionarInscripciones)
+                            {
+                                <td>
+                                    <a asp-controller="Eventos" asp-action="Detalle" asp-route-id="@e.EventoId"
+                                       class="kro-btn kro-btn-small kro-btn-outline">Ver detalle</a>
+                                    <a asp-controller="Eventos" asp-action="Inscripciones" asp-route-id="@e.EventoId"
+                                       class="kro-btn kro-btn-small kro-btn-outline">Inscripciones</a>
+                                </td>
+                            }
+                            else
+                            {
+                                <td>
+                                    <a asp-controller="Eventos" asp-action="Detalle" asp-route-id="@e.EventoId"
+                                       class="kro-btn kro-btn-small kro-btn-outline">Ver detalle</a>
                                 </td>
                             }
                         </tr>
