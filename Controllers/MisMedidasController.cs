@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Linq;
+using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using KROTraining.Models;
@@ -89,6 +90,39 @@ namespace KROTraining.Controllers
 
                 return View(model);
             }
+        }
+
+        // HU-18: Consultar la evolución de las medidas del cliente.
+        [HttpGet]
+        public async Task<IActionResult> Evolucion()
+        {
+            var clienteId = await ObtenerClienteActivoAsync();
+
+            if (!clienteId.HasValue)
+                return Forbid();
+
+            var registros = await _context.MedidasCorporales
+                .AsNoTracking()
+                .Where(m => m.ClienteId == clienteId.Value)
+                .OrderBy(m => m.Fecha)
+                .ThenBy(m => m.MedidaId)
+                .Select(m => new PuntoEvolucionMedidasViewModel
+                {
+                    Fecha = m.Fecha,
+                    Peso = m.Peso,
+                    Estatura = m.Estatura,
+                    Cintura = m.Cintura,
+                    Cadera = m.Cadera,
+                    Brazo = m.Brazo
+                })
+                .ToListAsync();
+
+            var model = new EvolucionMedidasViewModel
+            {
+                Registros = registros
+            };
+
+            return View(model);
         }
 
         private async Task<int?> ObtenerClienteActivoAsync()

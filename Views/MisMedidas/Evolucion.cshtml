@@ -1,0 +1,265 @@
+﻿@model KROTraining.Models.EvolucionMedidasViewModel
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = "Mi evolución";
+}
+
+<div class="kro-page-title">Mi evolución</div>
+
+<p class="kro-page-subtitle">
+    Consulte cómo cambian su peso y sus medidas corporales.
+</p>
+
+<a asp-controller="MisMedidas"
+   asp-action="Registrar"
+   class="kro-btn kro-btn-primary"
+   style="margin-bottom:20px;">
+    Registrar medidas
+</a>
+
+<div class="kro-card">
+    @if (Model.Registros.Count == 0)
+    {
+        <p role="status">
+            Todavía no tiene medidas registradas.
+            Registre sus primeras medidas para comenzar.
+        </p>
+    }
+    else
+    {
+        <label for="medidaSeleccionada" class="kro-form-label">
+            Medida que desea consultar
+        </label>
+
+        <select id="medidaSeleccionada"
+                class="kro-form-control"
+                style="max-width:320px;">
+            <option value="Peso">Peso (kg)</option>
+            <option value="Estatura">Estatura (m)</option>
+            <option value="Cintura">Cintura (cm)</option>
+            <option value="Cadera">Cadera (cm)</option>
+            <option value="Brazo">Brazo (cm)</option>
+        </select>
+
+        <p id="estadoGrafico"
+           role="status"
+           aria-live="polite"
+           style="margin-top:16px;"></p>
+
+        <div id="contenedorGrafico" hidden>
+            <svg id="graficoEvolucion"
+                 viewBox="0 0 900 360"
+                 role="img"
+                 aria-label="Gráfico de evolución"
+                 style="display:block; width:100%; height:auto;">
+            </svg>
+
+            <p style="color:#6B7280;">
+                Eje horizontal: fecha del registro.
+                Los valores también se muestran en la tabla.
+                Las medidas no registradas se omiten.
+            </p>
+        </div>
+
+        <div class="kro-table-container">
+            <table class="kro-table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th id="tituloValor">Valor</th>
+                    </tr>
+                </thead>
+                <tbody id="filasMedidas"></tbody>
+            </table>
+        </div>
+
+        <noscript>
+            Active JavaScript para visualizar el gráfico y los valores.
+        </noscript>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const selector = document.getElementById("medidaSeleccionada");
+            if (!selector) return;
+
+            const registros = @Html.Raw(JsonSerializer.Serialize(Model.Registros));
+
+            const unidades = {
+                Peso: "kg",
+                Estatura: "m",
+                Cintura: "cm",
+                Cadera: "cm",
+                Brazo: "cm"
+            };
+
+            const svg = document.getElementById("graficoEvolucion");
+            const contenedor = document.getElementById("contenedorGrafico");
+            const estado = document.getElementById("estadoGrafico");
+            const filas = document.getElementById("filasMedidas");
+
+            const numero = new Intl.NumberFormat("es-CR", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
+            const fechaCompleta = valor =>
+                new Date(valor).toLocaleString("es-CR");
+
+            function elemento(nombre, atributos, texto) {
+                const nodo = document.createElementNS(
+                    "http://www.w3.org/2000/svg", nombre);
+
+                Object.entries(atributos).forEach(([clave, valor]) =>
+                    nodo.setAttribute(clave, valor));
+
+                if (texto !== undefined) nodo.textContent = texto;
+                svg.appendChild(nodo);
+                return nodo;
+            }
+
+            function dibujar() {
+                const campo = selector.value;
+                const unidad = unidades[campo];
+
+                const puntos = registros
+                    .filter(r => r[campo] !== null &&
+                        r[campo] !== undefined)
+                    .map(r => ({
+                        fecha: r.Fecha,
+                        tiempo: new Date(r.Fecha).getTime(),
+                        valor: Number(r[campo])
+                    }));
+
+                svg.replaceChildren();
+                filas.replaceChildren();
+                contenedor.hidden = true;
+
+                document.getElementById("tituloValor").textContent =
+                    `${campo} (${unidad})`;
+
+                puntos.forEach(p => {
+                    const fila = document.createElement("tr");
+                    const fecha = document.createElement("td");
+                    const valor = document.createElement("td");
+
+                    fecha.textContent = fechaCompleta(p.fecha);
+                    valor.textContent = `${numero.format(p.valor)} ${unidad}`;
+
+                    fila.append(fecha, valor);
+                    filas.appendChild(fila);
+                });
+
+                if (puntos.length === 0) {
+                    estado.textContent =
+                        "No tiene valores registrados para esta medida.";
+                    return;
+                }
+
+                if (puntos.length === 1) {
+                    estado.textContent =
+                        "Información insuficiente: tiene un solo valor. " +
+                        "Registre esta medida nuevamente para comparar su evolución.";
+                    return;
+                }
+
+                estado.textContent =
+                    `Evolución de ${campo.toLowerCase()}: ` +
+                    `${puntos.length} valores registrados.`;
+
+                contenedor.hidden = false;
+                svg.setAttribute("aria-label",
+                    `Evolución de ${campo.toLowerCase()} en ${unidad}. ` +
+                    "Consulte los valores exactos en la tabla.");
+
+                const izquierda = 85;
+                const derecha = 865;
+                const arriba = 25;
+                const abajo = 290;
+
+                let minimo = Infinity;
+                let maximo = -Infinity;
+
+                puntos.forEach(p => {
+                    minimo = Math.min(minimo, p.valor);
+                    maximo = Math.max(maximo, p.valor);
+                });
+
+                const margen = Math.max((maximo - minimo) * 0.15, 0.1);
+                minimo = Math.max(0, minimo - margen);
+                maximo += margen;
+
+                const inicio = puntos[0].tiempo;
+                const fin = puntos[puntos.length - 1].tiempo;
+
+                const x = p => fin === inicio
+                    ? (izquierda + derecha) / 2
+                    : izquierda + (p.tiempo - inicio) /
+                    (fin - inicio) * (derecha - izquierda);
+
+                const y = p => abajo - (p.valor - minimo) /
+                    (maximo - minimo) * (abajo - arriba);
+
+                for (let i = 0; i <= 4; i++) {
+                    const posicion = abajo - i * (abajo - arriba) / 4;
+                    const valor = minimo + i * (maximo - minimo) / 4;
+
+                    elemento("line", {
+                        x1: izquierda, x2: derecha,
+                        y1: posicion, y2: posicion,
+                        stroke: "#E5E7EB"
+                    });
+
+                    elemento("text", {
+                        x: izquierda - 10,
+                        y: posicion + 5,
+                        "text-anchor": "end",
+                        "font-size": 14,
+                        fill: "#4B5563"
+                    }, numero.format(valor));
+                }
+
+                elemento("polyline", {
+                    points: puntos.map(p => `${x(p)},${y(p)}`).join(" "),
+                    fill: "none",
+                    stroke: "#2563EB",
+                    "stroke-width": 3
+                });
+
+                puntos.forEach(p => {
+                    const circulo = elemento("circle", {
+                        cx: x(p), cy: y(p), r: 5,
+                        fill: "#2563EB"
+                    });
+
+                    const titulo = document.createElementNS(
+                        "http://www.w3.org/2000/svg", "title");
+
+                    titulo.textContent =
+                        `${fechaCompleta(p.fecha)}: ` +
+                        `${numero.format(p.valor)} ${unidad}`;
+
+                    circulo.appendChild(titulo);
+                });
+
+                elemento("text", {
+                    x: izquierda, y: 325,
+                    "text-anchor": "start",
+                    "font-size": 14
+                }, fechaCompleta(puntos[0].fecha));
+
+                elemento("text", {
+                    x: derecha, y: 350,
+                    "text-anchor": "end",
+                    "font-size": 14
+                }, fechaCompleta(puntos[puntos.length - 1].fecha));
+            }
+
+            selector.addEventListener("change", dibujar);
+            dibujar();
+        })();
+    </script>
+}
